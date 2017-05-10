@@ -3,5 +3,5 @@ project(HeckaDBMS)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp db/DBMS.cpp db/DBMS.h)
 add_executable(HeckaDBMS ${SOURCE_FILES})
