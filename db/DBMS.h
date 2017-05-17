@@ -6,6 +6,8 @@
 #include <sstream>
 #include <fstream>
 
+using namespace std;
+
 class DBMS
 {
 public:
@@ -16,6 +18,14 @@ public:
     // Destructor
     ~DBMS();
 
+    // Facilitates performing a read on the specified data item
+    void Get();
+
+    // Facilitates performing a write on the specified data item
+    void Put();
+
+private:
+
     // Generate a database key-value set with keys 0 - size-1 and random values 0 - 100
     void GenerateDataSet(int dbSize);
 
@@ -25,15 +35,8 @@ public:
     // Save a data set from memory to disk
     void SaveDataSet();
 
-    // Facilitates performing a read on the specified data item
-    void Get();
-
-    // Facilitates performing a write on the specified data item
-    void Put();
-
-private:
-    std::unordered_map<int, int> _db;
-    std::string _dbFilename;
+    unordered_map<int, int> _db;
+    string _dbFilename;
 
 };
 

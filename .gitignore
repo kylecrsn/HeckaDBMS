@@ -41,6 +41,8 @@
 
 # CMake
 cmake-build-debug/
+cmake/
+build/
 
 # Misc
 *.dSYM/

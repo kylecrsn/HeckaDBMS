@@ -7,6 +7,7 @@
 
 #include "DBMS.h"
 
+using namespace std;
 
 DBMS::DBMS()
 {
@@ -86,7 +87,8 @@ void DBMS::SaveDataSet()
     fileStream.close();
 }
 
-void DBMS::Get() {
+void DBMS::Get()
+{
 
 }
 
