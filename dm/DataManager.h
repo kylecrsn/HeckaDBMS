@@ -1,22 +1,28 @@
-#ifndef HECKADBMS_DBMS_H
-#define HECKADBMS_DBMS_H
+#ifndef HECKADBMS_DataManager_H
+#define HECKADBMS_DataManager_H
 
+#include <string>
 #include <unordered_map>
+#include <random>
 #include <iostream>
 #include <sstream>
 #include <fstream>
 
+#include "Record.h"
+
 using namespace std;
 
-class DBMS
+class DataManager
 {
 public:
-
     // Default constructor
-    DBMS();
+    DataManager();
+
+    // Constructor with database filename as a parameter
+    DataManager(std::string);
 
     // Destructor
-    ~DBMS();
+    ~DataManager();
 
     // Facilitates performing a read on the specified data item
     void Get();
@@ -25,7 +31,6 @@ public:
     void Put();
 
 private:
-
     // Generate a database key-value set with keys 0 - size-1 and random values 0 - 100
     void GenerateDataSet(int dbSize);
 
@@ -37,7 +42,6 @@ private:
 
     unordered_map<int, int> _db;
     string _dbFilename;
-
 };
 
 #endif
