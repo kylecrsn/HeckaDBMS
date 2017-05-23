@@ -1,12 +1,12 @@
-#include "Manual.h"
+#include "ManualTest.h"
 
 using namespace std;
 
-Manual::Manual() {
+ManualTest::ManualTest() {
     _state = ENTER;
 }
 
-void Manual::FSM(int dbSize) {
+void ManualTest::FSM(int dbSize) {
     string prompt;
     stringstream ss;
     vector<string> options;
@@ -49,8 +49,8 @@ void Manual::FSM(int dbSize) {
                 prompt = "Do you want to specify each data object to perform each transaction on, or randomly select them "
                         "from the database?";
                 options = vector<string> {
-                        "Specify each data object",
-                        "Choose them randomly for me"
+                    "Specify each data object",
+                    "Choose them randomly for me"
                 };
                 responseValue = Utility::PromptUser(prompt, options);
 
@@ -137,8 +137,8 @@ void Manual::FSM(int dbSize) {
             case END_TRANSACTION: {
                 prompt = "What would you like to do next?";
                 options = vector<string> {
-                        "Specify another manual transaction",
-                        "Return to the main menu"
+                    "Specify another manual transaction",
+                    "Return to the main menu"
                 };
 
                 cout << "The transaction(s) have completed with the following metric information:" << endl;

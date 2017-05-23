@@ -1,5 +1,5 @@
-#ifndef HECKADBMS_MANUAL_H
-#define HECKADBMS_MANUAL_H
+#ifndef HECKADBMS_MANUALTEST_H
+#define HECKADBMS_MANUALTEST_H
 
 #include <string>
 #include <unordered_map>
@@ -12,16 +12,16 @@
 
 using namespace std;
 
-class Manual {
+class ManualTest {
 public:
     // Default constructor
-    Manual();
+    ManualTest();
 
     // Finite state machine for processing user input
     void FSM(int dbSize);
 
     // State definition for a manual testflow
-    enum ClientState {
+    enum ManualState {
         ENTER,
         RO_TRANSACTIONS,
         RW_TRANSACTIONS,
@@ -33,7 +33,7 @@ public:
         EXIT };
 
 private:
-    ClientState _state;
+    ManualState _state;
 };
 
 #endif

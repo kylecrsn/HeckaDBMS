@@ -1,5 +1,5 @@
-#ifndef HECKADBMS_DataManager_H
-#define HECKADBMS_DataManager_H
+#ifndef HECKADBMS_DATAMANAGER_H
+#define HECKADBMS_DATAMANAGER_H
 
 #include <string>
 #include <unordered_map>

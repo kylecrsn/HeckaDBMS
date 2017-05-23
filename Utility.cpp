@@ -2,7 +2,7 @@
 
 using namespace std;
 
-static void Utility::ParseArgs(int argc, char* argv[], string* protocolType, string* testMetric) {
+void Utility::ParseArgs(int argc, char* argv[], string* protocolType, string* testMetric) {
     int optIndex;
     int c;
     opterr = 0;
@@ -71,7 +71,7 @@ static void Utility::ParseArgs(int argc, char* argv[], string* protocolType, str
     }
 }
 
-static int Utility::PromptUser(string prompt, int min, int max) {
+int Utility::PromptUser(string prompt, int min, int max) {
     string response;
     int responseValue;
 
@@ -95,14 +95,14 @@ static int Utility::PromptUser(string prompt, int min, int max) {
     return responseValue;
 }
 
-static int Utility::PromptUser(string prompt, const vector<string>& options) {
+int Utility::PromptUser(string prompt, const vector<string>& options) {
     string response;
     int responseValue;
 
     PROMPT:
     cout << prompt << endl;
     for (vector<string>::const_iterator it = options.begin(); it != options.end(); it++) {
-        cout << "[" << it - options.begin() << "] " << *it << endl;
+        cout << "[" << it - options.begin() + 1 << "] " << *it << endl;
     }
     cout << endl;
     getline(cin, response);
