@@ -1,6 +1,5 @@
 #include "Timestamp.h"
 
-
 Timestamp::Timestamp()
 {
     _counter = 0;
@@ -14,6 +13,3 @@ Timestamp::Timestamp(int counter, int transactionId, bool isCounter)
     _transactionId = transactionId;
     _isCounter = isCounter;
 }
-
-Timestamp::~Timestamp()
-{ }

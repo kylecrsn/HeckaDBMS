@@ -14,14 +14,14 @@ DataManager::DataManager(std::string dbFilename) {
 void DataManager::GenerateDataSet(int dbSize)
 {
     // Setup random number generator
-    mt19937 rng;
-    rng.seed(random_device()());
-    uniform_int_distribution<mt19937::result_type> values(0,100);
+    mt19937 gen;
+    gen.seed(random_device()());
+    uniform_int_distribution<> distribution(0,100);
 
     // Populate database object
     for(int i = 0; i < dbSize; i++)
     {
-        _db.emplace(i, values(rng));
+        _db.emplace(i, distribution(gen));
     }
 }
 

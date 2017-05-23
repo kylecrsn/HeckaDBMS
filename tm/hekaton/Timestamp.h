@@ -8,10 +8,7 @@ public:
     Timestamp();
 
     // Constructor with values for the counter, transaction ID, and which timestamp type it is as parameters
-    Timestamp(int, int, bool);
-
-    // Destructor
-    ~Timestamp();
+    Timestamp(int counter, int transactionId, bool isCounter);
 
 private:
     int _counter;

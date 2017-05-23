@@ -21,9 +21,6 @@ public:
     // Constructor with database filename as a parameter
     DataManager(std::string);
 
-    // Destructor
-    ~DataManager();
-
     // Facilitates performing a read on the specified data item
     void Get();
 
