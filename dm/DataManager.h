@@ -21,6 +21,21 @@ public:
     // Constructor with database filename as a parameter
     DataManager(std::string);
 
+    // Generate a database key-value set with keys 0 - size-1 and random values 0 - 100
+    void GenerateDataSet(int dbSize);
+
+    // Load the key-values pairs from file back into the dm object's memory
+    void LoadDataSet();
+
+    // Save the key-values pairs in the current dm object to a specified file in .csv format
+    void SaveDataSet();
+
+    // Clear the current contents of the database
+    void ClearDataSet();
+
+    // Print the database contents to console, intended for debugging purposes, limited to DB's <= 100 entries
+    void PrintDataSet();
+
     // Facilitates performing a read on the specified data item
     void Get();
 
@@ -28,15 +43,6 @@ public:
     void Put();
 
 private:
-    // Generate a database key-value set with keys 0 - size-1 and random values 0 - 100
-    void GenerateDataSet(int dbSize);
-
-    // Load a data set from disk into memory
-    void LoadDataSet();
-
-    // Save a data set from memory to disk
-    void SaveDataSet();
-
     unordered_map<int, int> _db;
     string _dbFilename;
 };

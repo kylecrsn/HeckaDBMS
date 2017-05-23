@@ -28,7 +28,7 @@ public:
         ENTER,
         MAIN_MENU,
         TEST_METRIC,
-        EXIT };
+        EXIT};
 
 private:
     ClientState _state;

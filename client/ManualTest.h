@@ -30,7 +30,7 @@ public:
         DATA_SPECIFY,
         BEGIN_TRANSACTION,
         END_TRANSACTION,
-        EXIT };
+        EXIT};
 
 private:
     ManualState _state;
