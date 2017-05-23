@@ -14,11 +14,7 @@ int main(int argc, char *argv[])
     // Parse command-line arguments
     Utility::ParseArgs(argc, argv, &protocolType, &testMetric);
 
-    // Check options
-    cout << "options:" << endl << endl;
-    cout << "protocol_type: " << protocolType << endl;
-    cout << "test_metric: " << testMetric << endl;
-
+    // Launch client
     client.FSM();
 
     exit(0);

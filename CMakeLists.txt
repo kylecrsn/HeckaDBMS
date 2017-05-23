@@ -10,25 +10,25 @@ set(DIR_2PL "tm/2pl")
 set(DIR_HEKATON "tm/hekaton")
 set(DIR_DM "dm")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++0x -Wall -pthread")
 
 INCLUDE_DIRECTORIES(
-        ${DIR_ROOT}
-        ${DIR_CLIENT}
-        ${DIR_TM}
-        ${DIR_2PL}
-        ${DIR_HEKATON}
-        ${DIR_DM})
+    ${DIR_ROOT}
+    ${DIR_CLIENT}
+    ${DIR_TM}
+    ${DIR_2PL}
+    ${DIR_HEKATON}
+    ${DIR_DM})
 
 set(SOURCE_FILES
-        Main.cpp
-        Utility.cpp Utility.h
-        ${DIR_CLIENT}/ManualTest.cpp ${DIR_CLIENT}/ManualTest.h
-        ${DIR_CLIENT}/ScaleTest.cpp ${DIR_CLIENT}/ScaleTest.h
-        ${DIR_CLIENT}/VaryTest.cpp ${DIR_CLIENT}/VaryTest.h
-        ${DIR_CLIENT}/Client.cpp ${DIR_CLIENT}/Client.h
-        ${DIR_DM}/DataManager.cpp ${DIR_DM}/DataManager.h
-        ${DIR_HEKATON}/Record.cpp ${DIR_HEKATON}/Record.h
-        ${DIR_HEKATON}/Timestamp.cpp ${DIR_HEKATON}/Timestamp.h)
+    Main.cpp
+    Utility.cpp Utility.h
+    ${DIR_CLIENT}/ManualTest.cpp ${DIR_CLIENT}/ManualTest.h
+    ${DIR_CLIENT}/ScaleTest.cpp ${DIR_CLIENT}/ScaleTest.h
+    ${DIR_CLIENT}/VaryTest.cpp ${DIR_CLIENT}/VaryTest.h
+    ${DIR_CLIENT}/Client.cpp ${DIR_CLIENT}/Client.h
+    ${DIR_DM}/DataManager.cpp ${DIR_DM}/DataManager.h
+    ${DIR_HEKATON}/Record.cpp ${DIR_HEKATON}/Record.h
+    ${DIR_HEKATON}/Timestamp.cpp ${DIR_HEKATON}/Timestamp.h)
 
 add_executable(HeckaDBMS ${SOURCE_FILES})

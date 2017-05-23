@@ -52,8 +52,7 @@ void Utility::ParseArgs(int argc, char* argv[], string* protocolType, string* te
     }
     transform((*protocolType).begin(), (*protocolType).end(), (*protocolType).begin(), ::tolower);
     if(*protocolType != "2pl" && *protocolType != "hekaton") {
-        cout << "Error: invalid protocol_type parameter: " << protocolType << endl;
-        cout << usage << endl;
+        cout << "Error: invalid protocol_type parameter: " << protocolType << "\n" << usage << endl;
         exit(1);
     }
 
@@ -64,8 +63,7 @@ void Utility::ParseArgs(int argc, char* argv[], string* protocolType, string* te
         transform((*testMetric).begin(), (*testMetric).end(), (*testMetric).begin(), ::tolower);
         if(*testMetric != "manual" && *testMetric != "scale" && *testMetric != "vary")
         {
-            cout << "Error: invalid protocol_type parameter: " << testMetric << endl;
-            cout << usage << endl;
+            cout << "Error: invalid protocol_type parameter: " << testMetric << "\n" << usage << endl;
             exit(1);
         }
     }
@@ -76,7 +74,7 @@ int Utility::PromptUser(string prompt, int min, int max) {
     int responseValue;
 
     PROMPT:
-    cout << prompt << " [" << min << ", " << max << "]"  << endl;
+    cout << prompt << " [" << min << ", " << max << "]\n\n> " << flush;
     getline(cin, response);
     cout << endl;
 
@@ -102,9 +100,9 @@ int Utility::PromptUser(string prompt, const vector<string>& options) {
     PROMPT:
     cout << prompt << endl;
     for (vector<string>::const_iterator it = options.begin(); it != options.end(); it++) {
-        cout << "[" << it - options.begin() + 1 << "] " << *it << endl;
+        cout << "[" << it - options.begin() + 1 << "] " << *it << "\n";
     }
-    cout << endl;
+    cout << "\n> " << flush;
     getline(cin, response);
     cout << endl;
 

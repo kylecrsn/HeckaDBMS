@@ -56,7 +56,8 @@ void Client::FSM() {
 
                 if(responseValue == 1) {
                     manualTest = ManualTest();
-                    manualTest.FSM(2);
+                    //TODO: pass in actual dbsize
+                    manualTest.FSM(1000000);
                 }
                 else if(responseValue == 2) {
                     scaleTest = ScaleTest();

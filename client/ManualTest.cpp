@@ -35,7 +35,13 @@ void ManualTest::FSM(int dbSize) {
                 prompt = "How many Read-Write transactions do you want to perform?";
                 readWriteCount = Utility::PromptUser(prompt, 0, 100);
 
-                _state = THREAD_COUNT;
+                if(readOnlyCount + readWriteCount == 0) {
+                    cout << "The total number of transactions specified was 0, returning to the main menu\n" << endl;
+                    _state = EXIT;
+                }
+                else {
+                    _state = THREAD_COUNT;
+                }
                 break;
             }
             case THREAD_COUNT: {
@@ -49,15 +55,15 @@ void ManualTest::FSM(int dbSize) {
                 prompt = "Do you want to specify each data object to perform each transaction on, or randomly select them "
                         "from the database?";
                 options = vector<string> {
-                    "Specify each data object",
-                    "Choose them randomly for me"
+                    "Randomly select them from the database",
+                    "Specify each data object (NOTE: if there are lots of transactions this may be tedious)"
                 };
                 responseValue = Utility::PromptUser(prompt, options);
 
                 if (responseValue == 1) {
-                    specifyDataObjects = true;
-                } else {
                     specifyDataObjects = false;
+                } else {
+                    specifyDataObjects = true;
                 }
 
                 _state = DATA_SPECIFY;
@@ -97,11 +103,11 @@ void ManualTest::FSM(int dbSize) {
             case BEGIN_TRANSACTION: {
                 int keyLimit = 10;
 
-                cout << "HeckaDBMS will now begin performing the transaction(s) according to the following parameters:" << endl;
+                cout << "HeckaDBMS will now begin performing the transaction(s) with the following parameters:" << endl;
                 cout << "\t-Read-Only Transactions: " << readOnlyCount << endl;
                 cout << "\t-Read-Only Data Object Keys: ";
                 for(int i = 0; i < min(readOnlyCount, keyLimit); i++) {
-                    if(i == keyLimit - 1) {
+                    if(i == keyLimit - 1 && readOnlyCount != keyLimit) {
                         cout << readOnlyKeys.at(i) << "...";
                     }
                     else if(i == readOnlyCount - 1) {
@@ -115,7 +121,7 @@ void ManualTest::FSM(int dbSize) {
                 cout << "\t-Read-Write Transactions: " << readWriteCount << endl;
                 cout << "\t-Read-Write Data Object Keys: ";
                 for(int i = 0; i < min(readWriteCount, keyLimit); i++) {
-                    if(i == keyLimit - 1) {
+                    if(i == keyLimit - 1 && readWriteCount != keyLimit) {
                         cout << readWriteKeys.at(i) << "...";
                     }
                     else if(i == readWriteCount - 1) {
@@ -141,7 +147,7 @@ void ManualTest::FSM(int dbSize) {
                     "Return to the main menu"
                 };
 
-                cout << "The transaction(s) have completed with the following metric information:" << endl;
+                cout << "The transaction(s) have completed with the following metric information:\n" << endl;
                 /*TODO: include metric info about transactions*/
 
                 responseValue = Utility::PromptUser(prompt, options);
