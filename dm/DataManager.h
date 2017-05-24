@@ -21,6 +21,9 @@ public:
     // Constructor with database filename as a parameter
     DataManager(std::string);
 
+    // Get back the underlying database object
+    const unordered_map<int, int>& GetDB();
+
     // Generate a database key-value set with keys 0 - size-1 and random values 0 - 100
     void GenerateDataSet(int dbSize);
 

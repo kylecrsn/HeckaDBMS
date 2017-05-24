@@ -10,6 +10,10 @@ DataManager::DataManager(std::string dbFilename) {
     _dbFilename = dbFilename;
 }
 
+const unordered_map<int, int>& DataManager::GetDB() {
+    return _db;
+}
+
 void DataManager::GenerateDataSet(int dbSize) {
     // Setup random number generator
     mt19937 gen;

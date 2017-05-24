@@ -120,3 +120,13 @@ int Utility::PromptUser(string prompt, const vector<string>& options) {
 
     return responseValue;
 }
+
+static string Utility::PromptUser(string prompt) {
+    string response;
+
+    cout << prompt << "\n\n> " << flush;
+    getline(cin, response);
+    cout << endl;
+
+    return response;
+}

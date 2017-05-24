@@ -11,13 +11,13 @@ int main(int argc, char *argv[])
     string protocolType;
     string testMetric;
     Client client = Client();
-    DataManager dataManager = DataManager("database.csv");
+    DataManager dataManager;
 
     // Parse command-line arguments
     Utility::ParseArgs(argc, argv, &protocolType, &testMetric);
 
     // Launch client
-    client.FSM();
+    client.FSM(dataManager);
 
     // Examples to demonstrate DM functionality
     /*

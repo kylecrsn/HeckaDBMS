@@ -24,6 +24,9 @@ public:
     // Prompt the user for an integer response corresponding to a specific option
     static int PromptUser(string prompt, const vector<string>& options);
 
+    // Prompt the use for a string response of their choice
+    static string PromptUser(string prompt);
+
 private:
     // Default constructor (static class, no implementation)
     Utility() {}
