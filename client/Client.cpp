@@ -6,7 +6,7 @@ Client::Client() {
     _state = ENTER;
 }
 
-void Client::FSM(DataManager dataManager) {
+void Client::FSM(DataManager dataManager, string protocolType) {
     string prompt;
     string response;
     vector<string> options;
@@ -30,13 +30,14 @@ void Client::FSM(DataManager dataManager) {
                     "Generate an in-memory database",
                     "Load an existing database file into memory",
                     "Save the current in-memory database to disk",
+                    "Clear the current in-memory database",
                     "Exit"
                 };
                 responseValue = Utility::PromptUser(prompt, options);
 
                 if(responseValue == 1) {
                     if(dataManager.GetDB().size() == 0) {
-                        cout << "There is no in-memory database to use. Either generate one or load an existing one\n" << endl;
+                        cout << "There is no in-memory database to use. First either generate one or load an existing one\n" << endl;
                         _state = ENTER;
                     }
                     else {
@@ -48,7 +49,7 @@ void Client::FSM(DataManager dataManager) {
                         _state = GENERATE_DATA;
                     }
                     else {
-                        cout << "There is an existing in-memory database. Either clear it or save it to disk\n" << endl;
+                        cout << "There is an existing in-memory database. First either clear it or save it to disk\n" << endl;
                         _state = ENTER;
                     }
                 }
@@ -57,7 +58,7 @@ void Client::FSM(DataManager dataManager) {
                         _state = LOAD_DATA;
                     }
                     else {
-                        cout << "There is an existing in-memory database. Either clear it or save it to disk\n" << endl;
+                        cout << "There is an existing in-memory database. First either clear it or save it to disk\n" << endl;
                         _state = ENTER;
                     }
                 }
@@ -68,6 +69,15 @@ void Client::FSM(DataManager dataManager) {
                     }
                     else {
                         _state = SAVE_DATA;
+                    }
+                }
+                else if(responseValue == 5) {
+                    if(dataManager.GetDB().size() == 0) {
+                        cout << "There is no in-memory database to clear\n" << endl;
+                        _state = ENTER;
+                    }
+                    else {
+                        _state = CLEAR_DATA;
                     }
                 }
                 else {
@@ -88,7 +98,7 @@ void Client::FSM(DataManager dataManager) {
 
                 if(responseValue == 1) {
                     manualTest = ManualTest();
-                    manualTest.FSM(dbSize);
+                    manualTest.FSM(dataManager.GetDB().size());
                 }
                 else if(responseValue == 2) {
                     scaleTest = ScaleTest();
@@ -109,35 +119,70 @@ void Client::FSM(DataManager dataManager) {
                 dbSize = responseValue;
                 dataManager.GenerateDataSet(dbSize);
 
+                cout << "A database with " << dbSize << " entries was successfully generated\n" << endl;
+
                 _state = ENTER;
                 break;
             }
             case LOAD_DATA: {
-                struct stat buffer;
                 fstream filestream;
                 prompt = "What is the database filename to load? (Example: database.csv)";
                 response = Utility::PromptUser(prompt);
 
-                if(stat(response.c_str(), &buffer) == 0) {
-                    //TODO: Finish file loading
+                filestream.open(response, fstream::in);
+                if(filestream.fail()) {
+                    cout << "The given filename does not exist or could not be found/accessed\n" << endl;
                 }
                 else {
-                    cout << "Could not find the specified file\n" << endl;
+                    filestream.close();
+                    if(dataManager.LoadDataSet(response, protocolType)) {
+                        cout << "The specified file was successfully loaded into the memory database\n" << endl;
+                    }
+                    else {
+                        cout << "The specified file was meant for use with a different transaction protocol\n" << endl;
+                    }
                 }
 
                 _state = ENTER;
                 break;
             }
             case SAVE_DATA: {
+                struct stat buf;
                 prompt = "What should the database file be named?";
                 response = Utility::PromptUser(prompt);
-                //TODO: Finish file saving
+
+                if (stat(response.c_str(), &buf) != -1) {
+                    prompt = "That file already exists. Would you like to overwrite it?";
+                    options = {
+                        "Yes",
+                        "No"
+                    };
+                    responseValue = Utility::PromptUser(prompt, options);
+
+                    if(responseValue == 1) {
+                        dataManager.SaveDataSet(response, protocolType);
+                        cout << "The file was successfully overwritten\n" << endl;
+                    }
+                    else {
+                        cout << "The file was not overwritten\n" << endl;
+                    }
+                }
+                else {
+                    dataManager.SaveDataSet(response, protocolType);
+                    cout << "The file was successfully saved to disk\n" << endl;
+                }
+
+                _state = ENTER;
+                break;
+            }
+            case CLEAR_DATA: {
+                dataManager.ClearDataSet();
+                cout << "The current in-memory database has been cleared\n" << endl;
+
                 _state = ENTER;
                 break;
             }
             case EXIT: {
-                //TODO
-
                 return;
             }
             default: {

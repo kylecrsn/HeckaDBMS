@@ -26,14 +26,14 @@ void ManualTest::FSM(int dbSize) {
             }
             case RO_TRANSACTIONS: {
                 prompt = "How many Read-Only transactions do you want to perform?";
-                readOnlyCount = Utility::PromptUser(prompt, 0, 100);
+                readOnlyCount = Utility::PromptUser(prompt, 0, RO_TRANSACTION_LIMIT);
 
                 _state = RW_TRANSACTIONS;
                 break;
             }
             case RW_TRANSACTIONS: {
                 prompt = "How many Read-Write transactions do you want to perform?";
-                readWriteCount = Utility::PromptUser(prompt, 0, 100);
+                readWriteCount = Utility::PromptUser(prompt, 0, RW_TRANSACTION_LIMIT);
 
                 if(readOnlyCount + readWriteCount == 0) {
                     cout << "The total number of transactions specified was 0, returning to the main menu\n" << endl;

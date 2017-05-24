@@ -23,7 +23,7 @@ public:
     Client();
 
     // Finite state machine for processing user input
-    void FSM(DataManager dataManager);
+    void FSM(DataManager dataManager, string protocolType);
 
     // State definition for the top-level client menu
     enum ClientState {
@@ -33,6 +33,7 @@ public:
         GENERATE_DATA,
         LOAD_DATA,
         SAVE_DATA,
+        CLEAR_DATA,
         EXIT};
 
 private:

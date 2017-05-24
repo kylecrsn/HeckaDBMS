@@ -16,7 +16,7 @@ using namespace std;
 class Utility {
 public:
     // Parse command-line arguments
-    static void ParseArgs(int argc, char* argv[], string* protocolType, string* testMetric);
+    static void ParseArgs(int argc, char* argv[], string* protocolType);
 
     // Prompt the user for an integer response within the range defined by min and max inclusively
     static int PromptUser(string prompt, int min, int max);

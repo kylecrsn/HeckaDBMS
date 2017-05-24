@@ -2,14 +2,13 @@
 
 using namespace std;
 
-void Utility::ParseArgs(int argc, char* argv[], string* protocolType, string* testMetric) {
+void Utility::ParseArgs(int argc, char* argv[], string* protocolType) {
     int optIndex;
     int c;
     opterr = 0;
-    string usage = "Usage: $ ./heckadbms -p (2pl|hekaton) [-t (manual|scale|vary)]";
+    string usage = "Usage: $ ./heckadbms -p (2pl|hekaton)";
     static struct option longOptions[] = {
             {"protocol_type",   required_argument,  0,  'p'},
-            {"test_metric",     required_argument,  0,  't'},
             {0, 0, 0, 0}
     };
 
@@ -28,10 +27,6 @@ void Utility::ParseArgs(int argc, char* argv[], string* protocolType, string* te
         switch(c) {
             case 'p': {
                 *protocolType = optarg;
-                break;
-            }
-            case 't': {
-                *testMetric = optarg;
                 break;
             }
             case '?': {
@@ -54,18 +49,6 @@ void Utility::ParseArgs(int argc, char* argv[], string* protocolType, string* te
     if(*protocolType != "2pl" && *protocolType != "hekaton") {
         cout << "Error: invalid protocol_type parameter: " << protocolType << "\n" << usage << endl;
         exit(1);
-    }
-
-    if(*testMetric == "") {
-        *testMetric = "manual";
-    }
-    else {
-        transform((*testMetric).begin(), (*testMetric).end(), (*testMetric).begin(), ::tolower);
-        if(*testMetric != "manual" && *testMetric != "scale" && *testMetric != "vary")
-        {
-            cout << "Error: invalid protocol_type parameter: " << testMetric << "\n" << usage << endl;
-            exit(1);
-        }
     }
 }
 
@@ -121,7 +104,7 @@ int Utility::PromptUser(string prompt, const vector<string>& options) {
     return responseValue;
 }
 
-static string Utility::PromptUser(string prompt) {
+string Utility::PromptUser(string prompt) {
     string response;
 
     cout << prompt << "\n\n> " << flush;

@@ -18,9 +18,6 @@ public:
     // Default constructor
     DataManager();
 
-    // Constructor with database filename as a parameter
-    DataManager(std::string);
-
     // Get back the underlying database object
     const unordered_map<int, int>& GetDB();
 
@@ -28,10 +25,10 @@ public:
     void GenerateDataSet(int dbSize);
 
     // Load the key-values pairs from file back into the dm object's memory
-    void LoadDataSet();
+    bool LoadDataSet(string filename, string expectedProtocol);
 
     // Save the key-values pairs in the current dm object to a specified file in .csv format
-    void SaveDataSet();
+    void SaveDataSet(string filename, string currentProtocol);
 
     // Clear the current contents of the database
     void ClearDataSet();
@@ -47,7 +44,6 @@ public:
 
 private:
     unordered_map<int, int> _db;
-    string _dbFilename;
 };
 
 #endif

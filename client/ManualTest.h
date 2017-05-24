@@ -12,6 +12,9 @@
 
 using namespace std;
 
+#define RO_TRANSACTION_LIMIT 100
+#define RW_TRANSACTION_LIMIT 100
+
 class ManualTest {
 public:
     // Default constructor

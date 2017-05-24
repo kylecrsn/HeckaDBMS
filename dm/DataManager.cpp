@@ -2,12 +2,6 @@
 
 DataManager::DataManager() {
     _db = {};
-    _dbFilename = "";
-}
-
-DataManager::DataManager(std::string dbFilename) {
-    _db = {};
-    _dbFilename = dbFilename;
 }
 
 const unordered_map<int, int>& DataManager::GetDB() {
@@ -26,41 +20,55 @@ void DataManager::GenerateDataSet(int dbSize) {
     }
 }
 
-void DataManager::LoadDataSet() {
+bool DataManager::LoadDataSet(string filename, string expectedProtocol) {
     fstream fileStream;
     stringstream datastream;
     string line;
+    string fileProtocol;
     string delim = ",";
     int dbSize;
     int key;
     int value;
 
     // Read the file contents into a string stream
-    fileStream.open(_dbFilename, fstream::in);
+    fileStream.open(filename, fstream::in);
     datastream << fileStream.rdbuf();
     fileStream.close();
 
     // Determine the dm's size
     getline(datastream, line);
-    dbSize = stoi(line.substr(0, line.find(delim)));
+    //cout << "fileprotocol" << line.substr(0, line.find(delim));
+    //cout << "stoi" << line.substr(line.find(delim) + 1, line.size());
 
-    // Parse out the key-value pairs
-    for(int i = 0; i < dbSize; i++) {
-        getline(datastream, line);
-        key = stoi(line.substr(0, line.find(delim)));
-        value = stoi(line.substr(line.find(delim) + 1, line.length()));
-        _db[key] = value;
+    fileProtocol = line.substr(0, line.find(delim));
+    dbSize = stoi(line.substr(line.find(delim) + 1, line.size()));
+
+    if(fileProtocol == expectedProtocol) {
+        // Parse out the key-value pairs
+        for(int i = 0; i < dbSize; i++) {
+            getline(datastream, line);
+            key = stoi(line.substr(0, line.find(delim)));
+            value = stoi(line.substr(line.find(delim) + 1, line.length()));
+            _db[key] = value;
+        }
+
+        return true;
+    }
+    else {
+        return false;
     }
 }
 
-void DataManager::SaveDataSet() {
+void DataManager::SaveDataSet(string filename, string currentProtocol) {
     fstream fileStream;
     string data;
     int sizeLength;
 
     // Append the contents of the database to a string
+    data.append(currentProtocol);
+    data.append(",");
     data.append(to_string(_db.size()));
-    data.append(",\n");
+    data.append("\n");
     sizeLength = data.size();
 
     for(auto const &i : _db) {
@@ -71,7 +79,7 @@ void DataManager::SaveDataSet() {
     }
 
     // Write it out to disk for later use
-    fileStream.open(_dbFilename, fstream::out | fstream::trunc);
+    fileStream.open(filename, fstream::out | fstream::trunc);
     fileStream << data;
     fileStream.close();
 }
