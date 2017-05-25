@@ -16,7 +16,7 @@ void Utility::ParseArgs(int argc, char* argv[], string* protocolType) {
     while(1) {
         // Initialize the index and c
         optIndex = 0;
-        c = getopt_long(argc, argv, "p:t:", longOptions, &optIndex);
+        c = getopt_long(argc, argv, "p:", longOptions, &optIndex);
 
         // Make sure the end hadn't been reached
         if(c == -1) {

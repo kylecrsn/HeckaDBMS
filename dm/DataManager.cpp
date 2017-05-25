@@ -35,11 +35,8 @@ bool DataManager::LoadDataSet(string filename, string expectedProtocol) {
     datastream << fileStream.rdbuf();
     fileStream.close();
 
-    // Determine the dm's size
+    // Determine the db's protocol and size
     getline(datastream, line);
-    //cout << "fileprotocol" << line.substr(0, line.find(delim));
-    //cout << "stoi" << line.substr(line.find(delim) + 1, line.size());
-
     fileProtocol = line.substr(0, line.find(delim));
     dbSize = stoi(line.substr(line.find(delim) + 1, line.size()));
 
@@ -89,7 +86,6 @@ void DataManager::ClearDataSet() {
 }
 
 void DataManager::PrintDataSet() {
-    cout << _db.size() << "," << endl;
     for(auto const &i : _db) {
         cout << i.first << "," << i.second << "\n";
     }

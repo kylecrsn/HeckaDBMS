@@ -20,6 +20,17 @@ void Client::FSM(DataManager dataManager, string protocolType) {
     while(true) {
         switch(_state) {
             case ENTER: {
+                cout << "-------------------------------" << endl;
+                cout << "|          MAIN MENU          |" << endl;
+                cout << "-------------------------------" << endl;
+
+                if(dataManager.GetDB().size() == 0) {
+                    cout << "(There is currently no in-memory database)\n" << endl;
+                }
+                else {
+                    cout << "(In-memory database: " << dataManager.GetDB().size() << " entries)\n" << endl;
+                }
+
                 _state = MAIN_MENU;
                 break;
             }
@@ -31,6 +42,7 @@ void Client::FSM(DataManager dataManager, string protocolType) {
                     "Load an existing database file into memory",
                     "Save the current in-memory database to disk",
                     "Clear the current in-memory database",
+                    "Print the in-memory database to the console",
                     "Exit"
                 };
                 responseValue = Utility::PromptUser(prompt, options);
@@ -80,6 +92,18 @@ void Client::FSM(DataManager dataManager, string protocolType) {
                         _state = CLEAR_DATA;
                     }
                 }
+                else if(responseValue == 6) {
+                    if(dataManager.GetDB().size() == 0) {
+                        cout << "There is no in-memory database to print\n" << endl;
+                        _state = ENTER;
+                    }
+                    else if(dataManager.GetDB().size() > DATA_PRINT_LIMIT) {
+                        cout << "Printing databases larger than " << DATA_PRINT_LIMIT << " is disallowed\n" << endl;
+                    }
+                    else {
+                        _state = PRINT_DATA;
+                    }
+                }
                 else {
                     _state = EXIT;
                 }
@@ -102,7 +126,7 @@ void Client::FSM(DataManager dataManager, string protocolType) {
                 }
                 else if(responseValue == 2) {
                     scaleTest = ScaleTest();
-                    //TODO: scaleTest.FSM();
+                    scaleTest.FSM(dataManager.GetDB().size());
                 }
                 else {
                     varyTest = VaryTest();
@@ -178,6 +202,16 @@ void Client::FSM(DataManager dataManager, string protocolType) {
             case CLEAR_DATA: {
                 dataManager.ClearDataSet();
                 cout << "The current in-memory database has been cleared\n" << endl;
+
+                _state = ENTER;
+                break;
+            }
+            case PRINT_DATA: {
+                cout << "Below is the contents of the current in-memory database" << endl;
+                cout << "NOTE: The data may be printed in any order as the internal data structures used do not specify "
+                    "an explicit ordering\n" << endl;
+                dataManager.PrintDataSet();
+                cout << endl;
 
                 _state = ENTER;
                 break;
