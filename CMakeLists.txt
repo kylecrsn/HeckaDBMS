@@ -29,6 +29,7 @@ set(SOURCE_FILES
     ${DIR_CLIENT}/Client.cpp ${DIR_CLIENT}/Client.h
     ${DIR_DM}/DataManager.cpp ${DIR_DM}/DataManager.h
     ${DIR_HEKATON}/Record.cpp ${DIR_HEKATON}/Record.h
-    ${DIR_HEKATON}/Timestamp.cpp ${DIR_HEKATON}/Timestamp.h)
-
+    ${DIR_HEKATON}/Timestamp.cpp ${DIR_HEKATON}/Timestamp.h
+    ${DIR_HEKATON}/Transaction.cpp ${DIR_HEKATON}/Transaction.h
+    ${DIR_HEKATON}/Hecka.cpp ${DIR_HEKATON}/Hecka.h)
 add_executable(HeckaDBMS ${SOURCE_FILES})

@@ -12,6 +12,11 @@ public:
     // Destructor
     ~Record();
 
+    Timestamp getBegin();
+    Timestamp getEnd();
+    int getObject();
+    int getValue();
+    Record * getNextRecord();
 private:
     Timestamp _begin;
     Timestamp _end;
