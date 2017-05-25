@@ -114,7 +114,7 @@ void Client::FSM(DataManager dataManager, string protocolType) {
                     "Manual (Specify explicit details to launch a batch of transaction attempts)",
                     "Scale (Simulate an increasingly scaling concurrent transaction load with an even ratio of "
                         "read-only and read-write transactions",
-                    "Vary (Simulate a static transaction load with a varied ratio of read-only to read-write "
+                    "Vary (Simulate a static-sized transaction load with a varied ratio of read-only to read-write "
                         "transactions)"
                 };
                 responseValue = Utility::PromptUser(prompt, options);

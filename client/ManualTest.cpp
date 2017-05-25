@@ -138,6 +138,7 @@ void ManualTest::FSM(int dbSize) {
                 cout << "Launching threads...\n" << endl;
 
                 //TODO: Pass input to TM to launch transactions
+                //Inputs: readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys, threadCount
 
                 _state = END_TRANSACTION;
                 break;

@@ -112,6 +112,7 @@ void ScaleTest::FSM(int dbSize) {
                 cout << "Launching threads...\n" << endl;
 
                 //TODO: Pass input to TM to launch transactions
+                //Inputs: transactionCount, initialThreadCount, finalThreadCount, scaleAlgorithmType
 
                 _state = END_TRANSACTION;
                 break;
