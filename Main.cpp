@@ -1,8 +1,8 @@
 #include <iostream>
 
+#include "DataManager.h"
 #include "Utility.h"
 #include "Client.h"
-#include "DataManager.h"
 
 using namespace std;
 
@@ -15,19 +15,16 @@ int main(int argc, char *argv[])
     // Parse command-line arguments
     Utility::ParseArgs(argc, argv, &protocolType);
 
+    cout << "==================================================" << endl;
+    cout << "||             WELCOME TO HeckaDBMS             ||" << endl;
+    cout << "==================================================\n" << endl;
+
     // Launch client
     client.FSM(dataManager, protocolType);
 
-    // Examples to demonstrate DM functionality
-    /*
-    dataManager.GenerateDataSet(15);
-    dataManager.PrintDataSet();
-    dataManager.SaveDataSet();
-    cout << endl << endl;
-    dataManager.ClearDataSet();
-    dataManager.LoadDataSet();
-    dataManager.PrintDataSet();
-     */
+    cout << "===================================================" << endl;
+    cout << "||               EXITING HeckaDBMS               ||" << endl;
+    cout << "===================================================\n" << endl;
 
     exit(0);
 }

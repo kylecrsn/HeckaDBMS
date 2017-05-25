@@ -21,6 +21,10 @@ void ManualTest::FSM(int dbSize) {
     while(true) {
         switch(_state) {
             case ENTER: {
+                cout << "------------------------------" << endl;
+                cout << "|       MANUAL TESTING       |" << endl;
+                cout << "------------------------------\n" << endl;
+
                 _state = RO_TRANSACTIONS;
                 break;
             }
@@ -36,7 +40,7 @@ void ManualTest::FSM(int dbSize) {
                 readWriteCount = Utility::PromptUser(prompt, 0, RW_TRANSACTION_LIMIT);
 
                 if(readOnlyCount + readWriteCount == 0) {
-                    cout << "The total number of transactions specified was 0, returning to the main menu\n" << endl;
+                    cout << "The total number of transactions must be at least 1\n" << endl;
                     _state = EXIT;
                 }
                 else {
@@ -101,13 +105,11 @@ void ManualTest::FSM(int dbSize) {
                 break;
             }
             case BEGIN_TRANSACTION: {
-                int keyLimit = 10;
-
                 cout << "HeckaDBMS will now begin performing the transaction(s) with the following parameters:" << endl;
                 cout << "\t-Read-Only Transactions: " << readOnlyCount << endl;
                 cout << "\t-Read-Only Data Object Keys: ";
-                for(int i = 0; i < min(readOnlyCount, keyLimit); i++) {
-                    if(i == keyLimit - 1 && readOnlyCount != keyLimit) {
+                for(int i = 0; i < min(readOnlyCount, PRINT_KEY_LIMIT); i++) {
+                    if(i == PRINT_KEY_LIMIT - 1 && readOnlyCount != PRINT_KEY_LIMIT) {
                         cout << readOnlyKeys.at(i) << "...";
                     }
                     else if(i == readOnlyCount - 1) {
@@ -120,8 +122,8 @@ void ManualTest::FSM(int dbSize) {
                 cout << endl;
                 cout << "\t-Read-Write Transactions: " << readWriteCount << endl;
                 cout << "\t-Read-Write Data Object Keys: ";
-                for(int i = 0; i < min(readWriteCount, keyLimit); i++) {
-                    if(i == keyLimit - 1 && readWriteCount != keyLimit) {
+                for(int i = 0; i < min(readWriteCount, PRINT_KEY_LIMIT); i++) {
+                    if(i == PRINT_KEY_LIMIT - 1 && readWriteCount != PRINT_KEY_LIMIT) {
                         cout << readWriteKeys.at(i) << "...";
                     }
                     else if(i == readWriteCount - 1) {
@@ -143,11 +145,12 @@ void ManualTest::FSM(int dbSize) {
             case END_TRANSACTION: {
                 prompt = "What would you like to do next?";
                 options = vector<string> {
-                    "Specify another manual transaction",
+                    "Specify another Manual test",
                     "Return to the main menu"
                 };
 
                 cout << "The transaction(s) have completed with the following metric information:\n" << endl;
+
                 /*TODO: include metric info about transactions*/
 
                 responseValue = Utility::PromptUser(prompt, options);

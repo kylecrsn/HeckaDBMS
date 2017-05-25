@@ -17,6 +17,8 @@
 
 using namespace std;
 
+#define DATA_PRINT_LIMIT 20
+
 class Client {
 public:
     // Default constructor
@@ -34,6 +36,7 @@ public:
         LOAD_DATA,
         SAVE_DATA,
         CLEAR_DATA,
+        PRINT_DATA,
         EXIT};
 
 private:

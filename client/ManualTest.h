@@ -14,6 +14,7 @@ using namespace std;
 
 #define RO_TRANSACTION_LIMIT 100
 #define RW_TRANSACTION_LIMIT 100
+#define PRINT_KEY_LIMIT 10
 
 class ManualTest {
 public:
@@ -33,7 +34,8 @@ public:
         DATA_SPECIFY,
         BEGIN_TRANSACTION,
         END_TRANSACTION,
-        EXIT};
+        EXIT
+    };
 
 private:
     ManualState _state;
