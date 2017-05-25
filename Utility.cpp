@@ -47,7 +47,7 @@ void Utility::ParseArgs(int argc, char* argv[], string* protocolType) {
     }
     transform((*protocolType).begin(), (*protocolType).end(), (*protocolType).begin(), ::tolower);
     if(*protocolType != "2pl" && *protocolType != "hekaton") {
-        cout << "Error: invalid protocol_type parameter: " << protocolType << "\n" << usage << endl;
+        cout << "ERROR: invalid protocol_type parameter: " << protocolType << "\n" << usage << endl;
         exit(1);
     }
 }
@@ -65,7 +65,7 @@ int Utility::PromptUser(string prompt, int min, int max) {
         responseValue = stoi(response);
     }
     catch (invalid_argument e) {
-        cout << "ERROR: User gave an invalid response:\n\t" << e.what() << "\nPlease try again.\n" << endl;
+        cout << "Please enter a valid integer within the specified range\n" << endl;
         goto PROMPT;
     }
     if(responseValue < min || responseValue > max) {
@@ -93,7 +93,7 @@ int Utility::PromptUser(string prompt, const vector<string>& options) {
         responseValue = stoi(response);
     }
     catch (invalid_argument e) {
-        cout << "ERROR: User gave an invalid response:\n\t" << e.what() << "\nPlease try again.\n" << endl;
+        cout << "Please enter one of the valid values inside the brackets\n" << endl;
         goto PROMPT;
     }
     if(responseValue < 1 || responseValue > options.size()) {

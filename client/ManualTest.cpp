@@ -137,7 +137,7 @@ void ManualTest::FSM(int dbSize) {
                 cout << "\t-Concurrent Threads: " << threadCount << endl;
                 cout << "Launching threads...\n" << endl;
 
-                /*TODO: Pass input to TM to launch transactions*/
+                //TODO: Pass input to TM to launch transactions
 
                 _state = END_TRANSACTION;
                 break;
@@ -151,7 +151,7 @@ void ManualTest::FSM(int dbSize) {
 
                 cout << "The transaction(s) have completed with the following metric information:\n" << endl;
 
-                /*TODO: include metric info about transactions*/
+                //TODO: include metric info about transaction results
 
                 responseValue = Utility::PromptUser(prompt, options);
 

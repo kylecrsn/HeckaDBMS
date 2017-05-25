@@ -8,6 +8,7 @@ ScaleTest::ScaleTest() {
 
 void ScaleTest::FSM(int dbSize) {
     string prompt;
+    string scaleAlgorithmString;
     vector<string> options;
     int responseValue = 0;
     int transactionCount = 0;
@@ -66,6 +67,29 @@ void ScaleTest::FSM(int dbSize) {
                 };
                 responseValue = Utility::PromptUser(prompt, options);
 
+                switch(responseValue) {
+                    case 1: {
+                        scaleAlgorithmType = LINEAR;
+                        scaleAlgorithmString = "Linear";
+                        break;
+                    }
+                    case 2: {
+                        scaleAlgorithmType = QUADRATIC;
+                        scaleAlgorithmString = "Quadratic";
+                        break;
+                    }
+                    case 3: {
+                        scaleAlgorithmType = EXPONENTIAL;
+                        scaleAlgorithmString = "Exponential";
+                        break;
+                    }
+                    default: {
+                        scaleAlgorithmString = "Linear";
+                        scaleAlgorithmType = LINEAR;
+                        break;
+                    }
+                }
+
                 if (responseValue == 1) {
                     scaleAlgorithmType = LINEAR;
                 }
@@ -84,10 +108,10 @@ void ScaleTest::FSM(int dbSize) {
                 cout << "\t-Transactions: " << transactionCount << endl;
                 cout << "\t-Initial Thread Count: " << initialThreadCount << endl;
                 cout << "\t-Final Thread Count: " << finalThreadCount << endl;
-                cout << "\t-Scaling Algorithm: " << scaleAlgorithmType << endl;
+                cout << "\t-Scaling Algorithm: " << scaleAlgorithmString << endl;
                 cout << "Launching threads...\n" << endl;
 
-                /*TODO: Pass input to TM to launch transactions*/
+                //TODO: Pass input to TM to launch transactions
 
                 _state = END_TRANSACTION;
                 break;
@@ -101,7 +125,7 @@ void ScaleTest::FSM(int dbSize) {
 
                 cout << "The transactions have completed with the following metric information:\n" << endl;
 
-                /*TODO: include metric info about transactions*/
+                //TODO: include metric info about transaction results
 
                 responseValue = Utility::PromptUser(prompt, options);
 

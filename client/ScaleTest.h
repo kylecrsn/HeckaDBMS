@@ -13,7 +13,6 @@
 using namespace std;
 
 #define TRANSACTION_LIMIT 10000
-#define PRINT_KEY_LIMIT 10
 
 class ScaleTest {
 public:
@@ -23,7 +22,7 @@ public:
     // Finite state machine for processing user input
     void FSM(int dbSize);
 
-    // State definition for a scale testflow
+    // State definition for a Scale testflow
     enum ScaleState {
         ENTER,
         TRANSACTIONS,

@@ -22,9 +22,9 @@ int main(int argc, char *argv[])
     // Launch client
     client.FSM(dataManager, protocolType);
 
-    cout << "===================================================" << endl;
-    cout << "||               EXITING HeckaDBMS               ||" << endl;
-    cout << "===================================================\n" << endl;
+    cout << "==================================================" << endl;
+    cout << "||               EXITING HeckaDBMS              ||" << endl;
+    cout << "==================================================\n" << endl;
 
     exit(0);
 }

@@ -32,4 +32,5 @@ set(SOURCE_FILES
     ${DIR_HEKATON}/Timestamp.cpp ${DIR_HEKATON}/Timestamp.h
     ${DIR_HEKATON}/Transaction.cpp ${DIR_HEKATON}/Transaction.h
     ${DIR_HEKATON}/Hecka.cpp ${DIR_HEKATON}/Hecka.h)
+
 add_executable(HeckaDBMS ${SOURCE_FILES})

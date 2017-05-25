@@ -11,8 +11,6 @@ void Client::FSM(DataManager dataManager, string protocolType) {
     string response;
     vector<string> options;
     int responseValue = 0;
-    int dbSize = 0;
-    bool saveDatabase = false;
     ManualTest manualTest;
     ScaleTest scaleTest;
     VaryTest varyTest;
@@ -99,6 +97,7 @@ void Client::FSM(DataManager dataManager, string protocolType) {
                     }
                     else if(dataManager.GetDB().size() > DATA_PRINT_LIMIT) {
                         cout << "Printing databases larger than " << DATA_PRINT_LIMIT << " is disallowed\n" << endl;
+                        _state = ENTER;
                     }
                     else {
                         _state = PRINT_DATA;
@@ -130,7 +129,7 @@ void Client::FSM(DataManager dataManager, string protocolType) {
                 }
                 else {
                     varyTest = VaryTest();
-                    //TODO: varyTest.FSM();
+                    varyTest.FSM(dataManager.GetDB().size());
                 }
 
                 _state = ENTER;
@@ -140,10 +139,9 @@ void Client::FSM(DataManager dataManager, string protocolType) {
                 prompt = "How many entries should the database initially be?";
                 responseValue = Utility::PromptUser(prompt, 1, 10000000);
 
-                dbSize = responseValue;
-                dataManager.GenerateDataSet(dbSize);
+                dataManager.GenerateDataSet(responseValue);
 
-                cout << "A database with " << dbSize << " entries was successfully generated\n" << endl;
+                cout << "A database with " << responseValue << " entries was successfully generated\n" << endl;
 
                 _state = ENTER;
                 break;

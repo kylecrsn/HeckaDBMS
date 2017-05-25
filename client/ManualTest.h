@@ -24,7 +24,7 @@ public:
     // Finite state machine for processing user input
     void FSM(int dbSize);
 
-    // State definition for a manual testflow
+    // State definition for a Manual testflow
     enum ManualState {
         ENTER,
         RO_TRANSACTIONS,
