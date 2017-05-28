@@ -48,3 +48,5 @@ build/
 *.dSYM/
 *.su
 .DS_Store
+*.h~
+*.cpp~
