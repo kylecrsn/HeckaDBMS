@@ -1,38 +1,70 @@
 #ifndef HECKADBMS_TRANSACTION_H
 #define HECKADBMS_TRANSACTION_H
 
-#include "Timestamp.h"
 #include <vector>
+
+#include "Timestamp.h"
 
 using namespace std;
 
 class Transaction
 {
 public:
-    // Default Constructor
+    /// Default Constructor
     Transaction();
 
-    // Destructor
-    ~Transaction();
+    /// Defines the different states the transaction can be in
+    enum HekatonState {
+        NONE,
+        ACTIVE,
+        PREPARING,
+        ABORTED,
+        COMMITTED
+    };
 
-    bool abortNow();
+    /// Get whether or not to abort now
+    bool getAbortNow();
+
+    /// Get the commit dependency counter
     int getCommitDepCounter();
-    int getState();
-    Timestamp * getEnd();
-    Timestamp * getBegin();
-    vector<int> * getCommitDepSet();
 
-    void setState(int s);
-    void setCommitDepCounter(int c);
-    void setCommitDepSet(vector<int> *c);
-    void setAbortNow(bool b);
+    /// Get the commit dependency set
+    vector<int> *getCommitDepSet();
+
+    /// Get the current state of the transaction
+    HekatonState getState();
+
+    /// Get the end timestamp of the transaction
+    Timestamp * getEnd();
+    
+    /// Get the begin timestamp of the transaction
+    Timestamp * getBegin();
+
+    /// Set whether or not to abort now
+    void setAbortNow(bool abortNow);
+
+    /// Set the commit dependency counter
+    void setCommitDepCounter(int commitDepCounter);
+
+    /// Set the commit dependency set
+    void setCommitDepSet(vector<int> *commitDepSet);
+
+    /// Set the current state of the transaction
+    void setState(HekatonState state);
+
+    /// Set the end timestamp of the transaction
+    void setEnd(Timestamp *end);
+    
+    void setBegin(Timestamp *begin);
     
 private:
     bool _abortNow;
     int _commitDepCounter;
-    int _state; //0 = none, 1 = active, 2 = preparing, 3 = commit, 4 = abort
+    vector<int> *_commitDepSet;
+    HekatonState _state;
     Timestamp *_end;
     Timestamp *_begin;
-    vector<int> *_commitDepSet;
+    //int _state; //0 = none, 1 = active, 2 = preparing, 3 = commit, 4 = abort
 };
+
 #endif

@@ -2,11 +2,8 @@
 #define HECKADBMS_SCALETEST_H
 
 #include <string>
-#include <unordered_map>
-#include <random>
 #include <iostream>
-#include <sstream>
-#include <fstream>
+#include <algorithm>
 
 #include "Utility.h"
 
@@ -16,13 +13,13 @@ using namespace std;
 
 class ScaleTest {
 public:
-    // Default constructor
+    /// Default constructor
     ScaleTest();
 
-    // Finite state machine for processing user input
-    void FSM(int dbSize);
+    /// Finite state machine for processing user input
+    void FSM();
 
-    // State definition for a Scale testflow
+    /// State definition for a Scale testflow
     enum ScaleState {
         ENTER,
         TRANSACTIONS,
@@ -34,7 +31,7 @@ public:
         EXIT
     };
 
-    // Types of scaling methods
+    /// Types of scaling methods
     enum ScaleAlgorithm {
         LINEAR,
         QUADRATIC,

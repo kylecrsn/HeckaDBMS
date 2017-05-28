@@ -1,17 +1,19 @@
 #include "Timestamp.h"
 
-Timestamp::Timestamp()
-{
+Timestamp::Timestamp() {
+    _isCounter = true;
     _counter = 0;
     _transactionId = 0;
-    _isCounter = true;
 }
 
-Timestamp::Timestamp(int counter, int transactionId, bool isCounter)
-{
+Timestamp::Timestamp(bool isCounter, int counter, int transactionId) {
+    _isCounter = isCounter;
     _counter = counter;
     _transactionId = transactionId;
-    _isCounter = isCounter;
+}
+
+bool Timestamp::getIsCounter() {
+    return _isCounter;
 }
 
 Timestamp::Timestamp(const Timestamp &t) {
@@ -21,22 +23,23 @@ Timestamp::Timestamp(const Timestamp &t) {
 }
 
 int Timestamp::getCounter() {
-  return _counter;
-}
-int Timestamp::getTransactionId() {
-  return _transactionId;
-}
-bool Timestamp::isCounter() {
-  return _isCounter;
+    return _counter;
 }
 
-void Timestamp::setCounter(int c) {
-  _counter = c;
+int Timestamp::getTransactionId() {
+    return _transactionId;
 }
-void Timestamp::setIsCounter(bool b) {
-  _isCounter = b;
+
+void Timestamp::setIsCounter(bool isCounter) {
+    _isCounter = isCounter;
 }
-void Timestamp::setTransactionId(int i) {
-	_transactionId = i;
+
+void Timestamp::setCounter(int counter) {
+    _counter = counter;
 }
+
+void Timestamp::setTransactionId(int transactionId) {
+    _transactionId = transactionId;
+}
+
 

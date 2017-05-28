@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 SET(DIR_ROOT "${CMAKE_SOURCE_DIR}")
 set(DIR_CLIENT "client")
 set(DIR_TM "tm")
-set(DIR_2PL "tm/2pl")
+set(DIR_2PL "tm/twopl")
 set(DIR_HEKATON "tm/hekaton")
 set(DIR_DM "dm")
 
@@ -31,6 +31,6 @@ set(SOURCE_FILES
     ${DIR_HEKATON}/Record.cpp ${DIR_HEKATON}/Record.h
     ${DIR_HEKATON}/Timestamp.cpp ${DIR_HEKATON}/Timestamp.h
     ${DIR_HEKATON}/Transaction.cpp ${DIR_HEKATON}/Transaction.h
-    ${DIR_HEKATON}/Hecka.cpp ${DIR_HEKATON}/Hecka.h)
+    ${DIR_HEKATON}/Hekaton.cpp ${DIR_HEKATON}/Hekaton.h tm/twopl/TwoPL.cpp tm/twopl/TwoPL.h)
 
 add_executable(HeckaDBMS ${SOURCE_FILES})

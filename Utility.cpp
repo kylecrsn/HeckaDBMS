@@ -6,7 +6,7 @@ void Utility::ParseArgs(int argc, char* argv[], string* protocolType) {
     int optIndex;
     int c;
     opterr = 0;
-    string usage = "Usage: $ ./heckadbms -p (2pl|hekaton)";
+    string usage = "Usage: $ ./heckadbms -p (twopl|hekaton)";
     static struct option longOptions[] = {
             {"protocol_type",   required_argument,  0,  'p'},
             {0, 0, 0, 0}
@@ -46,10 +46,20 @@ void Utility::ParseArgs(int argc, char* argv[], string* protocolType) {
         exit(1);
     }
     transform((*protocolType).begin(), (*protocolType).end(), (*protocolType).begin(), ::tolower);
-    if(*protocolType != "2pl" && *protocolType != "hekaton") {
+    if(*protocolType != "twopl" && *protocolType != "hekaton") {
         cout << "ERROR: invalid protocol_type parameter: " << protocolType << "\n" << usage << endl;
         exit(1);
     }
+}
+
+string Utility::PromptUser(string prompt) {
+    string response;
+
+    cout << prompt << "\n\n> " << flush;
+    getline(cin, response);
+    cout << endl;
+
+    return response;
 }
 
 int Utility::PromptUser(string prompt, int min, int max) {
@@ -102,14 +112,4 @@ int Utility::PromptUser(string prompt, const vector<string>& options) {
     }
 
     return responseValue;
-}
-
-string Utility::PromptUser(string prompt) {
-    string response;
-
-    cout << prompt << "\n\n> " << flush;
-    getline(cin, response);
-    cout << endl;
-
-    return response;
 }

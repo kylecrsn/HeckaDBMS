@@ -3,11 +3,10 @@
 
 #include <sys/stat.h>
 #include <string>
-#include <unordered_map>
-#include <random>
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 
 #include "DataManager.h"
 #include "Utility.h"
@@ -21,13 +20,13 @@ using namespace std;
 
 class Client {
 public:
-    // Default constructor
+    /// Default constructor
     Client();
 
-    // Finite state machine for processing user input
-    void FSM(DataManager dataManager, string protocolType);
+    /// Finite state machine for processing user input
+    void FSM(DataManager dataManager);
 
-    // State definition for the top-level client menu
+    /// State definition for the top-level client menu
     enum ClientState {
         ENTER,
         MAIN_MENU,
@@ -37,7 +36,8 @@ public:
         SAVE_DATA,
         CLEAR_DATA,
         PRINT_DATA,
-        EXIT};
+        EXIT
+    };
 
 private:
     ClientState _state;

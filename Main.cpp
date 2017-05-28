@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     cout << "==================================================\n" << endl;
 
     // Launch client
-    client.FSM(dataManager, protocolType);
+    client.FSM(dataManager);
 
     cout << "==================================================" << endl;
     cout << "||               EXITING HeckaDBMS              ||" << endl;

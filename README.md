@@ -72,22 +72,6 @@ The following instructions are for Linux Ubuntu-derivative environments
 5. The output in the build directory will include the *heckadbms* executable. To run the program, follow the following:
 
     ```sh
-    $ ./heckadbms -p (2pl|hekaton) [-t (manual|scale|vary)]
+    $ ./heckadbms -p (twopl|hekaton)
     ```
-    - **(-p) protocol_type**: Specifies which underlying protocol the Transaction Manager should use for transaction attempts. *2pl* refers to a variant of Strict 2PL while *hekaton* is a slightly altered version of Microsoft's Hekaton system
-    - **(-t) test_metric**: Optional argument which specifies what type of test to perform against the database. By default, the system will use *manual* testing, which provides the user with a verbose experience in the client, launching individual transactions one step at a time. *Scale* refers to a testing approach in which the user specifies certain parameters such as the minimum and maximum number of threads that attempt concurrent transactions, scaling the load on the system towards the maximum to stress test its effectiveness. Finally, *vary* uses a consistent number of user-specified threads but instead uses a variable ratio in the number of read-only to read-write transaction attempts
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    - **(-p) protocol_type**: Specifies which underlying protocol the Transaction Manager should use for transaction attempts. *twopl* refers to a variant of Strict 2PL while *hekaton* is a slightly altered version of Microsoft's Hekaton system

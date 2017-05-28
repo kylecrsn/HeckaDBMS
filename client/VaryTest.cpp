@@ -6,7 +6,7 @@ VaryTest::VaryTest() {
     _state = ENTER;
 }
 
-void VaryTest::FSM(int dbSize) {
+void VaryTest::FSM() {
     string prompt;
     vector<string> options;
     int responseValue = 0;
