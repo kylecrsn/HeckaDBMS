@@ -15,35 +15,38 @@ using namespace std;
 class DataManager
 {
 public:
-    // Default constructor
+    /// Default constructor
     DataManager();
 
-    // Get back the underlying database object
-    const unordered_map<int, int>& GetDB();
+    /// Get the underlying database object
+    const unordered_map<int, Record>& getDb();
 
-    // Generate a database key-value set with keys 0 - size-1 and random values 0 - 100
-    void GenerateDataSet(int dbSize);
+    /// Set the underlying database object
+    void setDb(const unordered_map<int, Record>& db);
 
-    // Load the key-values pairs from file back into the dm object's memory
-    bool LoadDataSet(string filename, string expectedProtocol);
+    /// Generate data objects for a database of the specified size
+    void generateDatabase(int databaseSize);
 
-    // Save the key-values pairs in the current dm object to a specified file in .csv format
-    void SaveDataSet(string filename, string currentProtocol);
+    /// Load the data objects from specified filename into memory
+    void loadDatabase(string filename);
 
-    // Clear the current contents of the database
-    void ClearDataSet();
+    /// Save the data objects from memory to the specified filename on disk
+    void saveDatabase(string filename);
 
-    // Print the database contents to console, intended for debugging purposes, limited to DB's <= 100 entries
-    void PrintDataSet();
+    /// Clear the current contents of the database
+    void clearDatabase();
 
-    // Facilitates performing a read on the specified data item
-    void Get();
+    /// Print the current contents of the database (intended for debugging purposes)
+    void printDatabase();
 
-    // Facilitates performing a write on the specified data item
-    void Put();
+    /// Facilitates performing a read on the specified data object
+    Record get(int entryKey);
+
+    /// Facilitates performing a write on the specified data object
+    void put(Record entry);
 
 private:
-    unordered_map<int, int> _db;
+    unordered_map<int, Record> _db;
 };
 
 #endif

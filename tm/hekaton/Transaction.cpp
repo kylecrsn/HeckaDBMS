@@ -1,43 +1,49 @@
-
 #include "Transaction.h"
 
-Transaction::Transaction()
-{
-  _abortNow = false;
-  _commitDepCounter = 0;
-  _state = 0;
+Transaction::Transaction() {
+    _abortNow = false;
+    _commitDepCounter = 0;
+    _commitDepSet = {};
+    _state = NONE;
+    _end = {};
 }
 
-Transaction::~Transaction()
-{
-
+bool Transaction::getAbortNow() {
+    return _abortNow;
 }
 
-bool Transaction::abortNow() {
-  return _abortNow;
-}
 int Transaction::getCommitDepCounter() {
-  return _commitDepCounter;
-}
-int Transaction::getState() {
-  return _state;
-}
-Timestamp Transaction::getEnd() {
-  return _end;
-}
-vector<int>* Transaction::getCommitDepSet() {
-  return _commitDepSet;
+    return _commitDepCounter;
 }
 
-void Transaction::setState(int s) {
-  _state = s;
+vector<int> *Transaction::getCommitDepSet() {
+    return _commitDepSet;
 }
-void Transaction::setCommitDepCounter(int c) {
-  _commitDepCounter = c;
+
+Transaction::HekatonState Transaction::getState() {
+    return _state;
 }
-void Transaction::setCommitDepSet(vector<int> * c) {
-  _commitDepSet = c;
+
+Timestamp Transaction::getEnd() {
+    return _end;
 }
-void Transaction::setAbortNow(bool b) {
-  _abortNow = b;
+
+void Transaction::setAbortNow(bool abortNow) {
+    _abortNow = abortNow;
+}
+
+void Transaction::setCommitDepCounter(int commitDepCounter) {
+    _commitDepCounter = commitDepCounter;
+}
+
+void Transaction::setCommitDepSet(vector<int> *commitDepSet) {
+    _commitDepSet = commitDepSet;
+}
+
+void Transaction::setState(Transaction::HekatonState state) {
+    _state = state;
+}
+
+void Transaction::setEnd(Timestamp end) {
+    _end = end;
 }

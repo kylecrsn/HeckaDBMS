@@ -2,11 +2,9 @@
 #define HECKADBMS_MANUALTEST_H
 
 #include <string>
-#include <unordered_map>
-#include <random>
 #include <iostream>
 #include <sstream>
-#include <fstream>
+#include <algorithm>
 
 #include "Utility.h"
 
@@ -18,13 +16,13 @@ using namespace std;
 
 class ManualTest {
 public:
-    // Default constructor
+    /// Default constructor
     ManualTest();
 
-    // Finite state machine for processing user input
+    /// Finite state machine for processing user input
     void FSM(int dbSize);
 
-    // State definition for a Manual testflow
+    /// State definition for a Manual testflow
     enum ManualState {
         ENTER,
         RO_TRANSACTIONS,

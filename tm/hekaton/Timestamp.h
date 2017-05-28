@@ -4,22 +4,34 @@
 class Timestamp
 {
 public:
-    // Default Constructor
+    /// Default Constructor
     Timestamp();
 
-    // Constructor with values for the counter, transaction ID, and which timestamp type it is as parameters
-    Timestamp(int counter, int transactionId, bool isCounter);
+    /// Constructor with values for the counter, transaction ID, and which timestamp type it is as parameters
+    Timestamp(bool isCounter, int counter, int transactionId);
 
+    /// Get whether or not the timestamp is a counter or transaction ID
+    bool getIsCounter();
+
+    /// Get the counter
     int getCounter();
-    int getTransactionId();
-    bool isCounter();
 
-    void setCounter(int c);
-    void setIsCounter(bool b);
+    /// Get the transaction ID
+    int getTransactionId();
+
+    /// Set whether or not the timestamp is a counter or transaction ID
+    void setIsCounter(bool isCounter);
+
+    /// Set the counter value
+    void setCounter(int counter);
+
+    /// Set the transaction ID
+    void setTransactionId(int transactionId);
+
 private:
+    bool _isCounter;
     int _counter;
     int _transactionId;
-    bool _isCounter;
 };
 
 #endif

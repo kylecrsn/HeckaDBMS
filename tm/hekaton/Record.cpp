@@ -1,28 +1,78 @@
 #include "Record.h"
 
-
-Record::Record()
-{
-
+Record::Record() {
+    _entryKey = 0;
+    _isLatest = true;
+    _objectKey = 0;
+    _objectValue = 0;
+    _begin = {};
+    _end = {};
+    _nextRecord = nullptr;
 }
 
-Record::~Record()
-{
+Record::Record(int entryKey, int objectKey, int objectValue) {
+    _entryKey = entryKey;
+    _isLatest = true;
+    _objectKey = objectKey;
+    _objectValue = objectValue;
+    _begin = {};
+    _end = {};
+    _nextRecord = nullptr;
+}
 
+int Record::getEntryKey() {
+    return _entryKey;
+}
+
+bool Record::getIsLatest() {
+    return _isLatest;
+}
+
+int Record::getObjectKey() {
+    return _objectKey;
+}
+
+int Record::getObjectValue() {
+    return _objectValue;
 }
 
 Timestamp Record::getBegin() {
-  return _begin;
+    return _begin;
 }
+
 Timestamp Record::getEnd() {
-  return _end;
+    return _end;
 }
-int Record::getObject() {
-  return _object;
+
+Record* Record::getNextRecord() {
+    return _nextRecord;
 }
-int Record::getValue() {
-  return _value;
+
+void Record::setEntryKey(int entryKey) {
+    _entryKey = entryKey;
 }
-Record * Record::getNextRecord() {
-  return _nextRecord;
+
+void Record::setIsLatest(bool isLatest) {
+    _isLatest = isLatest;
 }
+
+void Record::setObjectKey(int objectKey) {
+    _objectKey = objectKey;
+}
+
+void Record::setObjectValue(int objectValue) {
+    _objectValue = objectValue;
+}
+
+void Record::setBegin(Timestamp begin) {
+    _begin = begin;
+}
+
+void Record::setEnd(Timestamp end) {
+    _end = end;
+}
+
+void Record::setNextRecord(Record *nextRecord) {
+    _nextRecord = nextRecord;
+}
+

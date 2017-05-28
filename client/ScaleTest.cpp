@@ -6,7 +6,7 @@ ScaleTest::ScaleTest() {
     _state = ENTER;
 }
 
-void ScaleTest::FSM(int dbSize) {
+void ScaleTest::FSM() {
     string prompt;
     string scaleAlgorithmString;
     vector<string> options;
