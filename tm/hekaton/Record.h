@@ -8,11 +8,12 @@ class Record
 public:
     /// Default constructor
     Record();
-    
-    Record(Timestamp *tBegin, Timestamp *tEnd, int entryKey, int objectKey, int objectValue);
 
-    /// Constructor that takes value for the entry key, object key, and object value as parameters
+    /// Constructor that takes values for the entry key, object key, and object value as parameters
     Record(int entryKey, int objectKey, int objectValue);
+
+    /// Constructor that takes timestamp pointers and values for the entry key, object key, and object value as parameters
+    Record(Timestamp *tBegin, Timestamp *tEnd, int entryKey, int objectKey, int objectValue);
 
     /// Get the key of the data entry
     int getEntryKey();
@@ -27,10 +28,10 @@ public:
     int getObjectValue();
 
     /// Get the beginning timestamp
-    Timestamp * getBegin();
+    Timestamp *getBegin();
 
     /// Get the ending timestamp
-    Timestamp * getEnd();
+    Timestamp *getEnd();
 
     /// Get the pointer to the next record (if there is one)
     Record* getNextRecord();

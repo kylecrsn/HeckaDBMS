@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <algorithm>
+#include <vector>
 
 #include "DataManager.h"
 #include "Utility.h"

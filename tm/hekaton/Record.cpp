@@ -5,8 +5,8 @@ Record::Record() {
     _isLatest = true;
     _objectKey = 0;
     _objectValue = 0;
-    _begin = {};
-    _end = {};
+    _begin = new Timestamp{};
+    _end = new Timestamp{};
     _nextRecord = nullptr;
 }
 
@@ -15,18 +15,18 @@ Record::Record(int entryKey, int objectKey, int objectValue) {
     _isLatest = true;
     _objectKey = objectKey;
     _objectValue = objectValue;
-    _begin = {};
-    _end = {};
+    _begin = new Timestamp{};
+    _end = new Timestamp{};
     _nextRecord = nullptr;
 }
 
-Record::Record(Timestamp *tBegin, Timestamp *tEnd, int entryKey, int objectKey, int objectValue) {
+Record::Record(Timestamp *begin, Timestamp *end, int entryKey, int objectKey, int objectValue) {
 	_entryKey = entryKey;
     _isLatest = true;
     _objectKey = objectKey;
     _objectValue = objectValue;
-    _begin = tBegin;
-    _end = tEnd;
+    _begin = begin;
+    _end = end;
     _nextRecord = nullptr;
 }
 

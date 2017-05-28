@@ -14,6 +14,7 @@ public:
     Transaction();
 
     /// Defines the different states the transaction can be in
+    /// Old state reference: 0 = none, 1 = active, 2 = preparing, 3 = commit, 4 = abort
     enum HekatonState {
         NONE,
         ACTIVE,
@@ -34,11 +35,11 @@ public:
     /// Get the current state of the transaction
     HekatonState getState();
 
-    /// Get the end timestamp of the transaction
-    Timestamp * getEnd();
-    
     /// Get the begin timestamp of the transaction
-    Timestamp * getBegin();
+    Timestamp *getBegin();
+
+    /// Get the end timestamp of the transaction
+    Timestamp *getEnd();
 
     /// Set whether or not to abort now
     void setAbortNow(bool abortNow);
@@ -52,10 +53,11 @@ public:
     /// Set the current state of the transaction
     void setState(HekatonState state);
 
+    /// Set the begin timestamp of the transaction
+    void setBegin(Timestamp *begin);
+
     /// Set the end timestamp of the transaction
     void setEnd(Timestamp *end);
-    
-    void setBegin(Timestamp *begin);
     
 private:
     bool _abortNow;
@@ -64,7 +66,6 @@ private:
     HekatonState _state;
     Timestamp *_end;
     Timestamp *_begin;
-    //int _state; //0 = none, 1 = active, 2 = preparing, 3 = commit, 4 = abort
 };
 
 #endif

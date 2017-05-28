@@ -34,7 +34,7 @@ void DataManager::loadDatabase(string filename) {
     int token;
     vector<int> temp(2);
     vector<vector<int>> nextRecordKeys;
-    Record entry;
+    Record entry{};
 
     // Read the file contents into a string stream
     fileStream.open(filename, fstream::in);
@@ -211,8 +211,7 @@ void DataManager::printDatabase() {
 int DataManager::getLatestEntryKey() {
 	mutex mtx;
 	mtx.lock();
-	latestEntryKey++;
-	int newEntryKey = latestEntryKey;
+	int newEntryKey = _latestEntryKey++;
 	mtx.unlock();
 	return newEntryKey;
 }
@@ -220,10 +219,13 @@ int DataManager::getLatestEntryKey() {
 int DataManager::getLatestCounter() {
 	mutex mtx;
 	mtx.lock();
-	latestCounter++;
-	int newCounter = latestCounter;
+	int newCounter = _latestCounter++;
 	mtx.unlock();
 	return newCounter;
+}
+
+void DataManager::get() {
+
 }
 
 void DataManager::get(int object, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *readSet) {

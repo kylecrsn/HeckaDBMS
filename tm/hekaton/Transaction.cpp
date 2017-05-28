@@ -25,12 +25,12 @@ Transaction::HekatonState Transaction::getState() {
     return _state;
 }
 
-Timestamp * Transaction::getEnd() {
-    return _end;
+Timestamp *Transaction::getBegin() {
+    return _begin;
 }
 
-Timestamp * Transaction::getBegin() {
-	return _begin;
+Timestamp *Transaction::getEnd() {
+    return _end;
 }
 
 void Transaction::setAbortNow(bool abortNow) {
@@ -49,10 +49,10 @@ void Transaction::setState(Transaction::HekatonState state) {
     _state = state;
 }
 
-void Transaction::setEnd(Timestamp *end) {
-    _end = end;
-}
-
 void Transaction::setBegin(Timestamp *begin) {
     _begin = begin;
+}
+
+void Transaction::setEnd(Timestamp *end) {
+    _end = end;
 }
