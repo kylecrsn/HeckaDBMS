@@ -7,6 +7,8 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <mutex>
+#include "Transaction.h"
 
 #include "Record.h"
 
@@ -36,11 +38,17 @@ public:
     // Print the database contents to console, intended for debugging purposes, limited to DB's <= 100 entries
     void PrintDataSet();
 
-    // Facilitates performing a read on the specified data item
-    void Get();
+    // Facilitates performing a read on the specified data item through 2PL
+    void Get(int object);
+    
+    // Facilitates performing a read on the specified data item through Hekaton
+    void Get(int object, unordered_map<int, Transaction *> *transactions, int currTransaction, vector<Record *> *readSet);
 
-    // Facilitates performing a write on the specified data item
+    // Facilitates performing a write on the specified data item through 2PL
     void Put();
+    
+    // Facilitates performing a write on the specified data item through Hekaton
+    bool Put(int object, int value, unordered_map<int, Transaction *> *transactions, int currTransaction, vector<Record *> *writeSet);
 
 private:
     unordered_map<int, int> _db;

@@ -92,10 +92,152 @@ void DataManager::PrintDataSet() {
     cout << flush;
 }
 
-void DataManager::Get() {
-
+void DataManager::Get(int object, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *readSet) {
+	//Record *record = _db[object];
+	Record *record;
+	Transaction *currTransaction = transactions->at(currTransactionId);
+	Transaction *transaction;
+	while (record) {
+			//begin and end timestamps are set
+			if (record->getBegin()->isCounter() && record->getEnd()->isCounter() && record->getBegin()->getCounter() != -1) {
+				if (record->getBegin()->getCounter() < currTransaction->getBegin()->getCounter() && record->getEnd()->getCounter() == -1) { //end timestamp must be infinity?
+					readSet->push_back(record);
+					break;
+				}
+				else {
+					record = record->getNextRecord();
+				}
+			}
+			//begin timestamp is transaction ID
+			else if (!record->getBegin()->isCounter()) {
+				transaction = transactions->at(record->getBegin()->getTransactionId());
+				if (record->getBegin()->getTransactionId() == currTransactionId && transaction->getState() == 1 && transaction->getEnd()->isCounter() && transaction->getEnd()->getCounter() == -1) {
+					readSet->push_back(record);
+					break;
+				}
+				else if (transaction->getState() == 2 && transaction->getEnd()->getCounter() < currTransaction->getBegin()->getCounter()) {
+					readSet->push_back(record);
+					currTransaction->setCommitDepCounter(currTransaction->getCommitDepCounter()+1);
+					transaction->getCommitDepSet()->push_back(currTransactionId);
+					break;
+				}
+				else if (transaction->getState() == 3 && transaction->getEnd()->getCounter() < currTransaction->getBegin()->getCounter()) {
+					readSet->push_back(record);
+					break;
+				}
+				//not sure what to do about terminated transaction
+			}
+			//end timestamp is transaction ID
+			else if (!record->getEnd()->isCounter()) {
+				transaction = transactions->at(record->getEnd()->getTransactionId());
+				if (transaction->getState() == 2 && transaction->getEnd()->getCounter() > currTransaction->getBegin()->getCounter()) {
+					readSet->push_back(record);
+				}
+				else if (transaction->getState() == 2 && transaction->getEnd()->getCounter() < currTransaction->getBegin()->getCounter()) {
+					currTransaction->setCommitDepCounter(currTransaction->getCommitDepCounter()+1);
+					transaction->getCommitDepSet()->push_back(currTransactionId);
+					record = record->getNextRecord(); //speculatively ignore?
+				}
+				else if (transaction->getState() == 3 && transaction->getEnd()->getCounter() > currTransaction->getBegin()->getCounter()) {
+					readSet->push_back(record);
+					break;
+				}
+				else if (transaction->getState() == 4) {
+					readSet->push_back(record);
+					break;
+				}
+				//not sure what to do about terminated transaction
+			}
+	}
 }
 
 void DataManager::Put() {
 
 }
+
+bool DataManager::Put(int object, int value, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *writeSet) {
+	if (_db.find(object) != _db.end()) {
+		mutex mtx;
+		//Record *record = _db[object];
+		Record *record;
+		while (record) {
+			if (record->getEnd()->isCounter() && record->getEnd()->getCounter() == -1) {
+				Timestamp *tBegin = new Timestamp(false, 0, currTransactionId);
+				Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
+				Record *newRecord = new Record(tBegin, tEnd, object, value);
+				mtx.lock();
+				if (record->getEnd()->isCounter() && record->getEnd()->getCounter() == -1) {
+					record->getEnd()->setTransactionId(currTransactionId);
+				}
+				else {
+					return 0;
+				}
+				mtx.unlock();
+				record->getEnd()->setIsCounter(false);
+				record->setNextRecord(newRecord);
+				writeSet->push_back(newRecord);
+				writeSet->push_back(record);
+			}
+			else if (!record->getEnd()->isCounter()) {
+				int transactionId = record->getEnd()->getTransactionId();
+				int state = transactions->at(transactionId)->getState();
+				//transaction is aborted so you can update
+				if (state == 4) {
+					Timestamp *tBegin = new Timestamp(false, 0, currTransactionId);
+					Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
+					Record *newRecord = new Record(tBegin, tEnd, object, value);
+					mtx.lock();
+					if (record->getEnd()->getTransactionId() == transactionId) {
+						record->getEnd()->setTransactionId(currTransactionId);
+					}
+					else {
+						return 0;
+					}
+					mtx.unlock();
+					record->getEnd()->setIsCounter(false);
+					record->setNextRecord(newRecord);
+					writeSet->push_back(newRecord);
+					writeSet->push_back(record);
+				}
+				else {
+					return 0;
+				}
+			}
+		}
+	} else {
+		Timestamp *tBegin = new Timestamp(false, 0, currTransactionId);
+		Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
+		Record *newRecord = new Record(tBegin, tEnd, object, value);
+		//_db[object] = newRecord;
+		writeSet->push_back(newRecord);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

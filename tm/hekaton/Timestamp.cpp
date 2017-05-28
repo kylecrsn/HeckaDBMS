@@ -14,6 +14,12 @@ Timestamp::Timestamp(int counter, int transactionId, bool isCounter)
     _isCounter = isCounter;
 }
 
+Timestamp::Timestamp(const Timestamp &t) {
+	_counter = t._counter; 
+	_transactionId = t._transactionId;
+	_isCounter = t._isCounter; 
+}
+
 int Timestamp::getCounter() {
   return _counter;
 }
@@ -30,3 +36,7 @@ void Timestamp::setCounter(int c) {
 void Timestamp::setIsCounter(bool b) {
   _isCounter = b;
 }
+void Timestamp::setTransactionId(int i) {
+	_transactionId = i;
+}
+

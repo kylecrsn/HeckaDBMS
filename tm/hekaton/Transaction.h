@@ -18,7 +18,8 @@ public:
     bool abortNow();
     int getCommitDepCounter();
     int getState();
-    Timestamp getEnd();
+    Timestamp * getEnd();
+    Timestamp * getBegin();
     vector<int> * getCommitDepSet();
 
     void setState(int s);
@@ -30,7 +31,8 @@ private:
     bool _abortNow;
     int _commitDepCounter;
     int _state; //0 = none, 1 = active, 2 = preparing, 3 = commit, 4 = abort
-    Timestamp _end;
+    Timestamp *_end;
+    Timestamp *_begin;
     vector<int> *_commitDepSet;
 };
 #endif

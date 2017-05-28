@@ -6,6 +6,9 @@ Transaction::Transaction()
   _abortNow = false;
   _commitDepCounter = 0;
   _state = 0;
+  Timestamp *_end = new Timestamp();
+  Timestamp *_begin = new Timestamp();
+  vector<int> *_commitDepSet;
 }
 
 Transaction::~Transaction()
@@ -22,8 +25,11 @@ int Transaction::getCommitDepCounter() {
 int Transaction::getState() {
   return _state;
 }
-Timestamp Transaction::getEnd() {
+Timestamp * Transaction::getEnd() {
   return _end;
+}
+Timestamp * Transaction::getBegin() {
+	return _begin;
 }
 vector<int>* Transaction::getCommitDepSet() {
   return _commitDepSet;
