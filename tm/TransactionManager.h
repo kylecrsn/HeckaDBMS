@@ -8,17 +8,17 @@
 
 class TransactionManager
 {
-public:
+/*public:
     /// Default Constructor
     TransactionManager();
 
-	createId();
+	//createId();
 
-	runTransaction(vector<int> readOnlyKeys, vector<pair<int,int>> readWriteKeys);
+	//runTransaction(vector<int> readOnlyKeys, vector<pair<int,int>> readWriteKeys);
 
 private:
 	int _idCounter;
-    vector<unordered_map<int, Transaction *> *transactions> _transactions;
+    vector<unordered_map<int, Transaction *> *transactions> _transactions;*/
 };
 
 #endif

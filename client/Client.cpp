@@ -6,7 +6,7 @@ Client::Client() {
     _state = ENTER;
 }
 
-void Client::FSM(DataManager dataManager) {
+void Client::FSM(DataManager dataManager, TransactionManager transactionManager) {
     string prompt;
     string response;
     vector<string> options;
@@ -43,11 +43,11 @@ void Client::FSM(DataManager dataManager) {
                     "Print the in-memory database to the console",
                     "Exit"
                 };
-                responseValue = Utility::PromptUser(prompt, options);
 
+                responseValue = Utility::PromptUser(prompt, options);
                 if(responseValue == 1) {
                     if(dataManager.getDb().size() == 0) {
-                        cout << "There is no in-memory database. First either generate one or load an existing one\n" << endl;
+                        cout << "(!) There is no in-memory database. First either generate one or load an existing one\n" << endl;
                         _state = ENTER;
                     }
                     else {
@@ -59,7 +59,7 @@ void Client::FSM(DataManager dataManager) {
                         _state = GENERATE_DATA;
                     }
                     else {
-                        cout << "There is an existing in-memory database. First either clear it or save it to disk\n" << endl;
+                        cout << "(!) There is an existing in-memory database. First either clear it or save it to disk\n" << endl;
                         _state = ENTER;
                     }
                 }
@@ -68,13 +68,13 @@ void Client::FSM(DataManager dataManager) {
                         _state = LOAD_DATA;
                     }
                     else {
-                        cout << "There is an existing in-memory database. First either clear it or save it to disk\n" << endl;
+                        cout << "(!) There is an existing in-memory database. First either clear it or save it to disk\n" << endl;
                         _state = ENTER;
                     }
                 }
                 else if(responseValue == 4) {
                     if(dataManager.getDb().size() == 0) {
-                        cout << "There is no in-memory database to save\n" << endl;
+                        cout << "(!) There is no in-memory database to save\n" << endl;
                         _state = ENTER;
                     }
                     else {
@@ -83,7 +83,7 @@ void Client::FSM(DataManager dataManager) {
                 }
                 else if(responseValue == 5) {
                     if(dataManager.getDb().size() == 0) {
-                        cout << "There is no in-memory database to clear\n" << endl;
+                        cout << "(!) There is no in-memory database to clear\n" << endl;
                         _state = ENTER;
                     }
                     else {
@@ -92,11 +92,11 @@ void Client::FSM(DataManager dataManager) {
                 }
                 else if(responseValue == 6) {
                     if(dataManager.getDb().size() == 0) {
-                        cout << "There is no in-memory database to print\n" << endl;
+                        cout << "(!) There is no in-memory database to print\n" << endl;
                         _state = ENTER;
                     }
                     else if(dataManager.getDb().size() > DATA_PRINT_LIMIT) {
-                        cout << "Printing databases larger than " << DATA_PRINT_LIMIT << " is disallowed\n" << endl;
+                        cout << "(!) Printing databases larger than " << DATA_PRINT_LIMIT << " is disallowed\n" << endl;
                         _state = ENTER;
                     }
                     else {
@@ -117,19 +117,19 @@ void Client::FSM(DataManager dataManager) {
                     "Vary (Simulate a static-sized transaction load with a varied ratio of read-only to read-write "
                         "transactions)"
                 };
-                responseValue = Utility::PromptUser(prompt, options);
 
+                responseValue = Utility::PromptUser(prompt, options);
                 if(responseValue == 1) {
                     manualTest = ManualTest();
-                    manualTest.FSM(dataManager.getDb().size());
+                    manualTest.FSM(dataManager, transactionManager);
                 }
                 else if(responseValue == 2) {
                     scaleTest = ScaleTest();
-                    scaleTest.FSM();
+                    scaleTest.FSM(dataManager, transactionManager);
                 }
                 else {
                     varyTest = VaryTest();
-                    varyTest.FSM();
+                    varyTest.FSM(dataManager, transactionManager);
                 }
 
                 _state = ENTER;
@@ -137,10 +137,9 @@ void Client::FSM(DataManager dataManager) {
             }
             case GENERATE_DATA: {
                 prompt = "How many entries should the database initially be?";
+
                 responseValue = Utility::PromptUser(prompt, 1, 10000000);
-
                 dataManager.generateDatabase(responseValue);
-
                 cout << "A database with " << responseValue << " entries was successfully generated\n" << endl;
 
                 _state = ENTER;
@@ -149,11 +148,11 @@ void Client::FSM(DataManager dataManager) {
             case LOAD_DATA: {
                 fstream filestream;
                 prompt = "What is the database filename to load? (Example: database.csv)";
-                response = Utility::PromptUser(prompt);
 
+                response = Utility::PromptUser(prompt);
                 filestream.open(response, fstream::in);
                 if(filestream.fail()) {
-                    cout << "The given filename does not exist or could not be found/accessed\n" << endl;
+                    cout << "(!) The given filename does not exist or could not be found/accessed\n" << endl;
                 }
                 else {
                     filestream.close();
@@ -165,9 +164,9 @@ void Client::FSM(DataManager dataManager) {
             }
             case SAVE_DATA: {
                 struct stat buf;
-                prompt = "What should the database file be named?";
-                response = Utility::PromptUser(prompt);
+                prompt = "What should the database file be named? (Example: database.csv)";
 
+                response = Utility::PromptUser(prompt);
                 if (stat(response.c_str(), &buf) != -1) {
                     prompt = "That file already exists. Would you like to overwrite it?";
                     options = {
@@ -199,11 +198,25 @@ void Client::FSM(DataManager dataManager) {
                 _state = ENTER;
                 break;
             }
+            //TODO: Readable or storage formats
             case PRINT_DATA: {
+                prompt = "Which format should be used to print the database?";
+                options = {
+                    "Compact (Same format data is stored on disk)",
+                    "Verbose (Much more readable/user-friendly)"
+                };
+
+                responseValue = Utility::PromptUser(prompt, options);
                 cout << "Below is the contents of the current in-memory database" << endl;
-                cout << "NOTE: The data may be printed in any order as the internal data structures used do not specify "
-                    "an explicit ordering\n" << endl;
-                dataManager.printDatabase();
+                cout << "(NOTE: The data may be printed in any order as the internal data structures used do not specify "
+                        "an explicit ordering)\n";
+                cout << "(NOTE: The NextRecord pointer is specified by the EntryKey of the record it points to)\n" << endl;
+                if(responseValue == 1) {
+                    dataManager.printDatabaseCompact();
+                }
+                else {
+                    dataManager.printDatabaseVerbose();
+                }
                 cout << endl;
 
                 _state = ENTER;

@@ -2,10 +2,39 @@
 
 DataManager::DataManager() {
     _db = {};
+    _latestEntryKey = 0;
+    _latestCounter = 0;
+    _opsPerTransaction = 4;
 }
 
 const unordered_map<int, Record>& DataManager::getDb() {
     return _db;
+}
+
+int DataManager::getLatestEntryKey() {
+    mutex mtx;
+    int newEntryKey;
+
+    mtx.lock();
+    newEntryKey = _latestEntryKey++;
+    mtx.unlock();
+
+    return newEntryKey;
+}
+
+int DataManager::getLatestCounter() {
+    mutex mtx;
+    int newCounter;
+
+    mtx.lock();
+    newCounter = _latestCounter++;
+    mtx.unlock();
+
+    return newCounter;
+}
+
+int DataManager::getOpsPerTransaction() {
+    return _opsPerTransaction;
 }
 
 void DataManager::setDb(const unordered_map<int, Record>& db) {
@@ -172,7 +201,7 @@ void DataManager::clearDatabase() {
     _db.clear();
 }
 
-void DataManager::printDatabase() {
+void DataManager::printDatabaseCompact() {
     string delim = ",";
 
     for(auto i : _db) {
@@ -199,7 +228,7 @@ void DataManager::printDatabase() {
         }
         cout << i.second.getEnd()->getCounter() << delim << i.second.getEnd()->getTransactionId() << delim;
         if(i.second.getNextRecord() == nullptr) {
-            cout << "-1" << "\n";
+            cout << "-1\n";
         }
         else {
             cout << i.second.getNextRecord()->getEntryKey() << "\n";
@@ -208,20 +237,43 @@ void DataManager::printDatabase() {
     cout << flush;
 }
 
-int DataManager::getLatestEntryKey() {
-	mutex mtx;
-	mtx.lock();
-	int newEntryKey = _latestEntryKey++;
-	mtx.unlock();
-	return newEntryKey;
-}
+void DataManager::printDatabaseVerbose() {
+    string delim = ",";
 
-int DataManager::getLatestCounter() {
-	mutex mtx;
-	mtx.lock();
-	int newCounter = _latestCounter++;
-	mtx.unlock();
-	return newCounter;
+    for(auto i : _db) {
+        cout << "<Key: " << i.second.getEntryKey() << delim << " Value: {EntryKey: " << i.second.getEntryKey() << delim;
+        if(i.second.getIsLatest()) {
+            cout << " IsLatest: true" << delim;
+        }
+        else {
+            cout << " IsLatest: false" << delim;
+        }
+        cout << " ObjectKey: " << i.second.getObjectKey() << delim << " ObjectValue: " << i.second.getObjectValue() << delim;
+        cout << " Begin: {"
+        if(i.second.getBegin()->getIsCounter()) {
+            cout << " IsCounter: true" << delim;
+        }
+        else {
+            cout << " IsCounter: false" << delim;
+        }
+        cout << " Counter: " << i.second.getBegin()->getCounter() << delim;
+        cout << " TransactionID: " << i.second.getBegin()->getTransactionId() << delim << "}" << delim << " End: {";
+        if(i.second.getEnd()->getIsCounter()) {
+            cout << " IsCounter: true" << delim;
+        }
+        else {
+            cout << " IsCounter: false" << delim;
+        }
+        cout << " Counter: " << i.second.getEnd()->getCounter() << delim;
+        cout << " TransactionID: " << i.second.getEnd()->getTransactionId() << delim << "}" << delim << " NextRecord: ";
+        if(i.second.getNextRecord() == nullptr) {
+            cout << "-1}>\n";
+        }
+        else {
+            cout << i.second.getNextRecord()->getEntryKey() << "}>\n";
+        }
+    }
+    cout << flush;
 }
 
 void DataManager::get() {

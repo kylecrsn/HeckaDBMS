@@ -1,11 +1,12 @@
 #include "TransactionManager.h"
 
-TransactionManager::TransactionManager() {
+/*TransactionManager::TransactionManager() {
 	_idCounter = 0;
 	_transactions = {};
-}
+}*/
 
 
+/*
 TransactionManager::createId() {
 	mutex mtx;
 	mtx.lock();
@@ -17,4 +18,4 @@ TransactionManager::createId() {
 
 TransactionManager::runTransaction(vector<int> readOnlyKeys, vector<pair<int,int>> readWriteKeys) {
 	
-}
+}*/

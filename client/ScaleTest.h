@@ -6,6 +6,8 @@
 #include <vector>
 
 #include "Utility.h"
+#include "DataManager.h"
+#include "TransactionManager.h"
 
 using namespace std;
 
@@ -17,7 +19,7 @@ public:
     ScaleTest();
 
     /// Finite state machine for processing user input
-    void FSM();
+    void FSM(DataManager dataManager, TransactionManager transactionManager);
 
     /// State definition for a Scale testflow
     enum ScaleState {

@@ -23,6 +23,15 @@ public:
     /// Get the underlying database object
     const unordered_map<int, Record>& getDb();
 
+    /// Get a new entry key from a global key manager
+    int getLatestEntryKey();
+
+    /// Get a new counter value from a global counter timer
+    int getLatestCounter();
+
+    /// Get the number of operations per transaction attempt
+    int getOpsPerTransaction();
+
     /// Set the underlying database object
     void setDb(const unordered_map<int, Record>& db);
 
@@ -38,14 +47,11 @@ public:
     /// Clear the current contents of the database
     void clearDatabase();
 
-    /// Print the current contents of the database (intended for debugging purposes)
-    void printDatabase();
+    /// Print the current contents of the database in a compact format
+    void printDatabaseCompact();
 
-    /// Returns a new entry key from a global key manager
-    int getLatestEntryKey();
-
-    /// Returns a new counter value from a global counter timer
-    int getLatestCounter();
+    /// Print the current contents of the database in a verbose format
+    void printDatabaseVerbose();
 
     /// Facilitates performing a read on the specified data item through 2PL
     void get();
@@ -63,6 +69,7 @@ private:
     unordered_map<int, Record> _db;
     int _latestEntryKey;
     int _latestCounter;
+    int _opsPerTransaction;
 };
 
 #endif

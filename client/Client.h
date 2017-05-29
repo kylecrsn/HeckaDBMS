@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "DataManager.h"
+#include "TransactionManager.h"
 #include "Utility.h"
 #include "ManualTest.h"
 #include "ScaleTest.h"
@@ -24,7 +25,7 @@ public:
     Client();
 
     /// Finite state machine for processing user input
-    void FSM(DataManager dataManager);
+    void FSM(DataManager dataManager, TransactionManager transactionManager);
 
     /// State definition for the top-level client menu
     enum ClientState {

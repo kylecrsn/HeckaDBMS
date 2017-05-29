@@ -6,7 +6,7 @@ ScaleTest::ScaleTest() {
     _state = ENTER;
 }
 
-void ScaleTest::FSM() {
+void ScaleTest::FSM(DataManager dataManager, TransactionManager transactionManager) {
     string prompt;
     string scaleAlgorithmString;
     vector<string> options;
@@ -33,7 +33,7 @@ void ScaleTest::FSM() {
 
                 transactionCount = responseValue;
                 if(transactionCount < 2) {
-                    cout << "The total number of transactions must be at least 2. To execute a single transaction, use "
+                    cout << "(!) The total number of transactions must be at least 2. To execute a single transaction, use "
                          "Manual testing instead\n" << endl;
                     _state = EXIT;
                 }
@@ -105,10 +105,10 @@ void ScaleTest::FSM() {
             }
             case BEGIN_TRANSACTION: {
                 cout << "HeckaDBMS will now begin performing the transactions with the following parameters:" << endl;
-                cout << "\t-Transactions: " << transactionCount << endl;
-                cout << "\t-Initial Thread Count: " << initialThreadCount << endl;
-                cout << "\t-Final Thread Count: " << finalThreadCount << endl;
-                cout << "\t-Scaling Algorithm: " << scaleAlgorithmString << endl;
+                cout << "\t|Transactions: " << transactionCount << endl;
+                cout << "\t|Initial Thread Count: " << initialThreadCount << endl;
+                cout << "\t|Final Thread Count: " << finalThreadCount << endl;
+                cout << "\t|Scaling Algorithm: " << scaleAlgorithmString << endl;
                 cout << "Launching threads...\n" << endl;
 
                 //TODO: Pass input to TM to launch transactions

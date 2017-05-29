@@ -75,11 +75,11 @@ int Utility::PromptUser(string prompt, int min, int max) {
         responseValue = stoi(response);
     }
     catch (invalid_argument e) {
-        cout << "Please enter a valid integer within the specified range\n" << endl;
+        cout << "(!) Please enter a valid integer within the specified range\n" << endl;
         goto PROMPT;
     }
     if(responseValue < min || responseValue > max) {
-        cout << "Please enter a valid integer within the specified range\n" << endl;
+        cout << "(!) Please enter a valid integer within the specified range\n" << endl;
         goto PROMPT;
     }
 
@@ -103,11 +103,11 @@ int Utility::PromptUser(string prompt, const vector<string>& options) {
         responseValue = stoi(response);
     }
     catch (invalid_argument e) {
-        cout << "Please enter one of the valid values inside the brackets\n" << endl;
+        cout << "(!) Please enter one of the valid values inside the brackets\n" << endl;
         goto PROMPT;
     }
     if(responseValue < 1 || responseValue > options.size()) {
-        cout << "Please enter one of the valid values inside the brackets\n" << endl;
+        cout << "(!) Please enter one of the valid values inside the brackets\n" << endl;
         goto PROMPT;
     }
 

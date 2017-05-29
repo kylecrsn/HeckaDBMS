@@ -6,7 +6,7 @@ ManualTest::ManualTest() {
     _state = ENTER;
 }
 
-void ManualTest::FSM(int dbSize) {
+void ManualTest::FSM(DataManager dataManager, TransactionManager transactionManager) {
     string prompt;
     stringstream ss;
     vector<string> options;
@@ -29,18 +29,20 @@ void ManualTest::FSM(int dbSize) {
                 break;
             }
             case RO_TRANSACTIONS: {
-                prompt = "How many Read-Only transactions do you want to perform?";
+                prompt = "How many Read-Only transactions do you want to perform?\n"
+                    "(NOTE: Each Read-Only transaction executes 4 Read operations)";
                 readOnlyCount = Utility::PromptUser(prompt, 0, RO_TRANSACTION_LIMIT);
 
                 _state = RW_TRANSACTIONS;
                 break;
             }
             case RW_TRANSACTIONS: {
-                prompt = "How many Read-Write transactions do you want to perform?";
+                prompt = "How many Read-Write transactions do you want to perform?\n"
+                    "(NOTE: Each Read-Write transaction executes 2 Read and 2 Write operations)";
                 readWriteCount = Utility::PromptUser(prompt, 0, RW_TRANSACTION_LIMIT);
 
                 if(readOnlyCount + readWriteCount == 0) {
-                    cout << "The total number of transactions must be at least 1\n" << endl;
+                    cout << "(!) The total number of transactions must be at least 1\n" << endl;
                     _state = EXIT;
                 }
                 else {
@@ -60,7 +62,7 @@ void ManualTest::FSM(int dbSize) {
                         "from the database?";
                 options = vector<string> {
                     "Randomly select them from the database",
-                    "Specify each data object (NOTE: if there are lots of transactions this may be tedious)"
+                    "Specify each data object (NOTE: this becomes tedious with more than a few objects)"
                 };
                 responseValue = Utility::PromptUser(prompt, options);
 
@@ -74,30 +76,56 @@ void ManualTest::FSM(int dbSize) {
                 break;
             }
             case DATA_SPECIFY: {
+                int key;
+                const Record *record;
                 mt19937 gen;
                 gen.seed(random_device()());
-                uniform_real_distribution<> distribution(0, dbSize - 1);
+                uniform_real_distribution<> distribution(0, dataManager.getDb().size() - 1);
                 readOnlyKeys.clear();
                 readWriteKeys.clear();
 
                 if (specifyDataObjects) {
-                    for (int i = 0; i < readOnlyCount; i++) {
-                        ss << "Which data object key would you like to perform read-only transaction " << i << " on?";
+                    for (int i = 0; i < readOnlyCount * dataManager.getOpsPerTransaction(); i++) {
+                        ss << "Which data entry key would you like to perform read-only operation " << i << " on?\n"
+                            << "(NOTE: If the entry key specified is for an older/invalid version of an object, HeckaDBMS "
+                            "will automatically find the latest version and point your request at it)";
                         prompt = ss.str();
-                        readOnlyKeys.push_back(Utility::PromptUser(prompt, 0, dbSize - 1));
+                        key = Utility::PromptUser(prompt, 0, dataManager.getDb().size() - 1);
+                        record = &(dataManager.getDb().find(key)->second);
+                        while(!record->getIsLatest()) {
+                            record = record->getNextRecord();
+                        }
+                        readOnlyKeys.push_back(record->getEntryKey());
                     }
-                    for (int i = 0; i < readWriteCount; i++) {
-                        ss << "Which data object key would you like to perform read-write transaction " << i << " on?";
+                    for (int i = 0; i < readWriteCount * dataManager.getOpsPerTransaction(); i++) {
+                        ss << "Which data entry key would you like to perform read-write operation " << i << " on?\n"
+                            << "(NOTE: If the entry key specified is for an older/invalid version of an object, HeckaDBMS "
+                            "will automatically find the latest version and point your request at it)";
                         prompt = ss.str();
-                        readWriteKeys.push_back(Utility::PromptUser(prompt, 0, dbSize - 1));
+                        key = Utility::PromptUser(prompt, 0, dataManager.getDb().size() - 1);
+                        record = &(dataManager.getDb().find(key)->second);
+                        while(!record->getIsLatest()) {
+                            record = record->getNextRecord();
+                        }
+                        readWriteKeys.push_back(record->getEntryKey());
                     }
                 }
                 else {
-                    for(int i = 0; i < readOnlyCount; i++) {
-                        readOnlyKeys.push_back((int)distribution(gen));
+                    for(int i = 0; i < readOnlyCount * dataManager.getOpsPerTransaction(); i++) {
+                        key = (int)distribution(gen);
+                        record = &(dataManager.getDb().find(key)->second);
+                        while(!record->getIsLatest()) {
+                            record = record->getNextRecord();
+                        }
+                        readOnlyKeys.push_back(record->getEntryKey());
                     }
-                    for(int i = 0; i < readWriteCount; i++) {
-                        readWriteKeys.push_back((int)distribution(gen));
+                    for(int i = 0; i < readWriteCount * dataManager.getOpsPerTransaction(); i++) {
+                        key = (int)distribution(gen);
+                        record = &(dataManager.getDb().find(key)->second);
+                        while(!record->getIsLatest()) {
+                            record = record->getNextRecord();
+                        }
+                        readWriteKeys.push_back(record->getEntryKey());
                     }
                 }
 
@@ -106,8 +134,8 @@ void ManualTest::FSM(int dbSize) {
             }
             case BEGIN_TRANSACTION: {
                 cout << "HeckaDBMS will now begin performing the transaction(s) with the following parameters:" << endl;
-                cout << "\t-Read-Only Transactions: " << readOnlyCount << endl;
-                cout << "\t-Read-Only Data Object Keys: ";
+                cout << "\t|Read-Only Transactions: " << readOnlyCount << endl;
+                cout << "\t|Read-Only Data Object Keys: ";
                 for(int i = 0; i < min(readOnlyCount, PRINT_KEY_LIMIT); i++) {
                     if(i == PRINT_KEY_LIMIT - 1 && readOnlyCount != PRINT_KEY_LIMIT) {
                         cout << readOnlyKeys.at(i) << "...";
@@ -120,8 +148,8 @@ void ManualTest::FSM(int dbSize) {
                     }
                 }
                 cout << endl;
-                cout << "\t-Read-Write Transactions: " << readWriteCount << endl;
-                cout << "\t-Read-Write Data Object Keys: ";
+                cout << "\t|Read-Write Transactions: " << readWriteCount << endl;
+                cout << "\t|Read-Write Data Object Keys: ";
                 for(int i = 0; i < min(readWriteCount, PRINT_KEY_LIMIT); i++) {
                     if(i == PRINT_KEY_LIMIT - 1 && readWriteCount != PRINT_KEY_LIMIT) {
                         cout << readWriteKeys.at(i) << "...";
@@ -134,7 +162,7 @@ void ManualTest::FSM(int dbSize) {
                     }
                 }
                 cout << endl;
-                cout << "\t-Concurrent Threads: " << threadCount << endl;
+                cout << "\t|Concurrent Threads: " << threadCount << endl;
                 cout << "Launching threads...\n" << endl;
 
                 //TODO: Pass input to TM to launch transactions

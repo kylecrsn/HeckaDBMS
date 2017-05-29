@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "DataManager.h"
+#include "TransactionManager.h"
 #include "Utility.h"
 #include "Client.h"
 
@@ -11,6 +12,7 @@ int main(int argc, char *argv[])
     string protocolType;
     Client client = Client();
     DataManager dataManager;
+    TransactionManager transactionManager;
 
     // Parse command-line arguments
     Utility::ParseArgs(argc, argv, &protocolType);
@@ -20,7 +22,7 @@ int main(int argc, char *argv[])
     cout << "==================================================\n" << endl;
 
     // Launch client
-    client.FSM(dataManager);
+    client.FSM(dataManager, transactionManager);
 
     cout << "==================================================" << endl;
     cout << "||               EXITING HeckaDBMS              ||" << endl;

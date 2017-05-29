@@ -7,12 +7,14 @@
 #include <vector>
 
 #include "Utility.h"
+#include "DataManager.h"
+#include "TransactionManager.h"
 
 using namespace std;
 
-#define RO_TRANSACTION_LIMIT 100
-#define RW_TRANSACTION_LIMIT 100
-#define PRINT_KEY_LIMIT 10
+#define RO_TRANSACTION_LIMIT 5000
+#define RW_TRANSACTION_LIMIT 5000
+#define PRINT_KEY_LIMIT 16
 
 class ManualTest {
 public:
@@ -20,7 +22,7 @@ public:
     ManualTest();
 
     /// Finite state machine for processing user input
-    void FSM(int dbSize);
+    void FSM(DataManager dataManager, TransactionManager transactionManager);
 
     /// State definition for a Manual testflow
     enum ManualState {
