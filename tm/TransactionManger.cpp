@@ -38,6 +38,7 @@ void TransactionManager::createTransactions(DataManager *db, int readOnlyCount, 
     int readCount;
     int writeCount;
     srand(time(NULL));
+    int w;
 
     for (int i = 0; i < readOnlyCount + readWriteCount; i++) {
         if (rand() % 2) {
@@ -60,13 +61,13 @@ void TransactionManager::createTransactions(DataManager *db, int readOnlyCount, 
                             readWriteKeys.erase(readWriteKeys.begin());
                         }
                         else {
-                            writes.push_back(readWriteKeys.front());
+			  				writes.push_back(make_pair(readWriteKeys.at(0),(int)distribution(gen)));
                             readWriteKeys.erase(readWriteKeys.begin());
                         }
                     }
                     else  {
                         if (writeCount !=2) {
-                            writes.push_back(readWriteKeys.front());
+			  				writes.push_back(make_pair(readWriteKeys.at(0),(int)distribution(gen)));
                             readWriteKeys.erase(readWriteKeys.begin());
                         }
                         else {
@@ -90,13 +91,13 @@ void TransactionManager::createTransactions(DataManager *db, int readOnlyCount, 
                             readWriteKeys.erase(readWriteKeys.begin());
                         }
                         else {
-                            writes.push_back(readWriteKeys.front());
+			  				writes.push_back(make_pair(readWriteKeys.at(0),(int)distribution(gen)));
                             readWriteKeys.erase(readWriteKeys.begin());
                         }
                     }
                     else  {
                         if (writeCount !=2) {
-                            writes.push_back(readWriteKeys.front());
+			  				writes.push_back(make_pair(readWriteKeys.at(0),(int)distribution(gen)));
                             readWriteKeys.erase(readWriteKeys.begin());
                         }
                         else {
@@ -115,7 +116,7 @@ void TransactionManager::createTransactions(DataManager *db, int readOnlyCount, 
                     readOnlyKeys.erase(readOnlyKeys.begin());
                 }
                 readOnlyCount--;
-                runTransaction(db, reads, NULL, true);
+                runTransaction(db, reads, vector<pair<int, int>>(), true);
             }
         }
     }
