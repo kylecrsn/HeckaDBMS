@@ -8,8 +8,8 @@
 #include <sstream>
 #include <fstream>
 #include <mutex>
-
 #include "Transaction.h"
+
 #include "Record.h"
 
 using namespace std;
@@ -37,27 +37,26 @@ public:
 
     /// Clear the current contents of the database
     void clearDatabase();
+    
+    int getLatestEntryKey();
+    
+    int getLatestCounter();
 
+    // Facilitates performing a read on the specified data item through 2PL
+    void get(int object);
+    
+    // Facilitates performing a read on the specified data item through Hekaton
+    void get(int object, unordered_map<int, Transaction *> *transactions, int currTransaction, vector<Record *> *readSet);
+
+    // Facilitates performing a write on the specified data item through 2PL
+    void put();
+    
+    // Facilitates performing a write on the specified data item through Hekaton
+    bool put(int object, int value, unordered_map<int, Transaction *> *transactions, int currTransaction, vector<Record *> *writeSet);
     /// Print the current contents of the database (intended for debugging purposes)
     void printDatabase();
 
-    /// Returns a new entry key from a global key manager
-    int getLatestEntryKey();
 
-    /// Returns a new counter value from a global counter timer
-    int getLatestCounter();
-
-    /// Facilitates performing a read on the specified data item through 2PL
-    void get();
-    
-    /// Facilitates performing a read on the specified data item through Hekaton
-    void get(int object, unordered_map<int, Transaction *> *transactions, int currTransaction, vector<Record *> *readSet);
-
-    /// Facilitates performing a write on the specified data item through 2PL
-    void put();
-    
-    /// Facilitates performing a write on the specified data item through Hekaton
-    bool put(int object, int value, unordered_map<int, Transaction *> *transactions, int currTransaction, vector<Record *> *writeSet);
 
 private:
     unordered_map<int, Record> _db;

@@ -2,6 +2,8 @@
 
 DataManager::DataManager() {
     _db = {};
+    _latestCounter = 0;
+    _latestEntryKey = 0;
 }
 
 const unordered_map<int, Record>& DataManager::getDb() {
@@ -34,7 +36,7 @@ void DataManager::loadDatabase(string filename) {
     int token;
     vector<int> temp(2);
     vector<vector<int>> nextRecordKeys;
-    Record entry{};
+    Record entry;
 
     // Read the file contents into a string stream
     fileStream.open(filename, fstream::in);
@@ -211,7 +213,8 @@ void DataManager::printDatabase() {
 int DataManager::getLatestEntryKey() {
 	mutex mtx;
 	mtx.lock();
-	int newEntryKey = _latestEntryKey++;
+	_latestEntryKey++;
+	int newEntryKey = _latestEntryKey;
 	mtx.unlock();
 	return newEntryKey;
 }
@@ -219,17 +222,14 @@ int DataManager::getLatestEntryKey() {
 int DataManager::getLatestCounter() {
 	mutex mtx;
 	mtx.lock();
-	int newCounter = _latestCounter++;
+	_latestCounter++;
+	int newCounter = _latestCounter;
 	mtx.unlock();
 	return newCounter;
 }
 
-void DataManager::get() {
-
-}
-
-void DataManager::get(int object, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *readSet) {
-	//Record *record = _db[object];
+void DataManager::get(int entryKey, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *readSet) {
+	//Record record = _db[entryKey];
 	Record *record;
 	Transaction *currTransaction = transactions->at(currTransactionId);
 	Transaction *transaction;
@@ -291,16 +291,15 @@ void DataManager::put() {
 
 }
 
-bool DataManager::put(int object, int value, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *writeSet) {
-	if (_db.find(object) != _db.end()) {
+bool DataManager::put(int entryKey, int value, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *writeSet) {
 		mutex mtx;
-		//Record *record = _db[object];
+		//Record *record = _db[entryKey];
 		Record *record;
 		while (record) {
 			if (record->getEnd()->getIsCounter() && record->getEnd()->getCounter() == -1) {
 				Timestamp *tBegin = new Timestamp(false, 0, currTransactionId);
 				Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
-				Record *newRecord = new Record(tBegin, tEnd, getLatestEntryKey(), object, value);
+				Record *newRecord = new Record(tBegin, tEnd, getLatestEntryKey(), record->getObjectKey(), value);
 				mtx.lock();
 				if (record->getEnd()->getIsCounter() && record->getEnd()->getCounter() == -1) {
 					record->getEnd()->setTransactionId(currTransactionId);
@@ -321,7 +320,7 @@ bool DataManager::put(int object, int value, unordered_map<int, Transaction *> *
 				if (state == 4) {
 					Timestamp *tBegin = new Timestamp(false, 0, currTransactionId);
 					Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
-					Record *newRecord = new Record(tBegin, tEnd, getLatestEntryKey(), object, value);
+					Record *newRecord = new Record(tBegin, tEnd, getLatestEntryKey(), record->getObjectKey(), value);
 					mtx.lock();
 					if (record->getEnd()->getTransactionId() == transactionId) {
 						record->getEnd()->setTransactionId(currTransactionId);
@@ -340,13 +339,6 @@ bool DataManager::put(int object, int value, unordered_map<int, Transaction *> *
 				}
 			}
 		}
-	} else {
-		Timestamp *tBegin = new Timestamp(false, 0, currTransactionId);
-		Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
-		Record *newRecord = new Record(tBegin, tEnd, getLatestEntryKey(), object, value);
-		//_db[object] = newRecord;
-		writeSet->push_back(newRecord);
-	}
 }
 
 

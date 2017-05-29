@@ -6,6 +6,7 @@
 #include <sstream>
 #include <vector>
 
+#include "TransactionManager.h"
 #include "Utility.h"
 
 using namespace std;

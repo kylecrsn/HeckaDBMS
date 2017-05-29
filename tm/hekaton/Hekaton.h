@@ -19,6 +19,8 @@ public:
     /// Destructor
     ~Hekaton();
     
+    void setId(int i);
+    
 	//sets phase to active and acquire begin timestamp
     void beginTransaction(DataManager *db, unordered_map<int, Transaction *> *transactions);
 	
@@ -30,6 +32,7 @@ public:
 
 	//Write- see section 2.6, add pointers to writeset, may need to call abort (if so set to postprocessing phase)
 	void write(DataManager *db, vector<pair<int, int>> *writes, unordered_map<int, Transaction *> *transactions);
+	
 	
 	//endNormalProcessing - acquire end timestamp, switch state to preparing, call validate
 	void endNormalProcessing(DataManager *db, unordered_map<int, Transaction *> *transactions);
@@ -49,7 +52,6 @@ public:
 	
 	//go through commitDepSet and decrement respective transactions' commitDepCounter
 	void committedCommitDep(unordered_map<int, Transaction *> *transactions);
-
  private:
     int _id;
     vector<Record *> _readSet;
