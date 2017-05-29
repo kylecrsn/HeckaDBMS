@@ -21,9 +21,9 @@ void TransactionManager::runTransaction(DataManager *db, vector<int> reads, vect
     _transactions[id] = new Transaction();
     Hekaton *h = new Hekaton();
     h->beginTransaction(db, &_transactions);
-    h->read(db, reads, &_transactions);
+    h->read(db, &reads, &_transactions);
     if (!readOnly) {
-        h->write(db, writes, &_transactions);
+        h->write(db, &writes, &_transactions);
         h->endNormalProcessing(db, &_transactions);
     }
 }
@@ -38,24 +38,25 @@ void TransactionManager::createTransactions(DataManager *db, int readOnlyCount, 
     int readCount;
     int writeCount;
     srand(time(NULL));
+
     for (int i = 0; i < readOnlyCount + readWriteCount; i++) {
         if (rand() % 2) {
             if (readOnlyCount != 0) {
                 vector<int> reads;
                 for (j = 0; j < 4; j++) {
-                    reads.push_back(readOnlyKeys.front());
+                    reads.push_back(*(readOnlyKeys.begin()));
                     readOnlyKeys.erase(readOnlyKeys.begin());
                 }
-                readOnlyCount --;
-                runTransaction(db, reads, NULL, true);
+                readOnlyCount--;
+                runTransaction(db, reads, vector<pair<int, int>>(), true);
             }
             else {
-                vector<pair<int,int> writes;
+                vector<pair<int,int>> writes;
                 vector<int> reads;
                 for (j = 0; j < 4; j++) {
                     if (rand() % 2) {
                         if (readCount !=2) {
-                            reads.push_back(readWriteKeys.front());
+                            reads.push_back(*(readWriteKeys.begin()));
                             readWriteKeys.erase(readWriteKeys.begin());
                         }
                         else {
@@ -69,7 +70,7 @@ void TransactionManager::createTransactions(DataManager *db, int readOnlyCount, 
                             readWriteKeys.erase(readWriteKeys.begin());
                         }
                         else {
-                            reads.push_back(readWriteKeys.front());
+                            reads.push_back(*(readWriteKeys.begin()));
                             readWriteKeys.erase(readWriteKeys.begin());
                         }
                     }
@@ -80,12 +81,12 @@ void TransactionManager::createTransactions(DataManager *db, int readOnlyCount, 
         }
         else {
             if (readWriteCount != 0) {
-                vector<pair<int,int> writes;
+                vector<pair<int,int>> writes;
                 vector<int> reads;
                 for (j = 0; j < 4; j++) {
                     if (rand() % 2) {
                         if (readCount !=2) {
-                            reads.push_back(readWriteKeys.front());
+                            reads.push_back(*(readWriteKeys.begin()));
                             readWriteKeys.erase(readWriteKeys.begin());
                         }
                         else {
@@ -99,7 +100,7 @@ void TransactionManager::createTransactions(DataManager *db, int readOnlyCount, 
                             readWriteKeys.erase(readWriteKeys.begin());
                         }
                         else {
-                            reads.push_back(readWriteKeys.front());
+                            reads.push_back(*(readWriteKeys.begin()));
                             readWriteKeys.erase(readWriteKeys.begin());
                         }
                     }
@@ -110,7 +111,7 @@ void TransactionManager::createTransactions(DataManager *db, int readOnlyCount, 
             else {
                 vector<int> reads;
                 for (j = 0; j < 4; j++) {
-                    reads.push_back(readOnlyKeys.front());
+                    reads.push_back(*(readOnlyKeys.begin()));
                     readOnlyKeys.erase(readOnlyKeys.begin());
                 }
                 readOnlyCount--;
