@@ -7,7 +7,7 @@ DataManager::DataManager() {
     _opsPerTransaction = 4;
 }
 
-const unordered_map<int, Record>& DataManager::getDb() {
+unordered_map<int, Record> DataManager::getDb() {
     return _db;
 }
 
@@ -249,7 +249,7 @@ void DataManager::printDatabaseVerbose() {
             cout << " IsLatest: false" << delim;
         }
         cout << " ObjectKey: " << i.second.getObjectKey() << delim << " ObjectValue: " << i.second.getObjectValue() << delim;
-        cout << " Begin: {"
+        cout << " Begin: {";
         if(i.second.getBegin()->getIsCounter()) {
             cout << " IsCounter: true" << delim;
         }

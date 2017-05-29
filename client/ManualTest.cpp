@@ -77,7 +77,7 @@ void ManualTest::FSM(DataManager dataManager, TransactionManager transactionMana
             }
             case DATA_SPECIFY: {
                 int key;
-                const Record *record;
+                Record *record;
                 mt19937 gen;
                 gen.seed(random_device()());
                 uniform_real_distribution<> distribution(0, dataManager.getDb().size() - 1);
@@ -91,7 +91,7 @@ void ManualTest::FSM(DataManager dataManager, TransactionManager transactionMana
                             "will automatically find the latest version and point your request at it)";
                         prompt = ss.str();
                         key = Utility::PromptUser(prompt, 0, dataManager.getDb().size() - 1);
-                        record = &(dataManager.getDb().find(key)->second);
+                        record = &(dataManager.getDb()[key]);
                         while(!record->getIsLatest()) {
                             record = record->getNextRecord();
                         }
@@ -103,7 +103,7 @@ void ManualTest::FSM(DataManager dataManager, TransactionManager transactionMana
                             "will automatically find the latest version and point your request at it)";
                         prompt = ss.str();
                         key = Utility::PromptUser(prompt, 0, dataManager.getDb().size() - 1);
-                        record = &(dataManager.getDb().find(key)->second);
+                        record = &(dataManager.getDb()[key]);
                         while(!record->getIsLatest()) {
                             record = record->getNextRecord();
                         }
@@ -113,7 +113,7 @@ void ManualTest::FSM(DataManager dataManager, TransactionManager transactionMana
                 else {
                     for(int i = 0; i < readOnlyCount * dataManager.getOpsPerTransaction(); i++) {
                         key = (int)distribution(gen);
-                        record = &(dataManager.getDb().find(key)->second);
+                        record = &(dataManager.getDb()[key]);
                         while(!record->getIsLatest()) {
                             record = record->getNextRecord();
                         }
@@ -121,7 +121,7 @@ void ManualTest::FSM(DataManager dataManager, TransactionManager transactionMana
                     }
                     for(int i = 0; i < readWriteCount * dataManager.getOpsPerTransaction(); i++) {
                         key = (int)distribution(gen);
-                        record = &(dataManager.getDb().find(key)->second);
+                        record = &(dataManager.getDb()[key]);
                         while(!record->getIsLatest()) {
                             record = record->getNextRecord();
                         }

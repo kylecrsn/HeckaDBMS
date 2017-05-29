@@ -21,7 +21,7 @@ public:
     DataManager();
 
     /// Get the underlying database object
-    const unordered_map<int, Record>& getDb();
+    unordered_map<int, Record> getDb();
 
     /// Get a new entry key from a global key manager
     int getLatestEntryKey();
