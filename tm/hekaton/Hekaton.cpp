@@ -10,6 +10,10 @@ Hekaton::~Hekaton()
 
 }
 
+void Hekaton::setId(int i) {
+	_id = i;
+}
+
 //sets phase to active and acquire begin timestamp
 void Hekaton::beginTransaction(DataManager *db, unordered_map<int, Transaction *> *transactions) {
 	Transaction *transaction = transactions->at(_id);

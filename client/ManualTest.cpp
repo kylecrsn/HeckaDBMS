@@ -167,6 +167,7 @@ void ManualTest::FSM(DataManager dataManager, TransactionManager transactionMana
 
                 //TODO: Pass input to TM to launch transactions
                 //Inputs: readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys, threadCount
+                //transactionManager->createTransactions(dataManager, readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys, threadCount);
 
                 _state = END_TRANSACTION;
                 break;

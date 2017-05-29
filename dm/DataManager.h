@@ -8,8 +8,8 @@
 #include <sstream>
 #include <fstream>
 #include <mutex>
-
 #include "Transaction.h"
+
 #include "Record.h"
 
 using namespace std;
@@ -53,17 +53,18 @@ public:
     /// Print the current contents of the database in a verbose format
     void printDatabaseVerbose();
 
-    /// Facilitates performing a read on the specified data item through 2PL
+    // Facilitates performing a read on the specified data item through 2PL
     void get();
     
-    /// Facilitates performing a read on the specified data item through Hekaton
-    void get(int object, unordered_map<int, Transaction *> *transactions, int currTransaction, vector<Record *> *readSet);
+    // Facilitates performing a read on the specified data item through Hekaton
+    void get(int entryKey, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *readSet);
 
-    /// Facilitates performing a write on the specified data item through 2PL
+    // Facilitates performing a write on the specified data item through 2PL
     void put();
     
-    /// Facilitates performing a write on the specified data item through Hekaton
-    bool put(int object, int value, unordered_map<int, Transaction *> *transactions, int currTransaction, vector<Record *> *writeSet);
+    // Facilitates performing a write on the specified data item through Hekaton
+    bool put(int entryKey, int value, unordered_map<int, Transaction *> *transactions, int currTransactionId,
+         vector<Record *> *writeSet);
 
 private:
     unordered_map<int, Record> _db;
