@@ -28,13 +28,13 @@ public:
 	void read(DataManager *db, vector<int> *reads, unordered_map<int, Transaction *> *transactions);
 	
 	//registerCommitDep(T1, T2) - increment T2’s commitDepCounter and update T1’s commitDepSet with T2
-	void registerCommitDep(int transaction, unordered_map<int, Transaction *> *transactions);
+	//void registerCommitDep(int transaction, unordered_map<int, Transaction *> *transactions);
 
 	//Write- see section 2.6, add pointers to writeset, may need to call abort (if so set to postprocessing phase)
-	void write(DataManager *db, vector<pair<int, int>> *writes, unordered_map<int, Transaction *> *transactions);
+	bool write(DataManager *db, vector<pair<int, int>> *writes, unordered_map<int, Transaction *> *transactions);
 	
 	//endNormalProcessing - acquire end timestamp, switch state to preparing, call validate
-	void endNormalProcessing(DataManager *db, unordered_map<int, Transaction *> *transactions);
+	void endNormalProcessing(DataManager *db, unordered_map<int, Transaction *> *transactions, bool readOnly);
 	
 	//reread read objects from db and check if versions are the same as pointers in readset, 
 	//if valid wait for CommitDepCounter = 0 or AbortNow = 1 (infinite loop), switch to postprocessing phase, may need to call abort

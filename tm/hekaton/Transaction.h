@@ -12,6 +12,8 @@ class Transaction
 public:
     /// Default Constructor
     Transaction();
+    
+    Transaction(vector<int> reads, vector<pair<int,int>> writes, bool readOnly);
 
     /// Defines the different states the transaction can be in
     /// Old state reference: 0 = none, 1 = active, 2 = preparing, 3 = commit, 4 = abort
@@ -40,6 +42,15 @@ public:
 
     /// Get the end timestamp of the transaction
     Timestamp *getEnd();
+    
+    /// Get the read objects of the transaction
+    vector<int> getReads();
+    
+    ///Get the write objects of the transaction
+    vector<pair<int,int>> getWrites();
+    
+    ///Get whether transaction is read only
+    bool getIsReadOnly();
 
     /// Set whether or not to abort now
     void setAbortNow(bool abortNow);
@@ -66,6 +77,9 @@ private:
     HekatonState _state;
     Timestamp *_end;
     Timestamp *_begin;
+    vector<int> _reads;
+    vector<pair<int,int>> _writes;
+    bool _readOnly;
 };
 
 #endif

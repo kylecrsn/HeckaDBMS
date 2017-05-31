@@ -9,6 +9,18 @@ Transaction::Transaction() {
     _begin = {};
 }
 
+Transaction::Transaction(vector<int> reads, vector<pair<int,int>> writes, bool readOnly) {
+	_abortNow = false;
+    _commitDepCounter = 0;
+    _commitDepSet = {};
+    _state = NONE;
+    _end = {};
+    _begin = {};
+    _reads = reads;
+    _writes = writes;
+    _readOnly = readOnly;
+}
+
 bool Transaction::getAbortNow() {
     return _abortNow;
 }
@@ -31,6 +43,18 @@ Timestamp *Transaction::getBegin() {
 
 Timestamp *Transaction::getEnd() {
     return _end;
+}
+
+vector<int> Transaction::getReads() {
+	return _reads;
+}
+    
+vector<pair<int,int>> Transaction::getWrites() {
+	return _writes;
+}
+    
+bool Transaction::getIsReadOnly() {
+	return _readOnly;
 }
 
 void Transaction::setAbortNow(bool abortNow) {

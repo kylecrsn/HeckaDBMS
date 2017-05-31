@@ -84,15 +84,15 @@ void Hekaton::read(DataManager *db, vector<int> *reads, unordered_map<int, Trans
 
 
 //registerCommitDep(T1, T2) - increment T2’s commitDepCounter and update T1’s commitDepSet with T2
-void Hekaton::registerCommitDep(int transaction, unordered_map<int, Transaction *> *transactions) {
-	Transaction *firstTransaction = transactions->at(transaction);
-	Transaction *secondTransaction = transactions->at(_id);
-	secondTransaction->setCommitDepCounter(secondTransaction->getCommitDepCounter()+1);
-	firstTransaction->getCommitDepSet()->push_back(_id);
-}
+// void Hekaton::registerCommitDep(int transaction, unordered_map<int, Transaction *> *transactions) {
+// 	Transaction *firstTransaction = transactions->at(transaction);
+// 	Transaction *secondTransaction = transactions->at(_id);
+// 	secondTransaction->setCommitDepCounter(secondTransaction->getCommitDepCounter()+1);
+// 	firstTransaction->getCommitDepSet()->push_back(_id);
+// }
 
 //Write- see section 2.6, add pointers to writeset, may need to call abort (if so set to postprocessing phase)
-void Hekaton::write(DataManager *db, vector<pair<int, int>> *writes, unordered_map<int, Transaction *> *transactions) {
+bool Hekaton::write(DataManager *db, vector<pair<int, int>> *writes, unordered_map<int, Transaction *> *transactions) {
 	bool abortTransaction = false;
 	for (vector<pair<int, int>>::iterator it = writes->begin() ; it != writes->end(); ++it) {
 		if (!(db->put(it->first, it->second, transactions, _id, &_writeSet))) {
@@ -102,20 +102,32 @@ void Hekaton::write(DataManager *db, vector<pair<int, int>> *writes, unordered_m
 	}
 	if (abortTransaction) {
 		abort(transactions);
-	}
-	else {
-		endNormalProcessing(db, transactions);
+		return false;
 	}
 }
 
 
 //endNormalProcessing - acquire end timestamp, switch state to preparing, call validate
-void Hekaton::endNormalProcessing(DataManager *db, unordered_map<int, Transaction *> *transactions) {
+void Hekaton::endNormalProcessing(DataManager *db, unordered_map<int, Transaction *> *transactions, bool readOnly) {
 	Transaction *transaction = transactions->at(_id);
 	transaction->getEnd()->setCounter(db->getLatestCounter());
 	transaction->getEnd()->setIsCounter(true);
 	transaction->setState(Transaction::HekatonState::PREPARING);
-	validate(transactions);
+	if (readOnly) {
+		Transaction *transaction = transactions->at(_id);
+		//wait for dependencies
+		while (transaction->getCommitDepCounter() != 0 || transaction->getAbortNow() == false) {
+		}
+		if (transaction->getAbortNow() == true) {
+			abort(transactions);
+		}
+		else if (transaction->getCommitDepCounter() == 0) {
+			commit(transactions);
+		}
+	}
+	else {
+		validate(transactions);
+	}
 }
 
 //reread read objects from db and check if versions are the same as pointers in readset, 
@@ -167,6 +179,10 @@ void Hekaton::validate(unordered_map<int, Transaction *> *transactions) {
 				break;
 			}
 		}
+		else {
+			valid = false;
+			break;
+		}
 	}
 	if (!valid) {
 		abort(transactions);
@@ -185,6 +201,7 @@ void Hekaton::validate(unordered_map<int, Transaction *> *transactions) {
 
 //change respective timestamps in writeset to inifinity, call abortCommitDep
 void Hekaton::abort(unordered_map<int, Transaction *> *transactions) {
+	mutex mtx;
 	Transaction *transaction = transactions->at(_id);
 	transaction->setState(Transaction::HekatonState::ABORTED);
 	for (vector<Record *>::iterator it = _writeSet.begin() ; it != _writeSet.end(); ++it) {
@@ -192,10 +209,13 @@ void Hekaton::abort(unordered_map<int, Transaction *> *transactions) {
 			(*it)->getBegin()->setIsCounter(true);
 			(*it)->getBegin()->setCounter(-1);
 		}
-		if (!(*it)->getEnd()->getIsCounter()) {
+		//need locks?
+		mtx.lock();
+		if (!(*it)->getEnd()->getIsCounter() && (*it)->getEnd()->getTransactionId() == _id) {
 			(*it)->getEnd()->setIsCounter(true);
 			(*it)->getEnd()->setCounter(-1);
 		}
+		mtx.unlock();
 	}
 	abortCommitDep(transactions);
 }
@@ -217,6 +237,7 @@ void Hekaton::commit(unordered_map<int, Transaction *> *transactions) {
 			(*it)->getBegin()->setIsCounter(true);
 			(*it)->getBegin()->setCounter(transaction->getEnd()->getCounter());
 		}
+		//need locks?
 		if (!(*it)->getEnd()->getIsCounter()) {
 			(*it)->getEnd()->setIsCounter(true);
 			(*it)->getEnd()->setCounter(transaction->getEnd()->getCounter());

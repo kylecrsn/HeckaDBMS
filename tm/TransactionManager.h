@@ -19,8 +19,10 @@ public:
     int createId();
 
     void runTransaction(DataManager *db, vector<int> reads, vector<pair<int,int>> writes, bool readOnly);
+    
+    Transaction * createTransactions(int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys);
 
-    void createTransactions(DataManager *db, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys, int threadCount);
+    void createThreads(DataManager *db, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys, int threadCount);
 
 private:
     int _idCounter;
