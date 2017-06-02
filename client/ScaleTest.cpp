@@ -6,7 +6,7 @@ ScaleTest::ScaleTest() {
     _state = ENTER;
 }
 
-void ScaleTest::FSM(DataManager dataManager, TransactionManager transactionManager) {
+void ScaleTest::FSM(DataManager *dataManager, TransactionManager *transactionManager) {
     string prompt;
     string scaleAlgorithmString;
     vector<string> options;
@@ -14,7 +14,7 @@ void ScaleTest::FSM(DataManager dataManager, TransactionManager transactionManag
     int transactionCount = 0;
     int initialThreadCount = 0;
     int finalThreadCount = 0;
-    ScaleAlgorithm scaleAlgorithmType;
+    Utility::ScaleAlgorithm scaleAlgorithm;
 
     while(true) {
         switch(_state) {
@@ -69,35 +69,30 @@ void ScaleTest::FSM(DataManager dataManager, TransactionManager transactionManag
 
                 switch(responseValue) {
                     case 1: {
-                        scaleAlgorithmType = LINEAR;
+                        scaleAlgorithm = Utility::LINEAR;
                         scaleAlgorithmString = "Linear";
                         break;
                     }
                     case 2: {
-                        scaleAlgorithmType = QUADRATIC;
+                        scaleAlgorithm = Utility::QUADRATIC;
                         scaleAlgorithmString = "Quadratic";
                         break;
                     }
                     case 3: {
-                        scaleAlgorithmType = EXPONENTIAL;
+                        scaleAlgorithm = Utility::EXPONENTIAL;
                         scaleAlgorithmString = "Exponential";
-                        break;
-                    }
-                    default: {
-                        scaleAlgorithmString = "Linear";
-                        scaleAlgorithmType = LINEAR;
                         break;
                     }
                 }
 
                 if (responseValue == 1) {
-                    scaleAlgorithmType = LINEAR;
+                    scaleAlgorithm = Utility::LINEAR;
                 }
                 else if(responseValue == 2) {
-                    scaleAlgorithmType = QUADRATIC;
+                    scaleAlgorithm = Utility::QUADRATIC;
                 }
                 else {
-                    scaleAlgorithmType = EXPONENTIAL;
+                    scaleAlgorithm = Utility::EXPONENTIAL;
                 }
 
                 _state = BEGIN_TRANSACTION;
@@ -113,6 +108,7 @@ void ScaleTest::FSM(DataManager dataManager, TransactionManager transactionManag
 
                 //TODO: Pass input to TM to launch transactions
                 //Inputs: transactionCount, initialThreadCount, finalThreadCount, scaleAlgorithmType
+                transactionManager->manageScaleTransactions(dataManager, transactionCount, initialThreadCount, finalThreadCount, scaleAlgorithm);
 
                 _state = END_TRANSACTION;
                 break;

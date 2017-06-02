@@ -4,6 +4,7 @@
 #include <thread>
 #include <random>
 
+#include "Utility.h"
 #include "Hekaton.h"
 #include "DataManager.h"
 #include "Transaction.h"
@@ -18,12 +19,18 @@ public:
 
     int createId();
 
+    void manageManualTransactions(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys);
+    void manualListener(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys);
+    void manageScaleTransactions(DataManager *dataManager, int transactionCount, int initialThreadCount, int finalThreadCount, Utility::ScaleAlgorithm scaleAlgorithm);
+    void manageVaryTransactions(DataManager *dataManager, int transactionCount, int threadCount, int roPercentage);
+
     void runTransaction(DataManager *db, vector<int> reads, vector<pair<int,int>> writes, bool readOnly);
 
     void createTransactions(DataManager *db, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys, int threadCount);
 
 private:
     int _idCounter;
+    int _concurrentThreads;
     unordered_map<int, Transaction *>  _transactions;
 };
 

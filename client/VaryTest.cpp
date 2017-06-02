@@ -6,7 +6,7 @@ VaryTest::VaryTest() {
     _state = ENTER;
 }
 
-void VaryTest::FSM(DataManager dataManager, TransactionManager transactionManager) {
+void VaryTest::FSM(DataManager *dataManager, TransactionManager *transactionManager) {
     string prompt;
     vector<string> options;
     int responseValue = 0;
@@ -118,6 +118,7 @@ void VaryTest::FSM(DataManager dataManager, TransactionManager transactionManage
 
                 //TODO: Pass input to TM to launch transactions
                 //Inputs: transactionCount, threadCount, roPercentage
+                transactionManager->manageVaryTransactions(dataManager, transactionCount, threadCount, roPercentage);
 
                 _state = END_TRANSACTION;
                 break;
