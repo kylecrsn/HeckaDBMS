@@ -164,10 +164,6 @@ void ManualTest::FSM(DataManager *dataManager, TransactionManager *transactionMa
                 cout << endl;
                 cout << "\t|Concurrent Threads: " << threadCount << endl;
                 cout << "Launching threads...\n" << endl;
-
-                //TODO: Pass input to TM to launch transactions
-                //Inputs: readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys, threadCount
-                //transactionManager->createTransactions(dataManager, readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys, threadCount);
                 transactionManager->manageManualTransactions(dataManager, threadCount, readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys);
 
                 _state = END_TRANSACTION;

@@ -115,9 +115,6 @@ void VaryTest::FSM(DataManager *dataManager, TransactionManager *transactionMana
                 cout << "\t|Thread Count: " << threadCount << endl;
                 cout << "\t|Read-Only Transaction Percentage: " << roPercentage << "%" << endl;
                 cout << "Launching threads...\n" << endl;
-
-                //TODO: Pass input to TM to launch transactions
-                //Inputs: transactionCount, threadCount, roPercentage
                 transactionManager->manageVaryTransactions(dataManager, transactionCount, threadCount, roPercentage);
 
                 _state = END_TRANSACTION;

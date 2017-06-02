@@ -17,29 +17,32 @@ int TransactionManager::createId() {
     return newId;
 }
 
-void TransactionManager::manageManualTransactions(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys) {
-    vector<thread> listenerThreads(readOnlyCount + readWriteCount);
+vector<void> TransactionManager::manageManualTransactions(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys) {
+    vector<future<void>> listenerThreads(readOnlyCount + readWriteCount);
+    vector<void> listenerRets(readOnlyCount + readWriteCount);
 
+    // Launch thread futures
     for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
-        listenerThreads.at(i) = thread(manualListener, dataManager, threadCount, readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys);
+        listenerThreads[i] = async(&manualListener, dataManager, threadCount, readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys);
     }
 
+    // Get async promise results
     for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
-        listenerThreads.at(i).join();
+        listenerRets[i] = listenerThreads[i].get();
     }
 
-    //return output data
+    return listenerRets;
 }
 
 void TransactionManager::manualListener(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys) {
 
 }
 
-void TransactionManager::manageScaleTransactions(DataManager *dataManager, int transactionCount, int initialThreadCount, int finalThreadCount, Utility::ScaleAlgorithm scaleAlgorithm) {
+vector<void> TransactionManager::manageScaleTransactions(DataManager *dataManager, int transactionCount, int initialThreadCount, int finalThreadCount, Utility::ScaleAlgorithm scaleAlgorithm) {
 
 }
 
-void TransactionManager::manageVaryTransactions(DataManager *dataManager, int transactionCount, int threadCount, int roPercentage) {
+vector<void> TransactionManager::manageVaryTransactions(DataManager *dataManager, int transactionCount, int threadCount, int roPercentage) {
 
 }
 
