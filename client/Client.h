@@ -25,7 +25,7 @@ public:
     Client();
 
     /// Finite state machine for processing user input
-    void FSM(DataManager dataManager, TransactionManager transactionManager);
+    void FSM(DataManager *dataManager, TransactionManager *transactionManager);
 
     /// State definition for the top-level client menu
     enum ClientState {

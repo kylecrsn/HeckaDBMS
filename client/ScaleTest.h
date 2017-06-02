@@ -19,7 +19,7 @@ public:
     ScaleTest();
 
     /// Finite state machine for processing user input
-    void FSM(DataManager dataManager, TransactionManager transactionManager);
+    void FSM(DataManager *dataManager, TransactionManager *transactionManager);
 
     /// State definition for a Scale testflow
     enum ScaleState {
@@ -31,13 +31,6 @@ public:
         BEGIN_TRANSACTION,
         END_TRANSACTION,
         EXIT
-    };
-
-    /// Types of scaling methods
-    enum ScaleAlgorithm {
-        LINEAR,
-        QUADRATIC,
-        EXPONENTIAL
     };
 
 private:

@@ -2,6 +2,7 @@
 
 TransactionManager::TransactionManager() {
     _idCounter = 0;
+    _concurrentThreads = 0;
     _transactions = {};
 }
 
@@ -14,6 +15,32 @@ int TransactionManager::createId() {
     mtx.unlock();
 
     return newId;
+}
+
+void TransactionManager::manageManualTransactions(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys) {
+    vector<thread> listenerThreads(readOnlyCount + readWriteCount);
+
+    for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
+        listenerThreads.at(i) = thread(manualListener, dataManager, threadCount, readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys);
+    }
+
+    for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
+        listenerThreads.at(i).join();
+    }
+
+    //return output data
+}
+
+void TransactionManager::manualListener(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys) {
+
+}
+
+void TransactionManager::manageScaleTransactions(DataManager *dataManager, int transactionCount, int initialThreadCount, int finalThreadCount, Utility::ScaleAlgorithm scaleAlgorithm) {
+
+}
+
+void TransactionManager::manageVaryTransactions(DataManager *dataManager, int transactionCount, int threadCount, int roPercentage) {
+
 }
 
 void TransactionManager::runTransaction(DataManager *db, vector<int> reads, vector<pair<int,int>> writes, bool readOnly) {
