@@ -105,9 +105,6 @@ void ScaleTest::FSM(DataManager *dataManager, TransactionManager *transactionMan
                 cout << "\t|Final Thread Count: " << finalThreadCount << endl;
                 cout << "\t|Scaling Algorithm: " << scaleAlgorithmString << endl;
                 cout << "Launching threads...\n" << endl;
-
-                //TODO: Pass input to TM to launch transactions
-                //Inputs: transactionCount, initialThreadCount, finalThreadCount, scaleAlgorithmType
                 transactionManager->manageScaleTransactions(dataManager, transactionCount, initialThreadCount, finalThreadCount, scaleAlgorithm);
 
                 _state = END_TRANSACTION;

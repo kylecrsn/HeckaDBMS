@@ -2,6 +2,7 @@
 #define HECKADBMS_TRANSACTIONMANAGER_H
 
 #include <thread>
+#include <future>
 #include <random>
 
 #include "Utility.h"
@@ -19,10 +20,10 @@ public:
 
     int createId();
 
-    void manageManualTransactions(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys);
+    vector<void> manageManualTransactions(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys);
     void manualListener(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys);
-    void manageScaleTransactions(DataManager *dataManager, int transactionCount, int initialThreadCount, int finalThreadCount, Utility::ScaleAlgorithm scaleAlgorithm);
-    void manageVaryTransactions(DataManager *dataManager, int transactionCount, int threadCount, int roPercentage);
+    vector<void> manageScaleTransactions(DataManager *dataManager, int transactionCount, int initialThreadCount, int finalThreadCount, Utility::ScaleAlgorithm scaleAlgorithm);
+    vector<void> manageVaryTransactions(DataManager *dataManager, int transactionCount, int threadCount, int roPercentage);
 
     void runTransaction(DataManager *db, vector<int> reads, vector<pair<int,int>> writes, bool readOnly);
     
