@@ -25,7 +25,7 @@ public:
     void createThreads(DataManager *db, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys, int threadCount);
 
 private:
-    int _idCounter;
+    boost::atomic<int> _idCounter;
     unordered_map<int, Transaction *>  _transactions;
 };
 

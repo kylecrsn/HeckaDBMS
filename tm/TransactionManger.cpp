@@ -6,14 +6,7 @@ TransactionManager::TransactionManager() {
 }
 
 int TransactionManager::createId() {
-    mutex mtx;
-    int newId;
-
-    mtx.lock();
-    newId = _idCounter++;
-    mtx.unlock();
-
-    return newId;
+    return ++_idCounter;
 }
 
 void TransactionManager::runTransaction(DataManager *db, vector<int> reads, vector<pair<int,int>> writes, bool readOnly) {

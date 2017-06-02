@@ -6,7 +6,7 @@ ManualTest::ManualTest() {
     _state = ENTER;
 }
 
-void ManualTest::FSM(DataManager dataManager, TransactionManager transactionManager) {
+void ManualTest::FSM(DataManager *dataManager, TransactionManager *transactionManager) {
     string prompt;
     stringstream ss;
     vector<string> options;
@@ -80,30 +80,30 @@ void ManualTest::FSM(DataManager dataManager, TransactionManager transactionMana
                 Record *record;
                 mt19937 gen;
                 gen.seed(random_device()());
-                uniform_real_distribution<> distribution(0, dataManager.getDb().size() - 1);
+                uniform_real_distribution<> distribution(0, dataManager->getDb().size() - 1);
                 readOnlyKeys.clear();
                 readWriteKeys.clear();
 
                 if (specifyDataObjects) {
-                    for (int i = 0; i < readOnlyCount * dataManager.getOpsPerTransaction(); i++) {
+                    for (int i = 0; i < readOnlyCount * dataManager->getOpsPerTransaction(); i++) {
                         ss << "Which data entry key would you like to perform read-only operation " << i << " on?\n"
                             << "(NOTE: If the entry key specified is for an older/invalid version of an object, HeckaDBMS "
                             "will automatically find the latest version and point your request at it)";
                         prompt = ss.str();
-                        key = Utility::PromptUser(prompt, 0, dataManager.getDb().size() - 1);
-                        record = &(dataManager.getDb()[key]);
+                        key = Utility::PromptUser(prompt, 0, dataManager->getDb().size() - 1);
+                        record = &(dataManager->getDb()[key]);
                         while(!record->getIsLatest()) {
                             record = record->getNextRecord();
                         }
                         readOnlyKeys.push_back(record->getEntryKey());
                     }
-                    for (int i = 0; i < readWriteCount * dataManager.getOpsPerTransaction(); i++) {
+                    for (int i = 0; i < readWriteCount * dataManager->getOpsPerTransaction(); i++) {
                         ss << "Which data entry key would you like to perform read-write operation " << i << " on?\n"
                             << "(NOTE: If the entry key specified is for an older/invalid version of an object, HeckaDBMS "
                             "will automatically find the latest version and point your request at it)";
                         prompt = ss.str();
-                        key = Utility::PromptUser(prompt, 0, dataManager.getDb().size() - 1);
-                        record = &(dataManager.getDb()[key]);
+                        key = Utility::PromptUser(prompt, 0, dataManager->getDb().size() - 1);
+                        record = &(dataManager->getDb()[key]);
                         while(!record->getIsLatest()) {
                             record = record->getNextRecord();
                         }
@@ -111,17 +111,17 @@ void ManualTest::FSM(DataManager dataManager, TransactionManager transactionMana
                     }
                 }
                 else {
-                    for(int i = 0; i < readOnlyCount * dataManager.getOpsPerTransaction(); i++) {
+                    for(int i = 0; i < readOnlyCount * dataManager->getOpsPerTransaction(); i++) {
                         key = (int)distribution(gen);
-                        record = &(dataManager.getDb()[key]);
+                        record = &(dataManager->getDb()[key]);
                         while(!record->getIsLatest()) {
                             record = record->getNextRecord();
                         }
                         readOnlyKeys.push_back(record->getEntryKey());
                     }
-                    for(int i = 0; i < readWriteCount * dataManager.getOpsPerTransaction(); i++) {
+                    for(int i = 0; i < readWriteCount * dataManager->getOpsPerTransaction(); i++) {
                         key = (int)distribution(gen);
-                        record = &(dataManager.getDb()[key]);
+                        record = &(dataManager->getDb()[key]);
                         while(!record->getIsLatest()) {
                             record = record->getNextRecord();
                         }

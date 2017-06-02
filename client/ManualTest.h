@@ -23,7 +23,7 @@ public:
     ManualTest();
 
     /// Finite state machine for processing user input
-    void FSM(DataManager dataManager, TransactionManager transactionManager);
+    void FSM(DataManager *dataManager, TransactionManager *transactionManager);
 
     /// State definition for a Manual testflow
     enum ManualState {

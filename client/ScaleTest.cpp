@@ -6,7 +6,7 @@ ScaleTest::ScaleTest() {
     _state = ENTER;
 }
 
-void ScaleTest::FSM(DataManager dataManager, TransactionManager transactionManager) {
+void ScaleTest::FSM(DataManager *dataManager, TransactionManager *transactionManager) {
     string prompt;
     string scaleAlgorithmString;
     vector<string> options;

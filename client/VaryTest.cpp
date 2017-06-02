@@ -6,7 +6,7 @@ VaryTest::VaryTest() {
     _state = ENTER;
 }
 
-void VaryTest::FSM(DataManager dataManager, TransactionManager transactionManager) {
+void VaryTest::FSM(DataManager *dataManager, TransactionManager *transactionManager) {
     string prompt;
     vector<string> options;
     int responseValue = 0;

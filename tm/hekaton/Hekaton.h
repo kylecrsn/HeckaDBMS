@@ -53,6 +53,7 @@ public:
 	void committedCommitDep(unordered_map<int, Transaction *> *transactions);
  private:
     int _id;
+    mutex _abortMtx;
     vector<Record *> _readSet;
     vector<Record *> _writeSet;
 };

@@ -11,8 +11,8 @@ int main(int argc, char *argv[])
 {
     string protocolType;
     Client client = Client();
-    DataManager dataManager;
-    TransactionManager transactionManager;
+    DataManager *dataManager;
+    TransactionManager *transactionManager;
 
     // Parse command-line arguments
     Utility::ParseArgs(argc, argv, &protocolType);

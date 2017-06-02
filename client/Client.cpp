@@ -6,7 +6,7 @@ Client::Client() {
     _state = ENTER;
 }
 
-void Client::FSM(DataManager dataManager, TransactionManager transactionManager) {
+void Client::FSM(DataManager *dataManager, TransactionManager *transactionManager) {
     string prompt;
     string response;
     vector<string> options;
@@ -22,11 +22,11 @@ void Client::FSM(DataManager dataManager, TransactionManager transactionManager)
                 cout << "|          MAIN MENU          |" << endl;
                 cout << "-------------------------------" << endl;
 
-                if(dataManager.getDb().size() == 0) {
+                if(dataManager->getDb().size() == 0) {
                     cout << "(There is currently no in-memory database)\n" << endl;
                 }
                 else {
-                    cout << "(In-memory database: " << dataManager.getDb().size() << " entries)\n" << endl;
+                    cout << "(In-memory database: " << dataManager->getDb().size() << " entries)\n" << endl;
                 }
 
                 _state = MAIN_MENU;
@@ -46,7 +46,7 @@ void Client::FSM(DataManager dataManager, TransactionManager transactionManager)
 
                 responseValue = Utility::PromptUser(prompt, options);
                 if(responseValue == 1) {
-                    if(dataManager.getDb().size() == 0) {
+                    if(dataManager->getDb().size() == 0) {
                         cout << "(!) There is no in-memory database. First either generate one or load an existing one\n" << endl;
                         _state = ENTER;
                     }
@@ -55,7 +55,7 @@ void Client::FSM(DataManager dataManager, TransactionManager transactionManager)
                     }
                 }
                 else if(responseValue == 2) {
-                    if(dataManager.getDb().size() == 0) {
+                    if(dataManager->getDb().size() == 0) {
                         _state = GENERATE_DATA;
                     }
                     else {
@@ -64,7 +64,7 @@ void Client::FSM(DataManager dataManager, TransactionManager transactionManager)
                     }
                 }
                 else if(responseValue == 3) {
-                    if(dataManager.getDb().size() == 0) {
+                    if(dataManager->getDb().size() == 0) {
                         _state = LOAD_DATA;
                     }
                     else {
@@ -73,7 +73,7 @@ void Client::FSM(DataManager dataManager, TransactionManager transactionManager)
                     }
                 }
                 else if(responseValue == 4) {
-                    if(dataManager.getDb().size() == 0) {
+                    if(dataManager->getDb().size() == 0) {
                         cout << "(!) There is no in-memory database to save\n" << endl;
                         _state = ENTER;
                     }
@@ -82,7 +82,7 @@ void Client::FSM(DataManager dataManager, TransactionManager transactionManager)
                     }
                 }
                 else if(responseValue == 5) {
-                    if(dataManager.getDb().size() == 0) {
+                    if(dataManager->getDb().size() == 0) {
                         cout << "(!) There is no in-memory database to clear\n" << endl;
                         _state = ENTER;
                     }
@@ -91,11 +91,11 @@ void Client::FSM(DataManager dataManager, TransactionManager transactionManager)
                     }
                 }
                 else if(responseValue == 6) {
-                    if(dataManager.getDb().size() == 0) {
+                    if(dataManager->getDb().size() == 0) {
                         cout << "(!) There is no in-memory database to print\n" << endl;
                         _state = ENTER;
                     }
-                    else if(dataManager.getDb().size() > DATA_PRINT_LIMIT) {
+                    else if(dataManager->getDb().size() > DATA_PRINT_LIMIT) {
                         cout << "(!) Printing databases larger than " << DATA_PRINT_LIMIT << " is disallowed\n" << endl;
                         _state = ENTER;
                     }
@@ -139,7 +139,7 @@ void Client::FSM(DataManager dataManager, TransactionManager transactionManager)
                 prompt = "How many entries should the database initially be?";
 
                 responseValue = Utility::PromptUser(prompt, 1, 10000000);
-                dataManager.generateDatabase(responseValue);
+                dataManager->generateDatabase(responseValue);
                 cout << "A database with " << responseValue << " entries was successfully generated\n" << endl;
 
                 _state = ENTER;
@@ -156,7 +156,7 @@ void Client::FSM(DataManager dataManager, TransactionManager transactionManager)
                 }
                 else {
                     filestream.close();
-                    dataManager.loadDatabase(response);
+                    dataManager->loadDatabase(response);
                 }
 
                 _state = ENTER;
@@ -176,7 +176,7 @@ void Client::FSM(DataManager dataManager, TransactionManager transactionManager)
                     responseValue = Utility::PromptUser(prompt, options);
 
                     if(responseValue == 1) {
-                        dataManager.saveDatabase(response);
+                        dataManager->saveDatabase(response);
                         cout << "The file was successfully overwritten\n" << endl;
                     }
                     else {
@@ -184,7 +184,7 @@ void Client::FSM(DataManager dataManager, TransactionManager transactionManager)
                     }
                 }
                 else {
-                    dataManager.saveDatabase(response);
+                    dataManager->saveDatabase(response);
                     cout << "The file was successfully saved to disk\n" << endl;
                 }
 
@@ -192,7 +192,7 @@ void Client::FSM(DataManager dataManager, TransactionManager transactionManager)
                 break;
             }
             case CLEAR_DATA: {
-                dataManager.clearDatabase();
+                dataManager->clearDatabase();
                 cout << "The current in-memory database has been cleared\n" << endl;
 
                 _state = ENTER;
@@ -212,10 +212,10 @@ void Client::FSM(DataManager dataManager, TransactionManager transactionManager)
                         "an explicit ordering)\n";
                 cout << "(NOTE: The NextRecord pointer is specified by the EntryKey of the record it points to)\n" << endl;
                 if(responseValue == 1) {
-                    dataManager.printDatabaseCompact();
+                    dataManager->printDatabaseCompact();
                 }
                 else {
-                    dataManager.printDatabaseVerbose();
+                    dataManager->printDatabaseVerbose();
                 }
                 cout << endl;
 
