@@ -8,6 +8,7 @@
 #include <sstream>
 #include <fstream>
 #include <mutex>
+#include <boost/atomic.hpp>
 #include "Transaction.h"
 
 #include "Record.h"
@@ -68,8 +69,9 @@ public:
 
 private:
     unordered_map<int, Record> _db;
-    int _latestEntryKey;
-    int _latestCounter;
+    boost::atomic<int> _latestEntryKey;
+    boost::atomic<int> _latestCounter;
+    mutex _putMtx;
     int _opsPerTransaction;
 };
 

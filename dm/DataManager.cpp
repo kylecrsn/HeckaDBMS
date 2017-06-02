@@ -12,25 +12,11 @@ unordered_map<int, Record> DataManager::getDb() {
 }
 
 int DataManager::getLatestEntryKey() {
-    mutex mtx;
-    int newEntryKey;
-
-    mtx.lock();
-    newEntryKey = _latestEntryKey++;
-    mtx.unlock();
-
-    return newEntryKey;
+    return ++_latestEntryKey;
 }
 
 int DataManager::getLatestCounter() {
-    mutex mtx;
-    int newCounter;
-
-    mtx.lock();
-    newCounter = _latestCounter++;
-    mtx.unlock();
-
-    return newCounter;
+    return ++_latestCounter;
 }
 
 int DataManager::getOpsPerTransaction() {
@@ -341,7 +327,6 @@ void DataManager::put() {
 }
 
 bool DataManager::put(int entryKey, int value, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *writeSet) {
-		mutex mtx;
 		//Record *record = _db[entryKey];
 		Record *record;
 		while (record) {
@@ -349,14 +334,14 @@ bool DataManager::put(int entryKey, int value, unordered_map<int, Transaction *>
 				Timestamp *tBegin = new Timestamp(false, 0, currTransactionId);
 				Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
 				Record *newRecord = new Record(tBegin, tEnd, getLatestEntryKey(), record->getObjectKey(), value);
-				mtx.lock();
+				_putMtx.lock();
 				if (record->getEnd()->getIsCounter() && record->getEnd()->getCounter() == -1) {
 					record->getEnd()->setTransactionId(currTransactionId);
 				}
 				else {
 					return 0;
 				}
-				mtx.unlock();
+				_putMtx.unlock();
 				record->getEnd()->setIsCounter(false);
 				record->setNextRecord(newRecord);
 				writeSet->push_back(newRecord);
@@ -370,14 +355,14 @@ bool DataManager::put(int entryKey, int value, unordered_map<int, Transaction *>
 					Timestamp *tBegin = new Timestamp(false, 0, currTransactionId);
 					Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
 					Record *newRecord = new Record(tBegin, tEnd, getLatestEntryKey(), record->getObjectKey(), value);
-					mtx.lock();
+					_putMtx.lock();
 					if (record->getEnd()->getTransactionId() == transactionId) {
 						record->getEnd()->setTransactionId(currTransactionId);
 					}
 					else {
 						return 0;
 					}
-					mtx.unlock();
+					_putMtx.unlock();
 					record->getEnd()->setIsCounter(false);
 					record->setNextRecord(newRecord);
 					writeSet->push_back(newRecord);
