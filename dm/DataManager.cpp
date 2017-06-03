@@ -7,7 +7,7 @@ DataManager::DataManager() {
     _opsPerTransaction = 4;
 }
 
-unordered_map<int, Record> DataManager::getDb() {
+unordered_map<int, Record *> DataManager::getDb() {
     return _db;
 }
 
@@ -23,7 +23,7 @@ int DataManager::getOpsPerTransaction() {
     return _opsPerTransaction;
 }
 
-void DataManager::setDb(const unordered_map<int, Record>& db) {
+void DataManager::setDb(const unordered_map<int, Record *>& db) {
     _db = db;
 }
 
@@ -34,8 +34,7 @@ void DataManager::generateDatabase(int databaseSize) {
 
     // Populate the database, initially the entry and object keys are the same
     for(int i = 0; i < databaseSize; i++) {
-        Record entry(i, i, objectValueDistribution(gen));
-        _db[i] = entry;
+        _db[i] = new Record(i, i, objectValueDistribution(gen));
     }
 }
 
@@ -109,7 +108,7 @@ void DataManager::loadDatabase(string filename) {
         temp.clear();
 
         // Add to the database
-        _db[entry.getEntryKey()] = entry;
+        *_db[entry.getEntryKey()] = entry;
     }
 
     // Setup nextRecord pointers
@@ -118,10 +117,10 @@ void DataManager::loadDatabase(string filename) {
         entryKey = (*jt++);
         nextRecordKey = (*jt);
         if(nextRecordKey == -1) {
-            _db[entryKey].setNextRecord(nullptr);
+            _db[entryKey]->setNextRecord(nullptr);
         }
         else {
-            _db[entryKey].setNextRecord(&_db[nextRecordKey]);
+            _db[entryKey]->setNextRecord(_db[nextRecordKey]);
         }
     }
 }
@@ -133,46 +132,46 @@ void DataManager::saveDatabase(string filename) {
 
     // Append the contents of each entry in the database
     for(auto i : _db) {
-        data.append(to_string(i.second.getEntryKey()));
+        data.append(to_string(i.second->getEntryKey()));
         data.append(delim);
-        if(i.second.getIsLatest()) {
+        if(i.second->getIsLatest()) {
             data.append("1");
         }
         else {
             data.append("0");
         }
         data.append(delim);
-        data.append(to_string(i.second.getObjectKey()));
+        data.append(to_string(i.second->getObjectKey()));
         data.append(delim);
-        data.append(to_string(i.second.getObjectValue()));
+        data.append(to_string(i.second->getObjectValue()));
         data.append(delim);
-        if(i.second.getBegin()->getIsCounter()) {
+        if(i.second->getBegin()->getIsCounter()) {
             data.append("1");
         }
         else {
             data.append("0");
         }
         data.append(delim);
-        data.append(to_string(i.second.getBegin()->getCounter()));
+        data.append(to_string(i.second->getBegin()->getCounter()));
         data.append(delim);
-        data.append(to_string(i.second.getBegin()->getTransactionId()));
+        data.append(to_string(i.second->getBegin()->getTransactionId()));
         data.append(delim);
-        if(i.second.getEnd()->getIsCounter()) {
+        if(i.second->getEnd()->getIsCounter()) {
             data.append("1");
         }
         else {
             data.append("0");
         }
         data.append(delim);
-        data.append(to_string(i.second.getEnd()->getCounter()));
+        data.append(to_string(i.second->getEnd()->getCounter()));
         data.append(delim);
-        data.append(to_string(i.second.getEnd()->getTransactionId()));
+        data.append(to_string(i.second->getEnd()->getTransactionId()));
         data.append(delim);
-        if(i.second.getNextRecord() == nullptr) {
+        if(i.second->getNextRecord() == nullptr) {
             data.append("-1");
         }
         else {
-            data.append(to_string(i.second.getNextRecord()->getEntryKey()));
+            data.append(to_string(i.second->getNextRecord()->getEntryKey()));
         }
         data.append("\n");
     }
@@ -191,33 +190,33 @@ void DataManager::printDatabaseCompact() {
     string delim = ",";
 
     for(auto i : _db) {
-        cout << i.second.getEntryKey() << delim;
-        if(i.second.getIsLatest()) {
+        cout << i.second->getEntryKey() << delim;
+        if(i.second->getIsLatest()) {
             cout << "1" << delim;
         }
         else {
             cout << "0" << delim;
         }
-        cout << i.second.getObjectKey() << delim << i.second.getObjectValue() << delim;
-        if(i.second.getBegin()->getIsCounter()) {
+        cout << i.second->getObjectKey() << delim << i.second->getObjectValue() << delim;
+        if(i.second->getBegin()->getIsCounter()) {
             cout << "1" << delim;
         }
         else {
             cout << "0" << delim;
         }
-        cout << i.second.getBegin()->getCounter() << delim << i.second.getBegin()->getTransactionId() << delim;
-        if(i.second.getEnd()->getIsCounter()) {
+        cout << i.second->getBegin()->getCounter() << delim << i.second->getBegin()->getTransactionId() << delim;
+        if(i.second->getEnd()->getIsCounter()) {
             cout << "1" << delim;
         }
         else {
             cout << "0" << delim;
         }
-        cout << i.second.getEnd()->getCounter() << delim << i.second.getEnd()->getTransactionId() << delim;
-        if(i.second.getNextRecord() == nullptr) {
+        cout << i.second->getEnd()->getCounter() << delim << i.second->getEnd()->getTransactionId() << delim;
+        if(i.second->getNextRecord() == nullptr) {
             cout << "-1\n";
         }
         else {
-            cout << i.second.getNextRecord()->getEntryKey() << "\n";
+            cout << i.second->getNextRecord()->getEntryKey() << "\n";
         }
     }
     cout << flush;
@@ -227,33 +226,33 @@ void DataManager::printDatabaseVerbose() {
     string delim = ",";
 
     for (auto i : _db) {
-        cout << "<Key: " << i.second.getEntryKey() << delim << " Value: {EntryKey: " << i.second.getEntryKey() << delim;
-        if (i.second.getIsLatest()) {
+        cout << "<Key: " << i.second->getEntryKey() << delim << " Value: {EntryKey: " << i.second->getEntryKey() << delim;
+        if (i.second->getIsLatest()) {
             cout << " IsLatest: true" << delim;
         } else {
             cout << " IsLatest: false" << delim;
         }
-        cout << " ObjectKey: " << i.second.getObjectKey() << delim << " ObjectValue: " << i.second.getObjectValue()
+        cout << " ObjectKey: " << i.second->getObjectKey() << delim << " ObjectValue: " << i.second->getObjectValue()
              << delim;
         cout << " Begin: {";
-        if (i.second.getBegin()->getIsCounter()) {
+        if (i.second->getBegin()->getIsCounter()) {
             cout << " IsCounter: true" << delim;
         } else {
             cout << " IsCounter: false" << delim;
         }
-        cout << " Counter: " << i.second.getBegin()->getCounter() << delim;
-        cout << " TransactionID: " << i.second.getBegin()->getTransactionId() << delim << "}" << delim << " End: {";
-        if (i.second.getEnd()->getIsCounter()) {
+        cout << " Counter: " << i.second->getBegin()->getCounter() << delim;
+        cout << " TransactionID: " << i.second->getBegin()->getTransactionId() << delim << "}" << delim << " End: {";
+        if (i.second->getEnd()->getIsCounter()) {
             cout << " IsCounter: true" << delim;
         } else {
             cout << " IsCounter: false" << delim;
         }
-        cout << " Counter: " << i.second.getEnd()->getCounter() << delim;
-        cout << " TransactionID: " << i.second.getEnd()->getTransactionId() << delim << "}" << delim << " NextRecord: ";
-        if (i.second.getNextRecord() == nullptr) {
+        cout << " Counter: " << i.second->getEnd()->getCounter() << delim;
+        cout << " TransactionID: " << i.second->getEnd()->getTransactionId() << delim << "}" << delim << " NextRecord: ";
+        if (i.second->getNextRecord() == nullptr) {
             cout << "-1}>\n";
         } else {
-            cout << i.second.getNextRecord()->getEntryKey() << "}>\n";
+            cout << i.second->getNextRecord()->getEntryKey() << "}>\n";
         }
     }
     cout << flush;
@@ -264,11 +263,10 @@ void DataManager::get() {
 }
 
 void DataManager::get(int entryKey, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *readSet) {
-	//Record record = _db[entryKey];
-	Record *record;
+	Record *record = _db[entryKey];
 	Transaction *currTransaction = transactions->at(currTransactionId);
 	Transaction *transaction;
-	while (record) {
+	while (record != nullptr) {
 			//begin and end timestamps are set
 			if (record->getBegin()->getIsCounter() && record->getEnd()->getIsCounter() && record->getBegin()->getCounter() != -1) {
 				if (record->getBegin()->getCounter() < currTransaction->getBegin()->getCounter() && record->getEnd()->getCounter() == -1) { //end timestamp must be infinity?
@@ -327,52 +325,59 @@ void DataManager::put() {
 }
 
 bool DataManager::put(int entryKey, int value, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *writeSet) {
-		//Record *record = _db[entryKey];
-		Record *record;
-		while (record) {
-			if (record->getEnd()->getIsCounter() && record->getEnd()->getCounter() == -1) {
-				Timestamp *tBegin = new Timestamp(false, 0, currTransactionId);
-				Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
-				Record *newRecord = new Record(tBegin, tEnd, getLatestEntryKey(), record->getObjectKey(), value);
-				_putMtx.lock();
-				if (record->getEnd()->getIsCounter() && record->getEnd()->getCounter() == -1) {
-					record->getEnd()->setTransactionId(currTransactionId);
-				}
-				else {
-					return 0;
-				}
-				_putMtx.unlock();
-				record->getEnd()->setIsCounter(false);
-				record->setNextRecord(newRecord);
-				writeSet->push_back(newRecord);
-				writeSet->push_back(record);
-			}
-			else if (!record->getEnd()->getIsCounter()) {
-				int transactionId = record->getEnd()->getTransactionId();
-				int state = transactions->at(transactionId)->getState();
-				//transaction is aborted so you can update
-				if (state == 4) {
-					Timestamp *tBegin = new Timestamp(false, 0, currTransactionId);
-					Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
-					Record *newRecord = new Record(tBegin, tEnd, getLatestEntryKey(), record->getObjectKey(), value);
-					_putMtx.lock();
-					if (record->getEnd()->getTransactionId() == transactionId) {
-						record->getEnd()->setTransactionId(currTransactionId);
-					}
-					else {
-						return 0;
-					}
-					_putMtx.unlock();
-					record->getEnd()->setIsCounter(false);
-					record->setNextRecord(newRecord);
-					writeSet->push_back(newRecord);
-					writeSet->push_back(record);
-				}
-				else {
-					return 0;
-				}
-			}
-		}
+    Record *record = _db[entryKey];
+    while (record != nullptr) {
+        if (record->getEnd()->getIsCounter() && record->getEnd()->getCounter() == -1) {
+            Timestamp *tBegin = new Timestamp(false, 0, currTransactionId);
+            Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
+            Record *newRecord = new Record(tBegin, tEnd, getLatestEntryKey(), record->getObjectKey(), value);
+            _putMtx.lock();
+            if (record->getEnd()->getIsCounter() && record->getEnd()->getCounter() == -1) {
+                record->getEnd()->setTransactionId(currTransactionId);
+            }
+            else {
+                return false;
+            }
+            _putMtx.unlock();
+            record->getEnd()->setIsCounter(false);
+            record->setNextRecord(newRecord);
+            writeSet->push_back(newRecord);
+            writeSet->push_back(record);
+            _db[newRecord->getEntryKey()] = newRecord;
+            break;
+        }
+        else if (!record->getEnd()->getIsCounter() && record->getEnd()->getTransactionId() != currTransactionId) {
+            int transactionId = record->getEnd()->getTransactionId();
+            int state = transactions->at(transactionId)->getState();
+            //transaction is aborted so you can update
+            if (state == 4) {
+                Timestamp *tBegin = new Timestamp(false, 0, currTransactionId);
+                Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
+                Record *newRecord = new Record(tBegin, tEnd, getLatestEntryKey(), record->getObjectKey(), value);
+                _putMtx.lock();
+                if (record->getEnd()->getTransactionId() == transactionId) {
+                    record->getEnd()->setTransactionId(currTransactionId);
+                }
+                else {
+                    return false;
+                }
+                _putMtx.unlock();
+                record->getEnd()->setIsCounter(false);
+                record->setNextRecord(newRecord);
+                writeSet->push_back(newRecord);
+                writeSet->push_back(record);
+                _db[newRecord->getEntryKey()] = newRecord;
+                break;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            record = record->getNextRecord();
+        }
+    }
+    return true;
 }
 
 

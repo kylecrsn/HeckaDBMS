@@ -104,6 +104,8 @@ bool Hekaton::write(DataManager *db, vector<pair<int, int>> *writes, unordered_m
 		abort(transactions);
 		return false;
 	}
+
+	return true;
 }
 
 
@@ -114,10 +116,8 @@ void Hekaton::endNormalProcessing(DataManager *db, unordered_map<int, Transactio
 	transaction->getEnd()->setIsCounter(true);
 	transaction->setState(Transaction::HekatonState::PREPARING);
 	if (readOnly) {
-		Transaction *transaction = transactions->at(_id);
 		//wait for dependencies
-		while (transaction->getCommitDepCounter() != 0 || transaction->getAbortNow() == false) {
-		}
+		while (transaction->getCommitDepCounter() != 0 && transaction->getAbortNow() == false) { }
 		if (transaction->getAbortNow() == true) {
 			abort(transactions);
 		}
@@ -133,7 +133,7 @@ void Hekaton::endNormalProcessing(DataManager *db, unordered_map<int, Transactio
 //reread read objects from db and check if versions are the same as pointers in readset, 
 //if valid wait for CommitDepCounter = 0 or AbortNow = 1 (infinite loop), switch to postprocessing phase, may need to call abort
 void Hekaton::validate(unordered_map<int, Transaction *> *transactions) {
-	bool valid = false;
+	bool valid = true;
 	Timestamp *currBegin = transactions->at(_id)->getBegin();
 	//check to make sure reads are still visible
 	for (vector<Record *>::iterator record = _readSet.begin() ; record != _readSet.end(); ++record) {
@@ -149,7 +149,7 @@ void Hekaton::validate(unordered_map<int, Transaction *> *transactions) {
 		else if (!(*record)->getBegin()->getIsCounter()) {
 			Transaction *transaction = transactions->at((*record)->getBegin()->getTransactionId());
 			if ((*record)->getBegin()->getTransactionId() == _id && transaction->getState() == 1 && transaction->getEnd()->getIsCounter() && transaction->getEnd()->getCounter() == -1) {
-				valid = true;;
+				valid = true;
 			}
 			else if (transaction->getState() == 2 && transaction->getEnd()->getCounter() < currBegin->getCounter()) {
 				valid = true;
@@ -189,8 +189,7 @@ void Hekaton::validate(unordered_map<int, Transaction *> *transactions) {
 	}
 	Transaction *transaction = transactions->at(_id);
 	//wait for dependencies
-	while (transaction->getCommitDepCounter() != 0 || transaction->getAbortNow() == false) {
-	}
+	while (transaction->getCommitDepCounter() != 0 && transaction->getAbortNow() == false) { }
 	if (transaction->getAbortNow() == true) {
 		abort(transactions);
 	}

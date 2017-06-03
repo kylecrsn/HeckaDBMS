@@ -4,20 +4,20 @@ Transaction::Transaction() {
 	_id = 0;
     _abortNow = false;
     _commitDepCounter = 0;
-    _commitDepSet = {};
+    _commitDepSet = new vector<int>();
     _state = NONE;
-    _end = {};
-    _begin = {};
+    _end = new Timestamp();
+    _begin = new Timestamp();
 }
 
 Transaction::Transaction(vector<int> reads, vector<pair<int,int>> writes, bool readOnly) {
 	_id = 0;
 	_abortNow = false;
     _commitDepCounter = 0;
-    _commitDepSet = {};
+    _commitDepSet = new vector<int>();
     _state = NONE;
-    _end = {};
-    _begin = {};
+    _end = new Timestamp();
+    _begin = new Timestamp();
     _reads = reads;
     _writes = writes;
     _readOnly = readOnly;

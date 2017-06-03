@@ -7,6 +7,7 @@ Record::Record() {
     _objectValue = 0;
     _begin = new Timestamp{};
     _end = new Timestamp{};
+    _end->setCounter(-1);
     _nextRecord = nullptr;
 }
 
@@ -17,6 +18,7 @@ Record::Record(int entryKey, int objectKey, int objectValue) {
     _objectValue = objectValue;
     _begin = new Timestamp{};
     _end = new Timestamp{};
+    _end->setCounter(-1);
     _nextRecord = nullptr;
 }
 

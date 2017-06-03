@@ -24,6 +24,10 @@ vector<int> TransactionManager::manageManualTransactions(DataManager *dataManage
     vector<future<int>> listenerThreads(readOnlyCount + readWriteCount);
     vector<int> listenerRets(readOnlyCount + readWriteCount);
 
+    // Setup read/write left
+    setReadOnlyLeft(readOnlyCount);
+    setReadWriteLeft(readWriteCount);
+
     // Launch thread futures
     for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
         listenerThreads[i] = async(&TransactionManager::manualListener, this, dataManager, threadCount, readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys);

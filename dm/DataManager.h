@@ -22,7 +22,7 @@ public:
     DataManager();
 
     /// Get the underlying database object
-    unordered_map<int, Record> getDb();
+    unordered_map<int, Record *> getDb();
 
     /// Get a new entry key from a global key manager
     int getLatestEntryKey();
@@ -34,7 +34,7 @@ public:
     int getOpsPerTransaction();
 
     /// Set the underlying database object
-    void setDb(const unordered_map<int, Record>& db);
+    void setDb(const unordered_map<int, Record *>& db);
 
     /// Generate data objects for a database of the specified size
     void generateDatabase(int databaseSize);
@@ -68,7 +68,7 @@ public:
          vector<Record *> *writeSet);
 
 private:
-    unordered_map<int, Record> _db;
+    unordered_map<int, Record *> _db;
     boost::atomic<int> _latestEntryKey;
     boost::atomic<int> _latestCounter;
     mutex _putMtx;
