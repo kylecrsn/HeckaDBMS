@@ -1,6 +1,7 @@
 #include "Transaction.h"
 
 Transaction::Transaction() {
+	_id = 0;
     _abortNow = false;
     _commitDepCounter = 0;
     _commitDepSet = {};
@@ -10,6 +11,7 @@ Transaction::Transaction() {
 }
 
 Transaction::Transaction(vector<int> reads, vector<pair<int,int>> writes, bool readOnly) {
+	_id = 0;
 	_abortNow = false;
     _commitDepCounter = 0;
     _commitDepSet = {};
@@ -57,6 +59,14 @@ bool Transaction::getIsReadOnly() {
 	return _readOnly;
 }
 
+int Transaction::getId() {
+	return _id;
+}
+
+vector<Operation *> Transaction::getTransaction() {
+	return _transaction;
+}
+
 void Transaction::setAbortNow(bool abortNow) {
     _abortNow = abortNow;
 }
@@ -79,4 +89,12 @@ void Transaction::setBegin(Timestamp *begin) {
 
 void Transaction::setEnd(Timestamp *end) {
     _end = end;
+}
+
+void Transaction::addOperation(Operation *o) {
+	_transaction.push_back(o);
+}
+
+void Transaction::setId(int i) {
+	_id = i;
 }
