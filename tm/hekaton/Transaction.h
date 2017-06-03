@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Timestamp.h"
+#include "Operation.h"
 
 using namespace std;
 
@@ -51,6 +52,10 @@ public:
     
     ///Get whether transaction is read only
     bool getIsReadOnly();
+    
+    int getId();
+    
+    vector<Operation *> getTransaction();
 
     /// Set whether or not to abort now
     void setAbortNow(bool abortNow);
@@ -70,7 +75,12 @@ public:
     /// Set the end timestamp of the transaction
     void setEnd(Timestamp *end);
     
+    void setId(int i);
+    
+    void addOperation(Operation *o);
+    
 private:
+	int _id;
     bool _abortNow;
     int _commitDepCounter;
     vector<int> *_commitDepSet;
@@ -79,6 +89,7 @@ private:
     Timestamp *_begin;
     vector<int> _reads;
     vector<pair<int,int>> _writes;
+    vector<Operation *> _transaction;
     bool _readOnly;
 };
 

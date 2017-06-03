@@ -4,6 +4,16 @@ TransactionManager::TransactionManager() {
     _idCounter = 0;
     _concurrentThreads = 0;
     _transactions = {};
+    _readOnlyLeft = 0;
+    _readWriteLeft = 0;
+}
+
+void TransactionManager::setReadOnlyLeft(int l) {
+	_readOnlyLeft = l;
+}
+    
+void TransactionManager::setReadWriteLeft(int l) {
+	_readWriteLeft = l;
 }
 
 int TransactionManager::createId() {
@@ -36,11 +46,12 @@ void TransactionManager::manageVaryTransactions(DataManager *dataManager, int tr
 
 }
 
-void TransactionManager::runTransaction(DataManager *db, vector<int> reads, vector<pair<int,int>> writes, bool readOnly) {
+void TransactionManager::runTransaction(DataManager *db, vector<int> reads, vector<pair<int,int>> writes, bool readOnly, int i) {
 //     int id = createId();
 //     _transactions[id] = new Transaction();
 	bool notAborted = true;
     Hekaton *h = new Hekaton();
+    h->setId(i);
     h->beginTransaction(db, &_transactions);
     h->read(db, &reads, &_transactions);
     if (!readOnly) {
@@ -51,7 +62,15 @@ void TransactionManager::runTransaction(DataManager *db, vector<int> reads, vect
     }
 }
 
-Transaction * TransactionManager::createTransactions(int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys) {
+/* void TransactionManager::run2PLTransaction(DataManager *db, Transaction *t) {
+	for (vector<Operation *>::iterator it = t->getTransaction().begin() ; it != t->getTransaction().end(); ++it) {
+		Lock((*it)->getObjectKey(), t->getTransactionId(), (*it)->getMode());
+		//do operation
+	}
+	Unlock(*t->getTransaction().begin(), t->getTransactionId());
+} */
+
+Transaction * TransactionManager::createTransaction(vector<int> readOnlyKeys, vector<int> readWriteKeys) {
 	mt19937 gen;
     gen.seed(random_device()());
     uniform_real_distribution<> distribution(0,1000000);
@@ -60,17 +79,21 @@ Transaction * TransactionManager::createTransactions(int readOnlyCount, int read
     int readCount;
     int writeCount;
     int w;
+    int id;
+    Transaction *t;
 	if ((int)distribution2(gen)) {
-            if (readOnlyCount != 0) {
+            if (_readOnlyLeft != 0) {
                 vector<int> reads;
                 for (j = 0; j < 4; j++) {
                     reads.push_back(*(readOnlyKeys.begin()));
                     readOnlyKeys.erase(readOnlyKeys.begin());
                 }
-                readOnlyCount--;
+                _readOnlyLeft--;
                 //runTransaction(db, reads, vector<pair<int, int>>(), true);
-                Transaction *t = new Transaction(reads, vector<pair<int, int>>(), true);
-                _transactions[createId()] = t;
+                t = new Transaction(reads, vector<pair<int, int>>(), true);
+                id = createId();
+                t->setId(id);
+            	_transactions[id] = t;
             }
             else {
                 vector<pair<int,int>> writes;
@@ -97,14 +120,16 @@ Transaction * TransactionManager::createTransactions(int readOnlyCount, int read
                         }
                     }
                 }
-                readWriteCount--;
+                _readWriteLeft--;
                 //runTransaction(db, reads, writes, false);
-                Transaction *t = new Transaction(reads, writes, false);
-                _transactions[createId()] = t;
+                t = new Transaction(reads, writes, false);
+                id = createId();
+                t->setId(id);
+            	_transactions[id] = t;
             }
         }
         else {
-            if (readWriteCount != 0) {
+            if (_readWriteLeft != 0) {
                 vector<pair<int,int>> writes;
                 vector<int> reads;
                 for (j = 0; j < 4; j++) {
@@ -129,10 +154,12 @@ Transaction * TransactionManager::createTransactions(int readOnlyCount, int read
                         }
                     }
                 }
-                readWriteCount--;
+                _readWriteLeft--;
                 //runTransaction(db, reads, writes, false);
-                Transaction *t = new Transaction(reads, writes, false);
-                _transactions[createId()] = t;
+                t = new Transaction(reads, writes, false);
+                id = createId();
+                t->setId(id);
+            	_transactions[id] = t;
             }
             else {
                 vector<int> reads;
@@ -140,18 +167,115 @@ Transaction * TransactionManager::createTransactions(int readOnlyCount, int read
                     reads.push_back(*(readOnlyKeys.begin()));
                     readOnlyKeys.erase(readOnlyKeys.begin());
                 }
-                readOnlyCount--;
+                _readOnlyLeft--;
                 //runTransaction(db, reads, vector<pair<int, int>>(), true);
-                Transaction *t = new Transaction(reads, vector<pair<int, int>>(), true);
-                _transactions[createId()] = t;
+                t = new Transaction(reads, vector<pair<int, int>>(), true);
+                id = createId();
+                t->setId(id);
+            	_transactions[id] = t;
             }
         }
+        return t;
 }
 
-void TransactionManager::createThreads(DataManager *db, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys, int threadCount) {
-    for (int i = 0; i < readOnlyCount + readWriteCount; i++) {
-    	//lock createTransactions
-       Transaction *t = createTransactions(readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys);
-       runTransaction(db, t->getReads(), t->getWrites(), t->getIsReadOnly());
+Transaction * TransactionManager::create2PLTransaction(vector<int> readOnlyKeys, vector<int> readWriteKeys) {
+	mt19937 gen;
+    gen.seed(random_device()());
+    uniform_real_distribution<> distribution(0,1000000);
+    uniform_real_distribution<> distribution2(0,1);
+    int j;
+    int readCount;
+    int writeCount;
+    int w;
+    int id;
+    Transaction *t = new Transaction();
+	if ((int)distribution2(gen)) {
+            if (_readOnlyLeft != 0) {
+                for (j = 0; j < 4; j++) {
+                    t->addOperation(new Operation(Operation::OpMode::READ, *(readOnlyKeys.begin())));
+                    readOnlyKeys.erase(readOnlyKeys.begin());
+                }
+                _readOnlyLeft--;
+                id = createId();
+                t->setId(id);
+                _transactions[id] = t;
+            }
+            else {
+                for (j = 0; j < 4; j++) {
+                    if ((int)distribution2(gen)) {
+                        if (readCount !=2) {
+                            t->addOperation(new Operation(Operation::OpMode::READ, *(readWriteKeys.begin())));
+                            readWriteKeys.erase(readWriteKeys.begin());
+                        }
+                        else {
+			  				t->addOperation(new Operation(Operation::OpMode::WRITE, *(readWriteKeys.begin()), (int)distribution(gen)));
+                            readWriteKeys.erase(readWriteKeys.begin());
+                        }
+                    }
+                    else  {
+                        if (writeCount !=2) {
+			  				t->addOperation(new Operation(Operation::OpMode::WRITE, *(readWriteKeys.begin()), (int)distribution(gen)));
+                            readWriteKeys.erase(readWriteKeys.begin());
+                        }
+                        else {
+                            t->addOperation(new Operation(Operation::OpMode::READ, *(readWriteKeys.begin())));
+                            readWriteKeys.erase(readWriteKeys.begin());
+                        }
+                    }
+                }
+                _readWriteLeft--;
+               	id = createId();
+                t->setId(id);
+            	_transactions[id] = t;
+            }
+        }
+        else {
+            if (_readWriteLeft != 0) {
+                for (j = 0; j < 4; j++) {
+                    if ((int)distribution2(gen)) {
+                        if (readCount !=2) {
+                            t->addOperation(new Operation(Operation::OpMode::READ, *(readWriteKeys.begin())));
+                            readWriteKeys.erase(readWriteKeys.begin());
+                        }
+                        else {
+			  				t->addOperation(new Operation(Operation::OpMode::WRITE, *(readWriteKeys.begin()), (int)distribution(gen)));
+                            readWriteKeys.erase(readWriteKeys.begin());
+                        }
+                    }
+                    else  {
+                        if (writeCount !=2) {
+                        	t->addOperation(new Operation(Operation::OpMode::WRITE, *(readWriteKeys.begin()), (int)distribution(gen)));
+                            readWriteKeys.erase(readWriteKeys.begin());
+                        }
+                        else {
+                            t->addOperation(new Operation(Operation::OpMode::READ, *(readWriteKeys.begin())));
+                            readWriteKeys.erase(readWriteKeys.begin());
+                        }
+                    }
+                }
+                _readWriteLeft--;
+                id = createId();
+                t->setId(id);
+            	_transactions[id] = t;
+            }
+            else {
+                for (j = 0; j < 4; j++) {
+                    t->addOperation(new Operation(Operation::OpMode::READ, *(readOnlyKeys.begin())));
+                    readOnlyKeys.erase(readOnlyKeys.begin());
+                }
+                _readOnlyLeft--;
+                id = createId();
+                t->setId(id);
+            	_transactions[id] = t;
+            }
+        }
+        return t;
     }
+
+void TransactionManager::startTransaction(DataManager *db, vector<int> readOnlyKeys, vector<int> readWriteKeys) {
+    //lock around createTransactions
+    _transactionMtx.lock();
+    Transaction *t = createTransaction(readOnlyKeys, readWriteKeys);
+    _transactionMtx.unlock();
+    runTransaction(db, t->getReads(), t->getWrites(), t->getIsReadOnly(), t->getId());
 }
