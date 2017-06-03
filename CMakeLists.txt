@@ -3,14 +3,22 @@ project(HeckaDBMS)
 
 set(CMAKE_CXX_STANDARD 11)
 
-SET(DIR_ROOT "${CMAKE_SOURCE_DIR}")
+FIND_PACKAGE(Boost)
+IF (Boost_FOUND)
+    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
+    ADD_DEFINITIONS( "-DHAS_BOOST" )
+ENDIF()
+set(BOOST_ROOT "/usr/local/boost_1_61_0")
+
+set(DIR_ROOT "${CMAKE_SOURCE_DIR}")
 set(DIR_CLIENT "client")
 set(DIR_DM "dm")
 set(DIR_TM "tm")
 set(DIR_TWOPL "tm/twopl")
 set(DIR_HEKATON "tm/hekaton")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++0x -Wall -pthread")
+
+set(CMAKE_C_FLAGS "-pthread -g -Wall")
 
 INCLUDE_DIRECTORIES(
     ${DIR_ROOT}
@@ -36,3 +44,4 @@ set(SOURCE_FILES
     ${DIR_TWOPL}/TwoPL.cpp ${DIR_TWOPL}/TwoPL.h)
 
 add_executable(HeckaDBMS ${SOURCE_FILES})
+TARGET_LINK_LIBRARIES(HeckaDBMS pthread)

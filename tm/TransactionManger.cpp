@@ -10,13 +10,13 @@ int TransactionManager::createId() {
     return ++_idCounter;
 }
 
-vector<void> TransactionManager::manageManualTransactions(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys) {
-    vector<future<void>> listenerThreads(readOnlyCount + readWriteCount);
-    vector<void> listenerRets(readOnlyCount + readWriteCount);
+vector<int> TransactionManager::manageManualTransactions(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys) {
+    vector<future<int>> listenerThreads(readOnlyCount + readWriteCount);
+    vector<int> listenerRets(readOnlyCount + readWriteCount);
 
     // Launch thread futures
     for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
-        listenerThreads[i] = async(&manualListener, dataManager, threadCount, readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys);
+        listenerThreads[i] = async(&TransactionManager::manualListener, this, dataManager, threadCount, readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys);
     }
 
     // Get async promise results
@@ -27,15 +27,32 @@ vector<void> TransactionManager::manageManualTransactions(DataManager *dataManag
     return listenerRets;
 }
 
-void TransactionManager::manualListener(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys) {
+int TransactionManager::manualListener(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys) {
+
+    while(true) {
+        _concurrentMutex.lock();
+        if(_concurrentThreads < threadCount) {
+            _concurrentThreads++;
+            _concurrentMutex.unlock();
+            startTransaction(dataManager, readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys);
+            _concurrentMutex.lock();
+            _concurrentThreads--;
+            _concurrentMutex.unlock();
+            break;
+        }
+        else {
+            _concurrentMutex.unlock();
+        }
+    }
+
+    return 42;
+}
+
+vector<int> TransactionManager::manageScaleTransactions(DataManager *dataManager, int transactionCount, int initialThreadCount, int finalThreadCount, Utility::ScaleAlgorithm scaleAlgorithm) {
 
 }
 
-vector<void> TransactionManager::manageScaleTransactions(DataManager *dataManager, int transactionCount, int initialThreadCount, int finalThreadCount, Utility::ScaleAlgorithm scaleAlgorithm) {
-
-}
-
-vector<void> TransactionManager::manageVaryTransactions(DataManager *dataManager, int transactionCount, int threadCount, int roPercentage) {
+vector<int> TransactionManager::manageVaryTransactions(DataManager *dataManager, int transactionCount, int threadCount, int roPercentage) {
 
 }
 
@@ -151,7 +168,7 @@ Transaction * TransactionManager::createTransactions(int readOnlyCount, int read
         }
 }
 
-void TransactionManager::createThreads(DataManager *db, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys, int threadCount) {
+void TransactionManager::startTransaction(DataManager *db, int readOnlyCount, int readWriteCount, vector<int> readOnlyKeys, vector<int> readWriteKeys) {
     for (int i = 0; i < readOnlyCount + readWriteCount; i++) {
     	//lock createTransactions
        Transaction *t = createTransactions(readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys);
