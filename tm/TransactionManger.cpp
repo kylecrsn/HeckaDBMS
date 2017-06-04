@@ -100,8 +100,8 @@ Transaction * TransactionManager::createTransaction(vector<int> readOnlyKeys, ve
     uniform_real_distribution<> distribution(0,1000000);
     uniform_real_distribution<> distribution2(0,1);
     int j;
-    int readCount;
-    int writeCount;
+    int readCount = 0;
+    int writeCount = 0;
     int w;
     int id;
     Transaction *t;
@@ -113,7 +113,6 @@ Transaction * TransactionManager::createTransaction(vector<int> readOnlyKeys, ve
                     readOnlyKeys.erase(readOnlyKeys.begin());
                 }
                 _readOnlyLeft--;
-                //runTransaction(db, reads, vector<pair<int, int>>(), true);
                 t = new Transaction(reads, vector<pair<int, int>>(), true);
                 id = createId();
                 t->setId(id);
@@ -127,25 +126,30 @@ Transaction * TransactionManager::createTransaction(vector<int> readOnlyKeys, ve
                         if (readCount !=2) {
                             reads.push_back(*(readWriteKeys.begin()));
                             readWriteKeys.erase(readWriteKeys.begin());
+                            readCount++;
                         }
                         else {
 			  				writes.push_back(make_pair(readWriteKeys.at(0),(int)distribution(gen)));
                             readWriteKeys.erase(readWriteKeys.begin());
+                            writeCount++;
                         }
                     }
                     else  {
                         if (writeCount !=2) {
 			  				writes.push_back(make_pair(readWriteKeys.at(0),(int)distribution(gen)));
                             readWriteKeys.erase(readWriteKeys.begin());
+                            writeCount++;
                         }
                         else {
                             reads.push_back(*(readWriteKeys.begin()));
                             readWriteKeys.erase(readWriteKeys.begin());
+                            readCount++;
                         }
                     }
                 }
+                readCount = 0;
+                writeCount = 0;
                 _readWriteLeft--;
-                //runTransaction(db, reads, writes, false);
                 t = new Transaction(reads, writes, false);
                 id = createId();
                 t->setId(id);
@@ -161,25 +165,30 @@ Transaction * TransactionManager::createTransaction(vector<int> readOnlyKeys, ve
                         if (readCount !=2) {
                             reads.push_back(*(readWriteKeys.begin()));
                             readWriteKeys.erase(readWriteKeys.begin());
+                            readCount++;
                         }
                         else {
 			  				writes.push_back(make_pair(readWriteKeys.at(0),(int)distribution(gen)));
                             readWriteKeys.erase(readWriteKeys.begin());
+                            writeCount++;
                         }
                     }
                     else  {
                         if (writeCount !=2) {
 			  				writes.push_back(make_pair(readWriteKeys.at(0),(int)distribution(gen)));
                             readWriteKeys.erase(readWriteKeys.begin());
+                            writeCount++;
                         }
                         else {
                             reads.push_back(*(readWriteKeys.begin()));
                             readWriteKeys.erase(readWriteKeys.begin());
+                            readCount++;
                         }
                     }
                 }
+                readCount = 0;
+                writeCount = 0;
                 _readWriteLeft--;
-                //runTransaction(db, reads, writes, false);
                 t = new Transaction(reads, writes, false);
                 id = createId();
                 t->setId(id);
@@ -192,7 +201,6 @@ Transaction * TransactionManager::createTransaction(vector<int> readOnlyKeys, ve
                     readOnlyKeys.erase(readOnlyKeys.begin());
                 }
                 _readOnlyLeft--;
-                //runTransaction(db, reads, vector<pair<int, int>>(), true);
                 t = new Transaction(reads, vector<pair<int, int>>(), true);
                 id = createId();
                 t->setId(id);

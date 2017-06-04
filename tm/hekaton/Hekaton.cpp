@@ -164,7 +164,7 @@ void Hekaton::validate(unordered_map<int, Transaction *> *transactions) {
 		}
 		//end timestamp is transaction ID
 		else if (!(*record)->getEnd()->getIsCounter()) {
-			Transaction *transaction = transactions->at((*record)->getBegin()->getTransactionId());
+			Transaction *transaction = transactions->at((*record)->getEnd()->getTransactionId());
 			if (transaction->getState() == 2 && transaction->getEnd()->getCounter() > currBegin->getCounter()) {
 				valid = true;
 			}
