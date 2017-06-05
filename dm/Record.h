@@ -57,6 +57,8 @@ public:
     /// Set the pointer to the next record (if there is one)
     void setNextRecord(Record *nextRecord);
 
+    Record *getMostRecentRecord(int key);
+
 private:
     int _entryKey;
     bool _isLatest;

@@ -113,3 +113,51 @@ int Utility::PromptUser(string prompt, const vector<string>& options) {
 
     return responseValue;
 }
+
+vector<Operation> Utility::getRandomReadOnlyOps(DataManager *dataManager, int opCount) {
+    vector<Operation> ops;
+    Record *record;
+    mt19937 gen;
+    gen.seed(random_device()());
+    uniform_real_distribution<> keysDist(0, dataManager->getDb().size() - 1);
+
+    for(int i = 0; i < opCount; i++) {
+        ops[i] = Operation();
+        ops[i].setMode(Operation::READ);
+        record = dataManager->getDb()[(int)keysDist(gen)];
+        while(!record->getIsLatest()) {
+            record = record->getNextRecord();
+        }
+        ops[i].setKey(record->getEntryKey());
+    }
+
+    return ops;
+}
+
+vector<Operation> Utility::getRandomReadWriteOps(DataManager *dataManager, int opCount) {
+    vector<Operation> ops;
+    Record *record;
+    mt19937 gen;
+    gen.seed(random_device()());
+    uniform_real_distribution<> keysDist(0, dataManager->getDb().size() - 1);
+    uniform_real_distribution<> valuesDist(0, 1000);
+
+    for(int i = 0; i < opCount; i++) {
+        ops[i] = Operation();
+        if(i % 2 == 0) {
+            ops[i].setMode(Operation::READ);
+        }
+        else {
+            ops[i].setMode(Operation::WRITE);
+            ops[i].setValue((int)valuesDist(gen));
+        }
+
+        record = dataManager->getDb()[(int)keysDist(gen)];
+        while(!record->getIsLatest()) {
+            record = record->getNextRecord();
+        }
+        ops[i].setKey(record->getEntryKey());
+    }
+
+    return ops;
+}

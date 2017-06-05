@@ -14,8 +14,9 @@ void ManualTest::FSM(DataManager *dataManager, TransactionManager *transactionMa
     int readOnlyCount = 0;
     int readWriteCount = 0;
     int threadCount = 0;
-    vector<int> readOnlyKeys;
-    vector<int> readWriteKeys;
+    vector<Operation> readOnlyOps;
+    vector<Operation> readWriteOps;
+    int opPerTxn = dataManager->getOpsPerTransaction();
     bool specifyDataObjects = false;
 
     while(true) {
@@ -58,11 +59,12 @@ void ManualTest::FSM(DataManager *dataManager, TransactionManager *transactionMa
                 break;
             }
             case DATA_SELECT: {
-                prompt = "Do you want to specify each data object to perform each transaction on, or randomly select them "
-                        "from the database?";
+                prompt = "Do you want to randomly select objects from the database or specify each object to perform each"
+                    " operation of each transaction on?";
                 options = vector<string> {
                     "Randomly select them from the database",
-                    "Specify each data object (NOTE: this becomes tedious with more than a few objects)"
+                    "Specify each object (NOTE: since each transaction defines 4 operations, this becomes tedious with"
+                        " more than a few objects)"
                 };
                 responseValue = Utility::PromptUser(prompt, options);
 
@@ -76,95 +78,162 @@ void ManualTest::FSM(DataManager *dataManager, TransactionManager *transactionMa
                 break;
             }
             case DATA_SPECIFY: {
-                int key;
+                int key, value;
+                int readOpCount;
+                int writeOpCount;
                 Record *record;
                 mt19937 gen;
                 gen.seed(random_device()());
-                uniform_real_distribution<> distribution(0, dataManager->getDb().size() - 1);
-                readOnlyKeys.clear();
-                readWriteKeys.clear();
+                uniform_real_distribution<> keyDist(0, dataManager->getDb().size() - 1);
+                readOnlyOps.clear();
+                readWriteOps.clear();
 
                 if (specifyDataObjects) {
-                    for (int i = 0; i < readOnlyCount * dataManager->getOpsPerTransaction(); i++) {
-                        ss << "Which data entry key would you like to perform read-only operation " << i << " on?\n"
+                    for (int i = 0; i < readOnlyCount * opPerTxn; i++) {
+                        if(i % opPerTxn == 0) {
+                            cout << "Transaction " << i + 1 << ":" << endl;
+                        }
+                        ss << "Which data entry key would you like to perform read operation " << i % opPerTxn + 1 << " on?\n"
                             << "(NOTE: If the entry key specified is for an older/invalid version of an object, HeckaDBMS "
                             "will automatically find the latest version and point your request at it)";
                         prompt = ss.str();
                         key = Utility::PromptUser(prompt, 0, dataManager->getDb().size() - 1);
+                        readOnlyOps[i] = Operation();
+                        readOnlyOps[i].setMode(Operation::READ);
                         record = dataManager->getDb()[key];
                         while(!record->getIsLatest()) {
                             record = record->getNextRecord();
                         }
-                        readOnlyKeys.push_back(record->getEntryKey());
+                        readOnlyOps[i].setKey(record->getEntryKey());
                     }
-                    for (int i = 0; i < readWriteCount * dataManager->getOpsPerTransaction(); i++) {
-                        ss << "Which data entry key would you like to perform read-write operation " << i << " on?\n"
-                            << "(NOTE: If the entry key specified is for an older/invalid version of an object, HeckaDBMS "
-                            "will automatically find the latest version and point your request at it)";
-                        prompt = ss.str();
-                        key = Utility::PromptUser(prompt, 0, dataManager->getDb().size() - 1);
+                    for (int i = 0; i < readWriteCount * opPerTxn; i++) {
+                        if(i % dataManager->getOpsPerTransaction() == 0) {
+                            cout << "Transaction " << i + 1 << ":" << endl;
+                            readOpCount = 0;
+                            writeOpCount = 0;
+                        }
+
+                        if(readOpCount < 2 && writeOpCount < 2) {
+                            ss << "Would you like operation " << i << " to be a read or a write?";
+                            prompt = ss.str();
+                            options = vector<string> {"Read", "Write"};
+                            responseValue = Utility::PromptUser(prompt, options);
+                        }
+                        else if(readOpCount < 2) {
+                            responseValue = 1;
+                        }
+                        else {
+                            responseValue = 2;
+                        }
+
+                        readWriteOps[i] = Operation();
+                        if(responseValue == 1) {
+                            ss << "Which data entry key would you like to perform read operation " << i << " on?\n"
+                               << "(NOTE: If the entry key specified is for an older/invalid version of an object, HeckaDBMS "
+                                       "will automatically find the latest version and point your request at it)";
+                            readWriteOps[i].setMode(Operation::READ);
+                            prompt = ss.str();
+                            key = Utility::PromptUser(prompt, 0, dataManager->getDb().size() - 1);
+                        }
+                        else {
+                            ss << "Which data entry key would you like to perform write operation " << i << " on?\n"
+                               << "(NOTE: If the entry key specified is for an older/invalid version of an object, HeckaDBMS "
+                                       "will automatically find the latest version and point your request at it)";
+                            prompt = ss.str();
+                            key = Utility::PromptUser(prompt, 0, dataManager->getDb().size() - 1);
+                            ss << "What value would you like to write for write operation " << i << "?\n";
+                            prompt = ss.str();
+                            value = Utility::PromptUser(prompt, 0, 1000);
+                            readWriteOps[i].setMode(Operation::WRITE);
+                            readWriteOps[i].setValue(value);
+                        }
                         record = dataManager->getDb()[key];
                         while(!record->getIsLatest()) {
                             record = record->getNextRecord();
                         }
-                        readWriteKeys.push_back(record->getEntryKey());
+                        readWriteOps[i].setKey(record->getEntryKey());
                     }
                 }
                 else {
-                    for(int i = 0; i < readOnlyCount * dataManager->getOpsPerTransaction(); i++) {
-                        key = (int)distribution(gen);
-                        record = dataManager->getDb()[key];
-                        while(!record->getIsLatest()) {
-                            record = record->getNextRecord();
-                        }
-                        readOnlyKeys.push_back(record->getEntryKey());
-                    }
-                    for(int i = 0; i < readWriteCount * dataManager->getOpsPerTransaction(); i++) {
-                        key = (int)distribution(gen);
-                        record = dataManager->getDb()[key];
-                        while(!record->getIsLatest()) {
-                            record = record->getNextRecord();
-                        }
-                        readWriteKeys.push_back(record->getEntryKey());
-                    }
+                    readOnlyOps = Utility::getRandomReadOnlyOps(dataManager, readOnlyCount * opPerTxn);
+                    readWriteOps = Utility::getRandomReadWriteOps(dataManager, readWriteCount * opPerTxn);
                 }
 
                 _state = BEGIN_TRANSACTION;
                 break;
             }
             case BEGIN_TRANSACTION: {
+                int j;
                 cout << "HeckaDBMS will now begin performing the transaction(s) with the following parameters:" << endl;
                 cout << "\t|Read-Only Transactions: " << readOnlyCount << endl;
                 cout << "\t|Read-Only Data Object Keys: ";
-                for(int i = 0; i < min(readOnlyCount, PRINT_KEY_LIMIT); i++) {
-                    if(i == PRINT_KEY_LIMIT - 1 && readOnlyCount != PRINT_KEY_LIMIT) {
-                        cout << readOnlyKeys.at(i) << "...";
+                for(int i = 0; i < min(readOnlyCount, dataManager->getOpsPrintLim()); i++) {
+                    cout << "[";
+                    if(i == dataManager->getOpsPrintLim() - 1 && readOnlyCount != dataManager->getOpsPrintLim()) {
+                        for(j = 0; j < 3; j++) {
+                            cout << readOnlyOps.at(i * opPerTxn + j).getKey() << ",";
+                        }
+                        cout << readOnlyOps.at(i * opPerTxn + j).getKey() << "] ...";
                     }
                     else if(i == readOnlyCount - 1) {
-                        cout << readOnlyKeys.at(i);
+                        for(j = 0; j < 3; j++) {
+                            cout << readOnlyOps.at(i * opPerTxn + j).getKey() << ",";
+                        }
+                        cout << readOnlyOps.at(i * opPerTxn + j).getKey() << "]";
                     }
                     else {
-                        cout << readOnlyKeys.at(i) << ", ";
+                        for(j = 0; j < 3; j++) {
+                            cout << readOnlyOps.at(i * opPerTxn + j).getKey() << ",";
+                        }
+                        cout << readOnlyOps.at(i * opPerTxn + j).getKey() << "], ";
                     }
                 }
                 cout << endl;
                 cout << "\t|Read-Write Transactions: " << readWriteCount << endl;
                 cout << "\t|Read-Write Data Object Keys: ";
-                for(int i = 0; i < min(readWriteCount, PRINT_KEY_LIMIT); i++) {
-                    if(i == PRINT_KEY_LIMIT - 1 && readWriteCount != PRINT_KEY_LIMIT) {
-                        cout << readWriteKeys.at(i) << "...";
+                for(int i = 0; i < min(readWriteCount, dataManager->getOpsPrintLim()); i++) {
+                    cout << "[";
+                    if(i == dataManager->getOpsPrintLim() - 1 && readWriteCount != dataManager->getOpsPrintLim()) {
+                        for(j = 0; j < 3; j++) {
+                            if(readWriteOps.at(i * opPerTxn + j).getMode() == Operation::READ) {
+                                cout << readWriteOps.at(i * opPerTxn + j).getKey() << ",";
+                            }
+                            else {
+                                cout << "(" << readWriteOps.at(i * opPerTxn + j).getKey() << ","
+                                << readWriteOps.at(i * opPerTxn + j).getValue() << "),";
+                            }
+                        }
+                        cout << readWriteOps.at(i * opPerTxn + j).getKey() << "] ...";
                     }
-                    else if(i == readWriteCount - 1) {
-                        cout << readWriteKeys.at(i);
+                    else if(i == readOnlyCount - 1) {
+                        for(j = 0; j < 3; j++) {
+                            if(readWriteOps.at(i * opPerTxn + j).getMode() == Operation::READ) {
+                                cout << readWriteOps.at(i * opPerTxn + j).getKey() << ",";
+                            }
+                            else {
+                                cout << "(" << readWriteOps.at(i * opPerTxn + j).getKey() << ","
+                                     << readWriteOps.at(i * opPerTxn + j).getValue() << "),";
+                            }
+                        }
+                        cout << readWriteOps.at(i * opPerTxn + j).getKey() << "]";
                     }
                     else {
-                        cout << readWriteKeys.at(i) << ", ";
+                        for(j = 0; j < 3; j++) {
+                            if(readWriteOps.at(i * opPerTxn + j).getMode() == Operation::READ) {
+                                cout << readWriteOps.at(i * opPerTxn + j).getKey() << ",";
+                            }
+                            else {
+                                cout << "(" << readWriteOps.at(i * opPerTxn + j).getKey() << ","
+                                     << readWriteOps.at(i * opPerTxn + j).getValue() << "),";
+                            }
+                        }
+                        cout << readWriteOps.at(i * opPerTxn + j).getKey() << "], ";
                     }
                 }
                 cout << endl;
                 cout << "\t|Concurrent Threads: " << threadCount << endl;
                 cout << "Launching threads...\n" << endl;
-                transactionManager->manageManualTransactions(dataManager, threadCount, readOnlyCount, readWriteCount, readOnlyKeys, readWriteKeys);
+                transactionManager->manageManualTransactions(dataManager, threadCount, readOnlyCount, readWriteCount, readOnlyOps, readWriteOps);
 
                 _state = END_TRANSACTION;
                 break;

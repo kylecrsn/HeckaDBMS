@@ -14,7 +14,6 @@ void ScaleTest::FSM(DataManager *dataManager, TransactionManager *transactionMan
     int transactionCount = 0;
     int initialThreadCount = 0;
     int finalThreadCount = 0;
-    Utility::ScaleAlgorithm scaleAlgorithm;
 
     while(true) {
         switch(_state) {
@@ -55,46 +54,6 @@ void ScaleTest::FSM(DataManager *dataManager, TransactionManager *transactionMan
                 responseValue = Utility::PromptUser(prompt, initialThreadCount + 1, transactionCount);
                 finalThreadCount = responseValue;
 
-                _state = SCALE_METHOD;
-                break;
-            }
-            case SCALE_METHOD: {
-                prompt = "Which method of scaling should be used to increase the concurrent thread count?";
-                options = vector<string> {
-                        "Linear",
-                        "Quadratic",
-                        "Exponential"
-                };
-                responseValue = Utility::PromptUser(prompt, options);
-
-                switch(responseValue) {
-                    case 1: {
-                        scaleAlgorithm = Utility::LINEAR;
-                        scaleAlgorithmString = "Linear";
-                        break;
-                    }
-                    case 2: {
-                        scaleAlgorithm = Utility::QUADRATIC;
-                        scaleAlgorithmString = "Quadratic";
-                        break;
-                    }
-                    case 3: {
-                        scaleAlgorithm = Utility::EXPONENTIAL;
-                        scaleAlgorithmString = "Exponential";
-                        break;
-                    }
-                }
-
-                if (responseValue == 1) {
-                    scaleAlgorithm = Utility::LINEAR;
-                }
-                else if(responseValue == 2) {
-                    scaleAlgorithm = Utility::QUADRATIC;
-                }
-                else {
-                    scaleAlgorithm = Utility::EXPONENTIAL;
-                }
-
                 _state = BEGIN_TRANSACTION;
                 break;
             }
@@ -102,10 +61,8 @@ void ScaleTest::FSM(DataManager *dataManager, TransactionManager *transactionMan
                 cout << "HeckaDBMS will now begin performing the transactions with the following parameters:" << endl;
                 cout << "\t|Transactions: " << transactionCount << endl;
                 cout << "\t|Initial Thread Count: " << initialThreadCount << endl;
-                cout << "\t|Final Thread Count: " << finalThreadCount << endl;
-                cout << "\t|Scaling Algorithm: " << scaleAlgorithmString << endl;
                 cout << "Launching threads...\n" << endl;
-                transactionManager->manageScaleTransactions(dataManager, transactionCount, initialThreadCount, finalThreadCount, scaleAlgorithm);
+                transactionManager->manageScaleTransactions(dataManager, transactionCount, initialThreadCount, finalThreadCount);
 
                 _state = END_TRANSACTION;
                 break;

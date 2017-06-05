@@ -33,6 +33,9 @@ public:
     /// Get the number of operations per transaction attempt
     int getOpsPerTransaction();
 
+    /// Get the limit on the number of operations to print in ManualTes
+    int getOpsPrintLim();
+
     /// Set the underlying database object
     void setDb(const unordered_map<int, Record *>& db);
 
@@ -54,16 +57,16 @@ public:
     /// Print the current contents of the database in a verbose format
     void printDatabaseVerbose();
 
-    // Facilitates performing a read on the specified data item through 2PL
+    /// Facilitates performing a read on the specified data item through 2PL
     void get();
     
-    // Facilitates performing a read on the specified data item through Hekaton
+    /// Facilitates performing a read on the specified data item through Hekaton
     void get(int entryKey, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *readSet);
 
-    // Facilitates performing a write on the specified data item through 2PL
+    /// Facilitates performing a write on the specified data item through 2PL
     void put();
     
-    // Facilitates performing a write on the specified data item through Hekaton
+    /// Facilitates performing a write on the specified data item through Hekaton
     bool put(int entryKey, int value, unordered_map<int, Transaction *> *transactions, int currTransactionId,
          vector<Record *> *writeSet);
 

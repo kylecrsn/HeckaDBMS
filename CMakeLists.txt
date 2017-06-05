@@ -8,7 +8,7 @@ IF (Boost_FOUND)
     INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
     ADD_DEFINITIONS( "-DHAS_BOOST" )
 ENDIF()
-set(BOOST_ROOT "/usr/local/boost_1_61_0")
+set(BOOST_ROOT "/usr/local/boost_1_61_0/")
 
 set(DIR_ROOT "${CMAKE_SOURCE_DIR}")
 set(DIR_CLIENT "client")
@@ -16,7 +16,6 @@ set(DIR_DM "dm")
 set(DIR_TM "tm")
 set(DIR_TWOPL "tm/twopl")
 set(DIR_HEKATON "tm/hekaton")
-
 
 set(CMAKE_C_FLAGS "-pthread -g -Wall")
 
@@ -36,11 +35,12 @@ set(SOURCE_FILES
     ${DIR_CLIENT}/VaryTest.cpp ${DIR_CLIENT}/VaryTest.h
     ${DIR_CLIENT}/Client.cpp ${DIR_CLIENT}/Client.h
     ${DIR_DM}/DataManager.cpp ${DIR_DM}/DataManager.h
+    ${DIR_DM}/Record.cpp ${DIR_DM}/Record.h
+    ${DIR_DM}/Timestamp.cpp ${DIR_DM}/Timestamp.h
     ${DIR_TM}/TransactionManger.cpp ${DIR_TM}/TransactionManager.h
-    ${DIR_HEKATON}/Record.cpp ${DIR_HEKATON}/Record.h
-    ${DIR_HEKATON}/Timestamp.cpp ${DIR_HEKATON}/Timestamp.h
-    ${DIR_HEKATON}/Transaction.cpp ${DIR_HEKATON}/Transaction.h
+    ${DIR_TM}/Operation.cpp ${DIR_TM}/Operation.h
     ${DIR_HEKATON}/Hekaton.cpp ${DIR_HEKATON}/Hekaton.h
+    ${DIR_HEKATON}/Transaction.cpp ${DIR_HEKATON}/Transaction.h
     ${DIR_TWOPL}/TwoPL.cpp ${DIR_TWOPL}/TwoPL.h)
 
 add_executable(HeckaDBMS ${SOURCE_FILES})

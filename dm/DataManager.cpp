@@ -23,6 +23,10 @@ int DataManager::getOpsPerTransaction() {
     return _opsPerTransaction;
 }
 
+int DataManager::getOpsPrintLim() {
+    return 5;
+}
+
 void DataManager::setDb(const unordered_map<int, Record *>& db) {
     _db = db;
 }

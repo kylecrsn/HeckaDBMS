@@ -87,4 +87,3 @@ void Record::setEnd(Timestamp *end) {
 void Record::setNextRecord(Record *nextRecord) {
     _nextRecord = nextRecord;
 }
-

@@ -27,7 +27,6 @@ public:
         TRANSACTIONS,
         INITIAL_THREAD_COUNT,
         FINAL_THREAD_COUNT,
-        SCALE_METHOD,
         BEGIN_TRANSACTION,
         END_TRANSACTION,
         EXIT

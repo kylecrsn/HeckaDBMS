@@ -7,10 +7,11 @@ public:
     /// Default Constructor
     Timestamp();
 
+    /// Copy constructor
+    Timestamp(const Timestamp &t);
+
     /// Constructor with values for the counter, transaction ID, and which timestamp type it is as parameters
     Timestamp(bool isCounter, int counter, int transactionId);
-
-	Timestamp(const Timestamp &t);
 	
     /// Get whether or not the timestamp is a counter or transaction ID
     bool getIsCounter();

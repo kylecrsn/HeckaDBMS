@@ -15,7 +15,6 @@ using namespace std;
 
 #define RO_TRANSACTION_LIMIT 5000
 #define RW_TRANSACTION_LIMIT 5000
-#define PRINT_KEY_LIMIT 16
 
 class ManualTest {
 public:
