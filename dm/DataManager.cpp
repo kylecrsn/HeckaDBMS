@@ -2,7 +2,7 @@
 
 DataManager::DataManager() {
     _db = {};
-    _latestEntryKey = 0;
+    _latestEntryKey = -1;
     _latestCounter = 0;
     _opsPerTransaction = 4;
 }
@@ -31,10 +31,10 @@ void DataManager::generateDatabase(int databaseSize) {
     mt19937 gen;
     gen.seed(random_device()());
     uniform_int_distribution<> objectValueDistribution(0, 1000);
-
     // Populate the database, initially the entry and object keys are the same
     for(int i = 0; i < databaseSize; i++) {
         _db[i] = new Record(i, i, objectValueDistribution(gen));
+        _latestEntryKey++;
     }
 }
 
@@ -343,6 +343,7 @@ bool DataManager::put(int entryKey, int value, unordered_map<int, Transaction *>
             record->setNextRecord(newRecord);
             writeSet->push_back(newRecord);
             writeSet->push_back(record);
+            record->setIsLatest(false);
             _db[newRecord->getEntryKey()] = newRecord;
             break;
         }
@@ -366,6 +367,7 @@ bool DataManager::put(int entryKey, int value, unordered_map<int, Transaction *>
                 record->setNextRecord(newRecord);
                 writeSet->push_back(newRecord);
                 writeSet->push_back(record);
+                record->setIsLatest(false);
                 _db[newRecord->getEntryKey()] = newRecord;
                 break;
             }
