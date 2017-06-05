@@ -203,17 +203,18 @@ void Hekaton::abort(unordered_map<int, Transaction *> *transactions) {
 	Transaction *transaction = transactions->at(_id);
 	transaction->setState(Transaction::HekatonState::ABORTED);
 	for (vector<Record *>::iterator it = _writeSet.begin() ; it != _writeSet.end(); ++it) {
-		if (!(*it)->getBegin()->getIsCounter()) {
-			(*it)->getBegin()->setIsCounter(true);
-			(*it)->getBegin()->setCounter(-1);
-		}
-		//need locks?
 		_abortMtx.lock();
 		if (!(*it)->getEnd()->getIsCounter() && (*it)->getEnd()->getTransactionId() == _id) {
 			(*it)->getEnd()->setIsCounter(true);
 			(*it)->getEnd()->setCounter(-1);
+			(*it)->setIsLatest(true);
 		}
 		_abortMtx.unlock();
+		if (!(*it)->getBegin()->getIsCounter()) {
+			(*it)->getBegin()->setIsCounter(true);
+			(*it)->getBegin()->setCounter(-1);
+			(*it)->setIsLatest(false);
+		}
 	}
 	abortCommitDep(transactions);
 }
