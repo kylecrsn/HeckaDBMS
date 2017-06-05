@@ -42,7 +42,6 @@ vector<int> TransactionManager::manageManualTransactions(DataManager *dataManage
 }
 
 vector<int> TransactionManager::manageScaleTransactions(DataManager *dataManager, int transactionCount, int initialThreadCount, int finalThreadCount) {
-    float m, c, a, b;
     int transactionsCompleted = 0;
     int functionalConcurrentThreads = 1;
     int readOnlyCount = transactionCount / 2;
@@ -56,36 +55,19 @@ vector<int> TransactionManager::manageScaleTransactions(DataManager *dataManager
     setReadOnlyLeft(readOnlyCount);
     setReadWriteLeft(readWriteCount);
 
-    // y is the number of concurrent threads, x is the number of completed transactions
-            // y = mx + c
-            m = ((float)finalThreadCount - (float)initialThreadCount) / (float)transactionCount;
-            c = (float)finalThreadCount;
-            break;
-        }
-        case Utility::EXPONENTIAL: {
-            // y = a(b^x)
-            a = (float)initialThreadCount;
-            b = ((float)finalThreadCount / (float)initialThreadCount);
-            break;
-        }
-    }
-
     // Launch thread futures
     while(transactionsCompleted < transactionCount) {
         for(int i = 0; i < functionalConcurrentThreads; i++) {
-            listenerThreads[i] = async(&TransactionManager::transactionListener, this, dataManager, functionalConcurrentThreads, readOnlyOps, readWriteOps);
+            if(i + transactionsCompleted < transactionCount) {
+                listenerThreads[i + transactionsCompleted] = async(&TransactionManager::transactionListener, this, dataManager, functionalConcurrentThreads, readOnlyOps, readWriteOps);
+            }
         }
-
-        for(int i = 0; transactionsCompleted < transactionCount; i++) {
-
+        for(int i = 0; i < functionalConcurrentThreads; i++) {
+            if(i + transactionsCompleted < transactionCount) {
+                listenerRets[i + transactionsCompleted] = listenerThreads[i].get();
+            }
         }
-    }
-
-
-
-    // Get async promise results
-    for(int i = 0; i < transactionCount; i++) {
-        listenerRets[i] = listenerThreads[i].get();
+        transactionsCompleted += functionalConcurrentThreads;
     }
 
     return listenerRets;

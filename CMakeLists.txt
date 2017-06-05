@@ -37,7 +37,7 @@ set(SOURCE_FILES
     ${DIR_DM}/DataManager.cpp ${DIR_DM}/DataManager.h
     ${DIR_DM}/Record.cpp ${DIR_DM}/Record.h
     ${DIR_DM}/Timestamp.cpp ${DIR_DM}/Timestamp.h
-    ${DIR_TM}/TransactionManger.cpp ${DIR_TM}/TransactionManager.h
+    ${DIR_TM}/TransactionManager.cpp ${DIR_TM}/TransactionManager.h
     ${DIR_TM}/Operation.cpp ${DIR_TM}/Operation.h
     ${DIR_HEKATON}/Hekaton.cpp ${DIR_HEKATON}/Hekaton.h
     ${DIR_HEKATON}/Transaction.cpp ${DIR_HEKATON}/Transaction.h

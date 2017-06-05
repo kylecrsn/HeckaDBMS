@@ -18,7 +18,7 @@ Operation::Operation(Mode mode, int key, int value) {
     _value = value;
 }
 
-Mode Operation::getMode() {
+Operation::Mode Operation::getMode() {
     return _mode;
 }
 
@@ -30,7 +30,7 @@ int Operation::getValue() {
     return _value;
 }
 
-void Operation::setMode(Mode mode) {
+void Operation::setMode(Operation::Mode mode) {
     _mode = mode;
 }
 
