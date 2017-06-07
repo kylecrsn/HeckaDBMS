@@ -10,6 +10,7 @@
 #include "DataManager.h"
 #include "Transaction.h"
 #include "Operation.h"
+#include "LockManager.h"
 
 using namespace std;
 
@@ -45,6 +46,9 @@ public:
 
     /// Creates a Hekaton object for a transaction
     Transaction * createTransaction(vector<Operation> readOnlyOps, vector<Operation> readWriteOps);
+    
+    // Executes a transaction with a 2PL object
+    void run2PLTransaction(DataManager *db, Transaction *t);
 
     /// Executes a transaction with a Hekaton object
     void runTransaction(DataManager *db, vector<int> reads, vector<pair<int,int>> writes, bool readOnly, int i);

@@ -58,13 +58,13 @@ public:
     void printDatabaseVerbose();
 
     /// Facilitates performing a read on the specified data item through 2PL
-    void get();
+    int get(int entryKey);
     
     /// Facilitates performing a read on the specified data item through Hekaton
     void get(int entryKey, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *readSet);
 
     /// Facilitates performing a write on the specified data item through 2PL
-    void put();
+    void put(int entryKey, int value);
     
     /// Facilitates performing a write on the specified data item through Hekaton
     bool put(int entryKey, int value, unordered_map<int, Transaction *> *transactions, int currTransactionId,

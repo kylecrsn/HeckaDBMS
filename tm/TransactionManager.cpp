@@ -144,16 +144,28 @@ void TransactionManager::runTransaction(DataManager *db, vector<int> reads, vect
 
 void TransactionManager::run2PLTransaction(DataManager *db, Transaction *t) {
 	LockManager *l = new LockManager();
-	for (vector<Operation *>::iterator it = t->getTransaction().begin() ; it != t->getTransaction().end(); ++it) {
-		l->Lock((*it)->getObjectKey(), t->getTransactionId(), (*it)->getMode());
+	Lock *lock;
+	Lock *nextLock;
+	lock = l->lock(t->getTransaction().front()->getKey(), t->getId(), t->getTransaction().front()->getMode());
+	bool aborted = false;
+	for (vector<Operation *>::iterator it = t->getTransaction().begin()++ ; it != t->getTransaction().end(); ++it) {
+		nextLock = l->lock((*it)->getKey(), t->getId(), (*it)->getMode());
+		if (nextLock == NULL) {
+			aborted = true;
+			break;
+		}
+		lock->setNextLock(nextLock);
+		lock = nextLock;
 		if ((*it)->getMode() == Operation::Mode::WRITE) {
-			put((*it)->getObjectKey(), (*it)->getValue());
+			db->put((*it)->getKey(), (*it)->getValue());
 		}
 		else {
-			get((*it)->getObjectKey());
+			db->get((*it)->getKey());
 		}
 	}
-	l->Unlock(*t->getTransaction().begin(), t->getTransactionId());
+	if (!aborted) {
+		l->unlock(t->getTransaction().front()->getKey(), t->getId());
+	}
 } 
 
 Transaction * TransactionManager::createTransaction(vector<Operation> readOnlyOps, vector<Operation> readWriteOps) {

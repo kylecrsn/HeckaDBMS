@@ -262,8 +262,16 @@ void DataManager::printDatabaseVerbose() {
     cout << flush;
 }
 
-void DataManager::get() {
-
+int DataManager::get(int entryKey) {
+	Record *record = _db[entryKey];
+	while (record != nullptr) {
+		if (record->getIsLatest()) {
+			return record->getObjectValue();
+		}
+		else {
+			record = record->getNextRecord();
+		}
+	}
 }
 
 void DataManager::get(int entryKey, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *readSet) {
@@ -324,8 +332,17 @@ void DataManager::get(int entryKey, unordered_map<int, Transaction *> *transacti
 	}
 }
 
-void DataManager::put() {
-
+void DataManager::put(int entryKey, int value) {
+	Record *record = _db[entryKey];
+	while (record != nullptr) {
+		if (record->getIsLatest()) {
+			record->setObjectValue(value);
+			break;
+		}
+		else {
+			record = record->getNextRecord();
+		}
+	}
 }
 
 bool DataManager::put(int entryKey, int value, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *writeSet) {
