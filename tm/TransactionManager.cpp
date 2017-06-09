@@ -122,14 +122,14 @@ int TransactionManager::transactionListener(DataManager *dataManager, int thread
 
 void TransactionManager::startTransaction(DataManager *db, vector<Operation> readOnlyOps, vector<Operation> readWriteOps) {
     //lock around createTransactions
-    _transactionMtx.lock();
-    Transaction *t = createTransaction();
-    _transactionMtx.unlock();
-    runTransaction(db, t->getReads(), t->getWrites(), t->getIsReadOnly(), t->getId());
-// 	 _transactionMtx.lock();
-//      Transaction *t = create2PLTransaction();
-//      _transactionMtx.unlock();
-//      run2PLTransaction(db, t);
+//     _transactionMtx.lock();
+//     Transaction *t = createTransaction();
+//     _transactionMtx.unlock();
+//     runTransaction(db, t->getReads(), t->getWrites(), t->getIsReadOnly(), t->getId());
+	 _transactionMtx.lock();
+     Transaction *t = create2PLTransaction();
+     _transactionMtx.unlock();
+     run2PLTransaction(db, t);
     
 }
 
@@ -153,18 +153,21 @@ void TransactionManager::run2PLTransaction(DataManager *db, Transaction *t) {
 	LockManager *l = new LockManager();
 	Lock *lock;
 	Lock *nextLock;
+	bool aborted = false;
 	lock = l->lock(t->getTransaction().front().getKey(), t->getId(), t->getTransaction().front().getMode());
-	if (t->getTransaction().front().getMode() == Operation::Mode::WRITE) {
+	if (lock == NULL) {
+			aborted = true;
+	}
+	if (t->getTransaction().front().getMode() == Operation::Mode::WRITE && !aborted) {
 		db->put(t->getTransaction().front().getKey(), t->getTransaction().front().getValue());
 	}
-	else {
+	else if (t->getTransaction().front().getMode() == Operation::Mode::READ && !aborted){
 		//db->get(t->getTransaction().front().getKey());
 		printf("get: %d  key: %d\n",db->get(t->getTransaction().front().getKey()), t->getTransaction().front().getKey());
 	}
-	bool aborted = false;
 	int key; 
 	vector<Operation> transaction = t->getTransaction();
-	for (int i = 1; i < t->getTransaction().size(); i++) {
+	for (int i = 1; i < transaction.size() && !aborted; i++) {
 		key = transaction[i].getKey();
 		nextLock = l->lock(key, t->getId(), transaction[i].getMode());
 		if (nextLock == NULL) {
@@ -174,7 +177,7 @@ void TransactionManager::run2PLTransaction(DataManager *db, Transaction *t) {
 		lock->setNextLock(nextLock);
 		lock = nextLock;
 		if (transaction[i].getMode() == Operation::Mode::WRITE) {
-			db->put(transaction[i].getKey(), transaction[i].getValue());
+			db->put(key, transaction[i].getValue());
 		}
 		else {
 			//db->get(key);

@@ -15,19 +15,23 @@ void LockEntry::addLockRequest(Lock *lock) {
 	_lockRequests.push(lock);
 }
 
-bool LockEntry::deleteLock(int objectKey, int transactionId) {
-// 	for (vector<Lock *>::iterator it = _locks.begin() ; it != _locks.end(); ++it) {
-// 		if ((*it)->getTransactionId() == transactionId) {
-// 			_locks.erase(it);
-// 			break;
-// 		}
-// 	}
-	for (int i = 0; i < _locks.size(); i++) {
-		if (_locks[i]->getTransactionId() == transactionId) {
-			_locks.erase(_locks.begin() + i);
+bool LockEntry::deleteLock(int key, int transactionId) {
+	_entryMtx.lock();
+	for (vector<Lock *>::iterator it = _locks.begin() ; it != _locks.end(); ++it) {
+		if ((*it)->getTransactionId() == transactionId) {
+			_locks.erase(it);
 			break;
 		}
 	}
+	_entryMtx.unlock();
+//	_entryMtx.lock();
+// 	for (int i = 0; i < _locks.size(); i++) {
+// 		if (_locks[i]->getTransactionId() == transactionId) {
+// 			_locks.erase(_locks.begin() + i);
+// 			break;
+// 		}
+// 	}
+//	_entryMtx.unlock();
 	if (_locks.empty() && _lockRequests.empty()) {
 		//delete entry
 		return true;
@@ -45,20 +49,15 @@ void LockEntry::tryAddingLocks() {
 		Lock *front = _lockRequests.front();
 		Operation::Mode mode = front->getMode();
 		int transactionId = front->getTransactionId();
-	// 	for (vector<Lock *>::iterator it = _locks.begin() ; it != _locks.end(); ++it) {
-	// 		if (mode == Operation::Mode::WRITE && (*it)->getTransactionId() != transactionId) {
-	// 			canAddLocks = false;
-	// 			break;
-	// 		}
-	// 	}
-		for (int i = 0; i < _locks.size(); i++) {
+		int i;
+		for (i = 0; i < _locks.size(); i++) {
 			if (mode == Operation::Mode::WRITE && _locks[i]->getTransactionId() != transactionId) {
 				canAddLocks = false;
 				break;
 			}
 		}
-		for (vector<Lock *>::iterator it = _locks.begin() ; it != _locks.end(); ++it) {
-			if (mode == Operation::Mode::READ && (*it)->getMode() == Operation::Mode::WRITE && (*it)->getTransactionId() != transactionId) {
+		for (i = 0; i < _locks.size(); i++) {
+			if (mode == Operation::Mode::READ && _locks[i]->getMode() == Operation::Mode::WRITE && _locks[i]->getTransactionId() != transactionId) {
 				canAddLocks = false;
 				break;
 			}
@@ -70,9 +69,9 @@ void LockEntry::tryAddingLocks() {
 				front = _lockRequests.front();
 				mode = front->getMode();
 				transactionId = front->getTransactionId();
-				for (vector<Lock *>::iterator it = _locks.begin() ; it != _locks.end(); ++it) {
-					if (mode == Operation::Mode::WRITE && (*it)->getTransactionId() != transactionId || 
-						mode == Operation::Mode::READ && (*it)->getMode() == Operation::Mode::WRITE && (*it)->getTransactionId() != transactionId) {
+				for (i = 0; i < _locks.size(); i++) {
+					if (mode == Operation::Mode::WRITE && _locks[i]->getTransactionId() != transactionId || 
+						mode == Operation::Mode::READ && _locks[i]->getMode() == Operation::Mode::WRITE && _locks[i]->getTransactionId() != transactionId) {
 						adding = false;
 						break;
 					}
