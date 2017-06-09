@@ -234,29 +234,37 @@ Transaction * TransactionManager::createTransaction() {
                 vector<pair<int,int>> writes;
                 vector<int> reads;
                 for (j = 0; j < 4; j++) {
-                    if ((int)distribution2(gen)) {
-                        if (readCount !=2) {
-                            reads.push_back(_readWriteOps->begin()->getKey());
-                            _readWriteOps->erase(_readWriteOps->begin());
-                            readCount++;
-                        }
-                        else {
-			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
-                            _readWriteOps->erase(_readWriteOps->begin());
-                            writeCount++;
-                        }
+//                     if ((int)distribution2(gen)) {
+//                         if (readCount !=2) {
+//                             reads.push_back(_readWriteOps->begin()->getKey());
+//                             _readWriteOps->erase(_readWriteOps->begin());
+//                             readCount++;
+//                         }
+//                         else {
+// 			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
+//                             _readWriteOps->erase(_readWriteOps->begin());
+//                             writeCount++;
+//                         }
+//                     }
+//                     else  {
+//                         if (writeCount !=2) {
+// 			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
+//                             _readWriteOps->erase(_readWriteOps->begin());
+//                             writeCount++;
+//                         }
+//                         else {
+//                             reads.push_back(_readWriteOps->begin()->getKey());
+//                             _readWriteOps->erase(_readWriteOps->begin());
+//                             readCount++;
+//                         }
+//                     }
+                    if (_readWriteOps->begin()->getMode() == Operation::Mode::WRITE) {
+                    	writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
+                        _readWriteOps->erase(_readWriteOps->begin());
                     }
-                    else  {
-                        if (writeCount !=2) {
-			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
-                            _readWriteOps->erase(_readWriteOps->begin());
-                            writeCount++;
-                        }
-                        else {
-                            reads.push_back(_readWriteOps->begin()->getKey());
-                            _readWriteOps->erase(_readWriteOps->begin());
-                            readCount++;
-                        }
+                    else {
+                    	reads.push_back(_readWriteOps->begin()->getKey());
+                        _readWriteOps->erase(_readWriteOps->begin());
                     }
                 }
                 readCount = 0;
@@ -273,29 +281,37 @@ Transaction * TransactionManager::createTransaction() {
                 vector<pair<int,int>> writes;
                 vector<int> reads;
                 for (j = 0; j < 4; j++) {
-                    if ((int)distribution2(gen)) {
-                        if (readCount !=2) {
-                            reads.push_back(_readWriteOps->begin()->getKey());
-                            _readWriteOps->erase(_readWriteOps->begin());
-                            readCount++;
-                        }
-                        else {
-			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
-                            _readWriteOps->erase(_readWriteOps->begin());
-                            writeCount++;
-                        }
+//                     if ((int)distribution2(gen)) {
+//                         if (readCount !=2) {
+//                             reads.push_back(_readWriteOps->begin()->getKey());
+//                             _readWriteOps->erase(_readWriteOps->begin());
+//                             readCount++;
+//                         }
+//                         else {
+// 			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
+//                             _readWriteOps->erase(_readWriteOps->begin());
+//                             writeCount++;
+//                         }
+//                     }
+//                     else  {
+//                         if (writeCount !=2) {
+// 			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
+//                             _readWriteOps->erase(_readWriteOps->begin());
+//                             writeCount++;
+//                         }
+//                         else {
+//                             reads.push_back(_readWriteOps->begin()->getKey());
+//                             _readWriteOps->erase(_readWriteOps->begin());
+//                             readCount++;
+//                         }
+//                     }
+                    if (_readWriteOps->begin()->getMode() == Operation::Mode::WRITE) {
+                    	writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
+                        _readWriteOps->erase(_readWriteOps->begin());
                     }
-                    else  {
-                        if (writeCount !=2) {
-			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
-                            _readWriteOps->erase(_readWriteOps->begin());
-                            writeCount++;
-                        }
-                        else {
-                            reads.push_back(_readWriteOps->begin()->getKey());
-                            _readWriteOps->erase(_readWriteOps->begin());
-                            readCount++;
-                        }
+                    else {
+                    	reads.push_back(_readWriteOps->begin()->getKey());
+                        _readWriteOps->erase(_readWriteOps->begin());
                     }
                 }
                 readCount = 0;

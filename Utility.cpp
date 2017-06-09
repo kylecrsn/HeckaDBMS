@@ -140,16 +140,33 @@ vector<Operation> Utility::getRandomReadWriteOps(DataManager *dataManager, int o
     gen.seed(random_device()());
     uniform_real_distribution<> keysDist(0, dataManager->getDb().size() - 1);
     uniform_real_distribution<> valuesDist(0, 1000);
+    int readCount = 0;
+    int writeCount = 0;
 
     for(int i = 0; i < opCount; i++) {
         //ops[i] = Operation();
         ops.push_back(Operation());
-        if(i % 2 == 0) {
+        if(i % 2 == 0 && readCount != 2) {
             ops[i].setMode(Operation::READ);
+            readCount++;
         }
-        else {
+        else if (i % 2 == 1 && writeCount != 2) {
+        	ops[i].setMode(Operation::WRITE);
+            ops[i].setValue((int)valuesDist(gen));
+            writeCount++;
+        }
+        else if (i % 2 == 0) {
             ops[i].setMode(Operation::WRITE);
             ops[i].setValue((int)valuesDist(gen));
+            writeCount++;
+        }
+        else {
+        	ops[i].setMode(Operation::READ);
+            readCount++;
+        }
+        if (readCount == 2 && writeCount == 2) {
+        	readCount = 0;
+        	writeCount = 0;
         }
 
         record = dataManager->getDb()[(int)keysDist(gen)];
