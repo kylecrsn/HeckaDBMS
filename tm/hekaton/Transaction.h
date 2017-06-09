@@ -55,7 +55,7 @@ public:
     
     int getId();
     
-    vector<Operation *> getTransaction();
+    vector<Operation> getTransaction();
 
     /// Set whether or not to abort now
     void setAbortNow(bool abortNow);
@@ -77,7 +77,7 @@ public:
     
     void setId(int i);
     
-    void addOperation(Operation *o);
+    void addOperation(Operation o);
     
 private:
 	int _id;
@@ -89,7 +89,7 @@ private:
     Timestamp *_begin;
     vector<int> _reads;
     vector<pair<int,int>> _writes;
-    vector<Operation *> _transaction;
+    vector<Operation> _transaction;
     bool _readOnly;
 };
 

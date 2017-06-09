@@ -45,7 +45,7 @@ public:
     void startTransaction(DataManager *db, vector<Operation> readOnlyOps, vector<Operation> readWriteOps);
 
     /// Creates a Hekaton object for a transaction
-    Transaction * createTransaction(vector<Operation> readOnlyOps, vector<Operation> readWriteOps);
+    Transaction * createTransaction();
     
     // Executes a transaction with a 2PL object
     void run2PLTransaction(DataManager *db, Transaction *t);
@@ -54,7 +54,7 @@ public:
     void runTransaction(DataManager *db, vector<int> reads, vector<pair<int,int>> writes, bool readOnly, int i);
 
     /// Creates a 2PL object for a transaction
-    Transaction * create2PLTransaction(vector<Operation> readOnlyOps, vector<Operation> readWriteOps);
+    Transaction * create2PLTransaction();
 private:
     mutex _concurrentMutex;
     int _concurrentThreads;
@@ -63,6 +63,8 @@ private:
     unordered_map<int, Transaction *>  _transactions;
     int _readOnlyLeft;
     int _readWriteLeft;
+    vector<Operation> *_readOnlyOps;
+    vector<Operation> *_readWriteOps;
 };
 
 #endif

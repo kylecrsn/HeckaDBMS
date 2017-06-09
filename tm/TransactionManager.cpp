@@ -26,6 +26,8 @@ vector<int> TransactionManager::manageManualTransactions(DataManager *dataManage
     // Setup read/write left
     setReadOnlyLeft(readOnlyCount);
     setReadWriteLeft(readWriteCount);
+    _readOnlyOps = &readOnlyOps;
+    _readWriteOps = &readWriteOps;
 
     // Launch thread futures
     for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
@@ -121,9 +123,14 @@ int TransactionManager::transactionListener(DataManager *dataManager, int thread
 void TransactionManager::startTransaction(DataManager *db, vector<Operation> readOnlyOps, vector<Operation> readWriteOps) {
     //lock around createTransactions
     _transactionMtx.lock();
-    Transaction *t = createTransaction(readOnlyOps, readWriteOps);
+    Transaction *t = createTransaction();
     _transactionMtx.unlock();
     runTransaction(db, t->getReads(), t->getWrites(), t->getIsReadOnly(), t->getId());
+// 	 _transactionMtx.lock();
+//      Transaction *t = create2PLTransaction();
+//      _transactionMtx.unlock();
+//      run2PLTransaction(db, t);
+    
 }
 
 void TransactionManager::runTransaction(DataManager *db, vector<int> reads, vector<pair<int,int>> writes, bool readOnly, int i) {
@@ -146,29 +153,58 @@ void TransactionManager::run2PLTransaction(DataManager *db, Transaction *t) {
 	LockManager *l = new LockManager();
 	Lock *lock;
 	Lock *nextLock;
-	lock = l->lock(t->getTransaction().front()->getKey(), t->getId(), t->getTransaction().front()->getMode());
+	lock = l->lock(t->getTransaction().front().getKey(), t->getId(), t->getTransaction().front().getMode());
+	if (t->getTransaction().front().getMode() == Operation::Mode::WRITE) {
+		db->put(t->getTransaction().front().getKey(), t->getTransaction().front().getValue());
+	}
+	else {
+		//db->get(t->getTransaction().front().getKey());
+		printf("get: %d  key: %d\n",db->get(t->getTransaction().front().getKey()), t->getTransaction().front().getKey());
+	}
 	bool aborted = false;
-	for (vector<Operation *>::iterator it = t->getTransaction().begin()++ ; it != t->getTransaction().end(); ++it) {
-		nextLock = l->lock((*it)->getKey(), t->getId(), (*it)->getMode());
+	int key; 
+	vector<Operation> transaction = t->getTransaction();
+	for (int i = 1; i < t->getTransaction().size(); i++) {
+		key = transaction[i].getKey();
+		nextLock = l->lock(key, t->getId(), transaction[i].getMode());
 		if (nextLock == NULL) {
 			aborted = true;
 			break;
 		}
 		lock->setNextLock(nextLock);
 		lock = nextLock;
-		if ((*it)->getMode() == Operation::Mode::WRITE) {
-			db->put((*it)->getKey(), (*it)->getValue());
+		if (transaction[i].getMode() == Operation::Mode::WRITE) {
+			db->put(transaction[i].getKey(), transaction[i].getValue());
 		}
 		else {
-			db->get((*it)->getKey());
+			//db->get(key);
+			printf("get: %d   key: %d\n",db->get(key), key);
 		}
 	}
+		
+// 	for (vector<Operation>::iterator it = next(t->getTransaction().begin()) ; it != t->getTransaction().end(); ++it) {
+// 		key = it->getKey();
+// 		nextLock = l->lock(key, t->getId(), it->getMode());
+// 		if (nextLock == NULL) {
+// 			aborted = true;
+// 			break;
+// 		}
+// 		lock->setNextLock(nextLock);
+// 		lock = nextLock;
+// 		if (it->getMode() == Operation::Mode::WRITE) {
+// 			db->put(it->getKey(), it->getValue());
+// 		}
+// 		else {
+// 			db->get(key);
+// 			//printf("get: %d\n",db->get(key));
+// 		}
+// 	}
 	if (!aborted) {
-		l->unlock(t->getTransaction().front()->getKey(), t->getId());
+		l->unlock(t->getTransaction().front().getKey(), t->getId());
 	}
 } 
 
-Transaction * TransactionManager::createTransaction(vector<Operation> readOnlyOps, vector<Operation> readWriteOps) {
+Transaction * TransactionManager::createTransaction() {
 	mt19937 gen;
     gen.seed(random_device()());
     uniform_real_distribution<> distribution2(0,1);
@@ -182,8 +218,8 @@ Transaction * TransactionManager::createTransaction(vector<Operation> readOnlyOp
             if (_readOnlyLeft != 0) {
                 vector<int> reads;
                 for (j = 0; j < 4; j++) {
-                    reads.push_back(readOnlyOps.begin()->getKey());
-                    readOnlyOps.erase(readOnlyOps.begin());
+                    reads.push_back(_readOnlyOps->begin()->getKey());
+                    _readOnlyOps->erase(_readOnlyOps->begin());
                 }
                 _readOnlyLeft--;
                 t = new Transaction(reads, vector<pair<int, int>>(), true);
@@ -197,25 +233,25 @@ Transaction * TransactionManager::createTransaction(vector<Operation> readOnlyOp
                 for (j = 0; j < 4; j++) {
                     if ((int)distribution2(gen)) {
                         if (readCount !=2) {
-                            reads.push_back(readWriteOps.begin()->getKey());
-                            readWriteOps.erase(readWriteOps.begin());
+                            reads.push_back(_readWriteOps->begin()->getKey());
+                            _readWriteOps->erase(_readWriteOps->begin());
                             readCount++;
                         }
                         else {
-			  				writes.push_back(make_pair(readWriteOps.begin()->getKey(), readWriteOps.begin()->getValue()));
-                            readWriteOps.erase(readWriteOps.begin());
+			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
+                            _readWriteOps->erase(_readWriteOps->begin());
                             writeCount++;
                         }
                     }
                     else  {
                         if (writeCount !=2) {
-			  				writes.push_back(make_pair(readWriteOps.begin()->getKey(), readWriteOps.begin()->getValue()));
-                            readWriteOps.erase(readWriteOps.begin());
+			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
+                            _readWriteOps->erase(_readWriteOps->begin());
                             writeCount++;
                         }
                         else {
-                            reads.push_back(readWriteOps.begin()->getKey());
-                            readWriteOps.erase(readWriteOps.begin());
+                            reads.push_back(_readWriteOps->begin()->getKey());
+                            _readWriteOps->erase(_readWriteOps->begin());
                             readCount++;
                         }
                     }
@@ -236,25 +272,25 @@ Transaction * TransactionManager::createTransaction(vector<Operation> readOnlyOp
                 for (j = 0; j < 4; j++) {
                     if ((int)distribution2(gen)) {
                         if (readCount !=2) {
-                            reads.push_back(readWriteOps.begin()->getKey());
-                            readWriteOps.erase(readWriteOps.begin());
+                            reads.push_back(_readWriteOps->begin()->getKey());
+                            _readWriteOps->erase(_readWriteOps->begin());
                             readCount++;
                         }
                         else {
-			  				writes.push_back(make_pair(readWriteOps.begin()->getKey(), readWriteOps.begin()->getValue()));
-                            readWriteOps.erase(readWriteOps.begin());
+			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
+                            _readWriteOps->erase(_readWriteOps->begin());
                             writeCount++;
                         }
                     }
                     else  {
                         if (writeCount !=2) {
-			  				writes.push_back(make_pair(readWriteOps.begin()->getKey(), readWriteOps.begin()->getValue()));
-                            readWriteOps.erase(readWriteOps.begin());
+			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
+                            _readWriteOps->erase(_readWriteOps->begin());
                             writeCount++;
                         }
                         else {
-                            reads.push_back(readWriteOps.begin()->getKey());
-                            readWriteOps.erase(readWriteOps.begin());
+                            reads.push_back(_readWriteOps->begin()->getKey());
+                            _readWriteOps->erase(_readWriteOps->begin());
                             readCount++;
                         }
                     }
@@ -270,8 +306,8 @@ Transaction * TransactionManager::createTransaction(vector<Operation> readOnlyOp
             else {
                 vector<int> reads;
                 for (j = 0; j < 4; j++) {
-                    reads.push_back(readOnlyOps.begin()->getKey());
-                    readOnlyOps.erase(readOnlyOps.begin());
+                    reads.push_back(_readOnlyOps->begin()->getKey());
+                    _readOnlyOps->erase(_readOnlyOps->begin());
                 }
                 _readOnlyLeft--;
                 t = new Transaction(reads, vector<pair<int, int>>(), true);
@@ -284,7 +320,7 @@ Transaction * TransactionManager::createTransaction(vector<Operation> readOnlyOp
 }
 
 
-Transaction * TransactionManager::create2PLTransaction(vector<Operation> readOnlyOps, vector<Operation> readWriteOps) {
+Transaction * TransactionManager::create2PLTransaction() {
   	mt19937 gen;
     gen.seed(random_device()());
     uniform_real_distribution<> distribution2(0,1);
@@ -298,8 +334,8 @@ Transaction * TransactionManager::create2PLTransaction(vector<Operation> readOnl
             if (_readOnlyLeft != 0) {
                 vector<int> reads;
                 for (j = 0; j < 4; j++) {
-                    t->addOperation(&readOnlyOps[0]);
-                    readOnlyOps.erase(readOnlyOps.begin());
+                    t->addOperation(_readOnlyOps->front());
+                    _readOnlyOps->erase(_readOnlyOps->begin());
                 }
                 _readOnlyLeft--;
                 id = createId();
@@ -312,25 +348,25 @@ Transaction * TransactionManager::create2PLTransaction(vector<Operation> readOnl
                 for (j = 0; j < 4; j++) {
                     if ((int)distribution2(gen)) {
                         if (readCount !=2) {
-                            t->addOperation(&readWriteOps[0]);
-                            readWriteOps.erase(readWriteOps.begin());
+                            t->addOperation(_readWriteOps->front());
+                            _readWriteOps->erase(_readWriteOps->begin());
                             readCount++;
                         }
                         else {
-			  				t->addOperation(&readWriteOps[0]);
-                            readWriteOps.erase(readWriteOps.begin());
+			  				t->addOperation(_readWriteOps->front());
+                            _readWriteOps->erase(_readWriteOps->begin());
                             writeCount++;
                         }
                     }
                     else  {
                         if (writeCount !=2) {
-			  				t->addOperation(&readWriteOps[0]);
-                            readWriteOps.erase(readWriteOps.begin());
+			  				t->addOperation(_readWriteOps->front());
+                            _readWriteOps->erase(_readWriteOps->begin());
                             writeCount++;
                         }
                         else {
-                            t->addOperation(&readWriteOps[0]);
-                            readWriteOps.erase(readWriteOps.begin());
+                            t->addOperation(_readWriteOps->front());
+                            _readWriteOps->erase(_readWriteOps->begin());
                             readCount++;
                         }
                     }
@@ -350,25 +386,25 @@ Transaction * TransactionManager::create2PLTransaction(vector<Operation> readOnl
                 for (j = 0; j < 4; j++) {
                     if ((int)distribution2(gen)) {
                         if (readCount !=2) {
-                            t->addOperation(&readWriteOps[0]);
-                            readWriteOps.erase(readWriteOps.begin());
+                            t->addOperation(_readWriteOps->front());
+                            _readWriteOps->erase(_readWriteOps->begin());
                             readCount++;
                         }
                         else {
-			  				t->addOperation(&readWriteOps[0]);
-                            readWriteOps.erase(readWriteOps.begin());
+			  				t->addOperation(_readWriteOps->front());
+                            _readWriteOps->erase(_readWriteOps->begin());
                             writeCount++;
                         }
                     }
                     else  {
                         if (writeCount !=2) {
-			  				t->addOperation(&readWriteOps[0]);
-                            readWriteOps.erase(readWriteOps.begin());
+			  				t->addOperation(_readWriteOps->front());
+                            _readWriteOps->erase(_readWriteOps->begin());
                             writeCount++;
                         }
                         else {
-                            t->addOperation(&readWriteOps[0]);
-                            readWriteOps.erase(readWriteOps.begin());
+                            t->addOperation(_readWriteOps->front());
+                            _readWriteOps->erase(_readWriteOps->begin());
                             readCount++;
                         }
                     }
@@ -383,8 +419,8 @@ Transaction * TransactionManager::create2PLTransaction(vector<Operation> readOnl
             else {
                 vector<int> reads;
                 for (j = 0; j < 4; j++) {
-                     t->addOperation(&readOnlyOps[0]);
-                    readOnlyOps.erase(readOnlyOps.begin());
+                     t->addOperation(_readOnlyOps->front());
+                    _readOnlyOps->erase(_readOnlyOps->begin());
                 }
                 _readOnlyLeft--;
                 id = createId();

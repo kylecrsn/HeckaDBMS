@@ -11,7 +11,7 @@ public:
     Lock();
         
     
-    Lock(int key, int id, Operation::Mode m, Lock * lock);
+    Lock(int key, int id, Operation::Mode m);
     
     Operation::Mode getMode();
     

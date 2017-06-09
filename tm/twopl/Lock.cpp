@@ -7,11 +7,11 @@ Lock::Lock() {
 	_nextLock = NULL;
 }
 
-Lock::Lock(int key, int id, Operation::Mode m, Lock * lock) {
+Lock::Lock(int key, int id, Operation::Mode m) {
 	_objectKey = key;
 	_transactionId = id;
 	_mode = m;
-	_nextLock = lock;
+	_nextLock = NULL;
 }
 
 Operation::Mode Lock::getMode() {

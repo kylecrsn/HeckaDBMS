@@ -5,7 +5,7 @@ LockManager::LockManager() {
 }
 Lock * LockManager::lock(int objectKey, int transactionId, Operation::Mode mode) {
 	if (_lockTable.find(objectKey) == _lockTable.end()) {
-		Lock *lock = new Lock(objectKey, transactionId, mode, NULL);
+		Lock *lock = new Lock(objectKey, transactionId, mode);
 		LockEntry *entry = new LockEntry();
 		entry->addLockRequest(lock);
 		bool added = false;
@@ -34,7 +34,7 @@ Lock * LockManager::lock(int objectKey, int transactionId, Operation::Mode mode)
 		return lock;		
 	}
 	else {
-		Lock *lock = new Lock(objectKey, transactionId, mode, NULL);
+		Lock *lock = new Lock(objectKey, transactionId, mode);
 		_lockTable[objectKey]->addLockRequest(lock);
 		_lockTable[objectKey]->tryAddingLocks();
 		bool notSet = true;
@@ -55,9 +55,10 @@ Lock * LockManager::lock(int objectKey, int transactionId, Operation::Mode mode)
 void LockManager::unlock(int objectKey, int transactionId) {
 	bool deleteEntry = false;
 	Lock *lock;
-	for (vector<Lock *>::iterator it = _lockTable[objectKey]->getLocks().begin() ; it != _lockTable[objectKey]->getLocks().end(); ++it) {
-		if ((*it)->getTransactionId() == transactionId) {
-			lock = (*it);
+	vector<Lock *> locks = _lockTable[objectKey]->getLocks();
+	for (int i = 0; i < locks.size(); i++) {
+		if (locks[i]->getTransactionId() == transactionId) {
+			lock = locks[i];
 			break;
 		}
 	}
@@ -70,14 +71,18 @@ void LockManager::unlock(int objectKey, int transactionId) {
 		}
 		_tableMtx.unlock();
 	}
+	int key;
 	while (nextLock) {
-		int key = nextLock->getObjectKey();
 		lock = nextLock;
+		key = lock->getObjectKey();
 		nextLock = lock->getNextLock();
-		deleteEntry = _lockTable[objectKey]->deleteLock(lock->getObjectKey(), transactionId);  //deleteLock will call tryAddingLock and delete entry if no more locks or requests
+		deleteEntry = _lockTable[key]->deleteLock(key, transactionId);  //deleteLock will call tryAddingLock and delete entry if no more locks or requests
 		if (deleteEntry) {
-			_lockTable.erase(objectKey);
+			_tableMtx.lock();
+			if (_lockTable[key]->getLocks().size() == 0 && _lockTable[key]->getLockRequests().size() == 0) {
+				_lockTable.erase(key);
+			}
+			_tableMtx.unlock();
 		}
-	}
-	
+	}	
 }

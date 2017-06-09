@@ -63,7 +63,7 @@ int Transaction::getId() {
 	return _id;
 }
 
-vector<Operation *> Transaction::getTransaction() {
+vector<Operation> Transaction::getTransaction() {
 	return _transaction;
 }
 
@@ -91,7 +91,7 @@ void Transaction::setEnd(Timestamp *end) {
     _end = end;
 }
 
-void Transaction::addOperation(Operation *o) {
+void Transaction::addOperation(Operation o) {
 	_transaction.push_back(o);
 }
 

@@ -41,7 +41,11 @@ set(SOURCE_FILES
     ${DIR_TM}/Operation.cpp ${DIR_TM}/Operation.h
     ${DIR_HEKATON}/Hekaton.cpp ${DIR_HEKATON}/Hekaton.h
     ${DIR_HEKATON}/Transaction.cpp ${DIR_HEKATON}/Transaction.h
-    ${DIR_TWOPL}/TwoPL.cpp ${DIR_TWOPL}/TwoPL.h)
-
+    ${DIR_TWOPL}/TwoPL.cpp ${DIR_TWOPL}/TwoPL.h
+    ${DIR_TWOPL}/LockManager.cpp ${DIR_TWOPL}/LockManager.h
+    ${DIR_TWOPL}/LockEntry.cpp ${DIR_TWOPL}/LockEntry.h
+    ${DIR_TWOPL}/Lock.cpp ${DIR_TWOPL}/Lock.h)
+  
 add_executable(HeckaDBMS ${SOURCE_FILES})
 TARGET_LINK_LIBRARIES(HeckaDBMS pthread)
+

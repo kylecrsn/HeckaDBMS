@@ -120,9 +120,9 @@ vector<Operation> Utility::getRandomReadOnlyOps(DataManager *dataManager, int op
     mt19937 gen;
     gen.seed(random_device()());
     uniform_real_distribution<> keysDist(0, dataManager->getDb().size() - 1);
-
     for(int i = 0; i < opCount; i++) {
-        ops[i] = Operation();
+        //ops[i] = Operation();
+        ops.push_back(Operation());
         ops[i].setMode(Operation::READ);
         record = dataManager->getDb()[(int)keysDist(gen)];
         while(!record->getIsLatest()) {
@@ -130,7 +130,6 @@ vector<Operation> Utility::getRandomReadOnlyOps(DataManager *dataManager, int op
         }
         ops[i].setKey(record->getEntryKey());
     }
-
     return ops;
 }
 
@@ -143,7 +142,8 @@ vector<Operation> Utility::getRandomReadWriteOps(DataManager *dataManager, int o
     uniform_real_distribution<> valuesDist(0, 1000);
 
     for(int i = 0; i < opCount; i++) {
-        ops[i] = Operation();
+        //ops[i] = Operation();
+        ops.push_back(Operation());
         if(i % 2 == 0) {
             ops[i].setMode(Operation::READ);
         }
