@@ -6,7 +6,7 @@ ManualTest::ManualTest() {
     _state = ENTER;
 }
 
-void ManualTest::FSM(DataManager *dataManager, TransactionManager *transactionManager) {
+void ManualTest::FSM(DataManager *dataManager, TransactionManager *transactionManager, bool isHekaton) {
     string prompt;
     stringstream ss;
     vector<string> options;
@@ -203,9 +203,15 @@ void ManualTest::FSM(DataManager *dataManager, TransactionManager *transactionMa
                                 << readWriteOps.at(i * opPerTxn + j).getValue() << "),";
                             }
                         }
-                        cout << readWriteOps.at(i * opPerTxn + j).getKey() << "] ...";
+                        if(readWriteOps.at(i * opPerTxn + j).getMode() == Operation::READ) {
+                            cout << readWriteOps.at(i * opPerTxn + j).getKey() << "] ...";
+                        }
+                        else {
+                            cout << "(" << readWriteOps.at(i * opPerTxn + j).getKey() << ","
+                                 << readWriteOps.at(i * opPerTxn + j).getValue() << ")] ...";
+                        }
                     }
-                    else if(i == readOnlyCount - 1) {
+                    else if(i == readWriteCount - 1) {
                         for(j = 0; j < 3; j++) {
                             if(readWriteOps.at(i * opPerTxn + j).getMode() == Operation::READ) {
                                 cout << readWriteOps.at(i * opPerTxn + j).getKey() << ",";
@@ -215,7 +221,13 @@ void ManualTest::FSM(DataManager *dataManager, TransactionManager *transactionMa
                                      << readWriteOps.at(i * opPerTxn + j).getValue() << "),";
                             }
                         }
-                        cout << readWriteOps.at(i * opPerTxn + j).getKey() << "]";
+                        if(readWriteOps.at(i * opPerTxn + j).getMode() == Operation::READ) {
+                            cout << readWriteOps.at(i * opPerTxn + j).getKey() << "]";
+                        }
+                        else {
+                            cout << "(" << readWriteOps.at(i * opPerTxn + j).getKey() << ","
+                                 << readWriteOps.at(i * opPerTxn + j).getValue() << ")]";
+                        }
                     }
                     else {
                         for(j = 0; j < 3; j++) {
@@ -227,13 +239,19 @@ void ManualTest::FSM(DataManager *dataManager, TransactionManager *transactionMa
                                      << readWriteOps.at(i * opPerTxn + j).getValue() << "),";
                             }
                         }
-                        cout << readWriteOps.at(i * opPerTxn + j).getKey() << "], ";
+                        if(readWriteOps.at(i * opPerTxn + j).getMode() == Operation::READ) {
+                            cout << readWriteOps.at(i * opPerTxn + j).getKey() << "], ";
+                        }
+                        else {
+                            cout << "(" << readWriteOps.at(i * opPerTxn + j).getKey() << ","
+                                 << readWriteOps.at(i * opPerTxn + j).getValue() << ")], ";
+                        }
                     }
                 }
                 cout << endl;
                 cout << "\t|Concurrent Threads: " << threadCount << endl;
                 cout << "Launching threads...\n" << endl;
-                transactionManager->manageManualTransactions(dataManager, threadCount, readOnlyCount, readWriteCount, readOnlyOps, readWriteOps);
+                transactionManager->manageManualTransactions(dataManager, threadCount, readOnlyCount, readWriteCount, readOnlyOps, readWriteOps, isHekaton);
 
                 _state = END_TRANSACTION;
                 break;

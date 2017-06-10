@@ -31,19 +31,19 @@ public:
     int createId();
 
     /// Entry point from manual test client into TM, spawns and joins listener threads
-    vector<int> manageManualTransactions(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<Operation> readOnlyKeys, vector<Operation> readWriteKeys);
+    vector<int> manageManualTransactions(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<Operation> readOnlyKeys, vector<Operation> readWriteKeys, bool isHekaton);
 
     /// Entry point from scale test client into TM, spawns and joins listener threads
-    vector<int> manageScaleTransactions(DataManager *dataManager, int transactionCount, int initialThreadCount, int finalThreadCount);
+    vector<int> manageScaleTransactions(DataManager *dataManager, int transactionCount, int initialThreadCount, int finalThreadCount, bool isHekaton);
 
     /// Entry point from vary test client into TM, spawns and joins listener threads
-    vector<int> manageVaryTransactions(DataManager *dataManager, int transactionCount, int threadCount, int roPercentage);
+    vector<int> manageVaryTransactions(DataManager *dataManager, int transactionCount, int threadCount, int roPercentage, bool isHekaton);
 
     /// Listener, simply attempts to spawn a transaction thread
-    int transactionListener(DataManager *dataManager, int threadCount);
+    int transactionListener(DataManager *dataManager, int threadCount, bool isHekaton);
 
     /// Creates and runs a Hekaton transaction, spawned by listener
-    void startTransaction(DataManager *db);
+    void startTransaction(DataManager *db, bool isHekaton);
 
     /// Creates a Hekaton object for a transaction
     Transaction * createTransaction();

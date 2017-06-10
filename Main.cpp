@@ -10,6 +10,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     string protocolType;
+    bool isHekaton = false;
     Client client = Client();
 
     DataManager *dataManager = new DataManager();
@@ -18,13 +19,16 @@ int main(int argc, char *argv[])
 
     // Parse command-line arguments
     Utility::ParseArgs(argc, argv, &protocolType);
+    if(protocolType == "hekaton") {
+        isHekaton = true;
+    }
 
     cout << "==================================================" << endl;
     cout << "||             WELCOME TO HeckaDBMS             ||" << endl;
     cout << "==================================================\n" << endl;
 
     // Launch client
-    client.FSM(dataManager, transactionManager);
+    client.FSM(dataManager, transactionManager, isHekaton);
 
     cout << "==================================================" << endl;
     cout << "||               EXITING HeckaDBMS              ||" << endl;

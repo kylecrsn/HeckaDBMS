@@ -6,7 +6,7 @@ Client::Client() {
     _state = ENTER;
 }
 
-void Client::FSM(DataManager *dataManager, TransactionManager *transactionManager) {
+void Client::FSM(DataManager *dataManager, TransactionManager *transactionManager, bool isHekaton) {
     string prompt;
     string response;
     vector<string> options;
@@ -14,6 +14,7 @@ void Client::FSM(DataManager *dataManager, TransactionManager *transactionManage
     ManualTest manualTest;
     ScaleTest scaleTest;
     VaryTest varyTest;
+    bool contextIsHekaton = isHekaton;
 
     while(true) {
         switch(_state) {
@@ -21,6 +22,15 @@ void Client::FSM(DataManager *dataManager, TransactionManager *transactionManage
                 cout << "-------------------------------" << endl;
                 cout << "|          MAIN MENU          |" << endl;
                 cout << "-------------------------------" << endl;
+
+                cout << "(Protocol: ";
+                if(contextIsHekaton) {
+                    cout << "Hekaton)";
+                }
+                else {
+                    cout << "2PL)";
+                }
+                cout << endl;
 
                 if(dataManager->getDb().size() == 0) {
                     cout << "(There is currently no in-memory database)\n" << endl;
@@ -36,6 +46,7 @@ void Client::FSM(DataManager *dataManager, TransactionManager *transactionManage
                 prompt = "What would you like to do?";
                 options = vector<string> {
                     "Choose a type of testing metric to execute",
+                    "Switch protocol type",
                     "Generate an in-memory database",
                     "Load an existing database file into memory",
                     "Save the current in-memory database to disk",
@@ -55,6 +66,9 @@ void Client::FSM(DataManager *dataManager, TransactionManager *transactionManage
                     }
                 }
                 else if(responseValue == 2) {
+                    _state = PROTOCOL;
+                }
+                else if(responseValue == 3) {
                     if(dataManager->getDb().size() == 0) {
                         _state = GENERATE_DATA;
                     }
@@ -63,7 +77,7 @@ void Client::FSM(DataManager *dataManager, TransactionManager *transactionManage
                         _state = ENTER;
                     }
                 }
-                else if(responseValue == 3) {
+                else if(responseValue == 4) {
                     if(dataManager->getDb().size() == 0) {
                         _state = LOAD_DATA;
                     }
@@ -72,7 +86,7 @@ void Client::FSM(DataManager *dataManager, TransactionManager *transactionManage
                         _state = ENTER;
                     }
                 }
-                else if(responseValue == 4) {
+                else if(responseValue == 5) {
                     if(dataManager->getDb().size() == 0) {
                         cout << "(!) There is no in-memory database to save\n" << endl;
                         _state = ENTER;
@@ -81,7 +95,7 @@ void Client::FSM(DataManager *dataManager, TransactionManager *transactionManage
                         _state = SAVE_DATA;
                     }
                 }
-                else if(responseValue == 5) {
+                else if(responseValue == 6) {
                     if(dataManager->getDb().size() == 0) {
                         cout << "(!) There is no in-memory database to clear\n" << endl;
                         _state = ENTER;
@@ -90,7 +104,7 @@ void Client::FSM(DataManager *dataManager, TransactionManager *transactionManage
                         _state = CLEAR_DATA;
                     }
                 }
-                else if(responseValue == 6) {
+                else if(responseValue == 7) {
                     if(dataManager->getDb().size() == 0) {
                         cout << "(!) There is no in-memory database to print\n" << endl;
                         _state = ENTER;
@@ -121,16 +135,30 @@ void Client::FSM(DataManager *dataManager, TransactionManager *transactionManage
                 responseValue = Utility::PromptUser(prompt, options);
                 if(responseValue == 1) {
                     manualTest = ManualTest();
-                    manualTest.FSM(dataManager, transactionManager);
+                    manualTest.FSM(dataManager, transactionManager, contextIsHekaton);
                 }
                 else if(responseValue == 2) {
                     scaleTest = ScaleTest();
-                    scaleTest.FSM(dataManager, transactionManager);
+                    scaleTest.FSM(dataManager, transactionManager, contextIsHekaton);
                 }
                 else {
                     varyTest = VaryTest();
-                    varyTest.FSM(dataManager, transactionManager);
+                    varyTest.FSM(dataManager, transactionManager, contextIsHekaton);
                 }
+
+                _state = ENTER;
+                break;
+            }
+            case PROTOCOL: {
+                cout << "You have switched the protocol from ";
+                if(contextIsHekaton) {
+                    cout << "Hekaton to 2PL\n";
+                }
+                else {
+                    cout << "2PL to Hekaton\n";
+                }
+                cout << endl;
+                contextIsHekaton = !contextIsHekaton;
 
                 _state = ENTER;
                 break;

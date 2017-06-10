@@ -35,6 +35,7 @@ void DataManager::generateDatabase(int databaseSize) {
     mt19937 gen;
     gen.seed(random_device()());
     uniform_int_distribution<> objectValueDistribution(0, 1000);
+
     // Populate the database, initially the entry and object keys are the same
     for(int i = 0; i < databaseSize; i++) {
         _db[i] = new Record(i, i, objectValueDistribution(gen));

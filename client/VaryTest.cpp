@@ -6,7 +6,7 @@ VaryTest::VaryTest() {
     _state = ENTER;
 }
 
-void VaryTest::FSM(DataManager *dataManager, TransactionManager *transactionManager) {
+void VaryTest::FSM(DataManager *dataManager, TransactionManager *transactionManager, bool isHekaton) {
     string prompt;
     vector<string> options;
     int responseValue = 0;
@@ -115,7 +115,7 @@ void VaryTest::FSM(DataManager *dataManager, TransactionManager *transactionMana
                 cout << "\t|Thread Count: " << threadCount << endl;
                 cout << "\t|Read-Only Transaction Percentage: " << roPercentage << "%" << endl;
                 cout << "Launching threads...\n" << endl;
-                transactionManager->manageVaryTransactions(dataManager, transactionCount, threadCount, roPercentage);
+                transactionManager->manageVaryTransactions(dataManager, transactionCount, threadCount, roPercentage, isHekaton);
 
                 _state = END_TRANSACTION;
                 break;

@@ -6,7 +6,7 @@ ScaleTest::ScaleTest() {
     _state = ENTER;
 }
 
-void ScaleTest::FSM(DataManager *dataManager, TransactionManager *transactionManager) {
+void ScaleTest::FSM(DataManager *dataManager, TransactionManager *transactionManager, bool isHekaton) {
     string prompt;
     string scaleAlgorithmString;
     vector<string> options;
@@ -62,7 +62,7 @@ void ScaleTest::FSM(DataManager *dataManager, TransactionManager *transactionMan
                 cout << "\t|Transactions: " << transactionCount << endl;
                 cout << "\t|Initial Thread Count: " << initialThreadCount << endl;
                 cout << "Launching threads...\n" << endl;
-                transactionManager->manageScaleTransactions(dataManager, transactionCount, initialThreadCount, finalThreadCount);
+                transactionManager->manageScaleTransactions(dataManager, transactionCount, initialThreadCount, finalThreadCount, isHekaton);
 
                 _state = END_TRANSACTION;
                 break;

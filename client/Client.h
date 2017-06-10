@@ -25,13 +25,14 @@ public:
     Client();
 
     /// Finite state machine for processing user input
-    void FSM(DataManager *dataManager, TransactionManager *transactionManager);
+    void FSM(DataManager *dataManager, TransactionManager *transactionManager, bool isHekaton);
 
     /// State definition for the top-level client menu
     enum ClientState {
         ENTER,
         MAIN_MENU,
         TEST_METRICS,
+        PROTOCOL,
         GENERATE_DATA,
         LOAD_DATA,
         SAVE_DATA,

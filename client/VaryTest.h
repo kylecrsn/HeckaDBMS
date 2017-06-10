@@ -19,7 +19,7 @@ public:
     VaryTest();
 
     /// Finite state machine for processing user input
-    void FSM(DataManager *dataManager, TransactionManager *transactionManager);
+    void FSM(DataManager *dataManager, TransactionManager *transactionManager, bool isHekaton);
 
     /// State definition for a Vary testflow
     enum VaryState {

@@ -200,6 +200,7 @@ void Hekaton::validate(unordered_map<int, Transaction *> *transactions) {
 
 //change respective timestamps in writeset to inifinity, call abortCommitDep
 void Hekaton::abort(unordered_map<int, Transaction *> *transactions) {
+	cout << "In hekaton abort!\n";
 	Transaction *transaction = transactions->at(_id);
 	transaction->setState(Transaction::HekatonState::ABORTED);
 	for (vector<Record *>::iterator it = _writeSet.begin() ; it != _writeSet.end(); ++it) {
