@@ -4,6 +4,7 @@
 #include <thread>
 #include <future>
 #include <random>
+#include <pthread.h>
 
 #include "Utility.h"
 #include "Hekaton.h"
@@ -39,10 +40,10 @@ public:
     vector<int> manageVaryTransactions(DataManager *dataManager, int transactionCount, int threadCount, int roPercentage);
 
     /// Listener, simply attempts to spawn a transaction thread
-    int transactionListener(DataManager *dataManager, int threadCount, vector<Operation> readOnlyOps, vector<Operation> readWriteOps);
+    int transactionListener(DataManager *dataManager, int threadCount);
 
     /// Creates and runs a Hekaton transaction, spawned by listener
-    void startTransaction(DataManager *db, vector<Operation> readOnlyOps, vector<Operation> readWriteOps);
+    void startTransaction(DataManager *db);
 
     /// Creates a Hekaton object for a transaction
     Transaction * createTransaction();
@@ -59,6 +60,7 @@ private:
     mutex _concurrentMutex;
     int _concurrentThreads;
     boost::atomic<int> _idCounter;
+    boost::atomic<int> _currId;
     mutex _transactionMtx;
     unordered_map<int, Transaction *>  _transactions;
     int _readOnlyLeft;

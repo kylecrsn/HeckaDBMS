@@ -337,7 +337,6 @@ void DataManager::put(int entryKey, int value) {
 	while (record != nullptr) {
 		if (record->getIsLatest()) {
 			record->setObjectValue(value);
-			printf("value: %d  key: %d\n", value, entryKey);
 			break;
 		}
 		else {

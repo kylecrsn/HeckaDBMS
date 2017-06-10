@@ -1,12 +1,15 @@
 #include "TransactionManager.h"
 
 TransactionManager::TransactionManager() {
-    _idCounter = 0;
+    _idCounter = -1;
     _concurrentThreads = 0;
-    _transactions = {};
+    _transactions = unordered_map<int, Transaction *>();
     _readOnlyLeft = 0;
     _readWriteLeft = 0;
+    _currId = 0;
 }
+
+
 
 void TransactionManager::setReadOnlyLeft(int l) {
 	_readOnlyLeft = l;
@@ -28,10 +31,14 @@ vector<int> TransactionManager::manageManualTransactions(DataManager *dataManage
     setReadWriteLeft(readWriteCount);
     _readOnlyOps = &readOnlyOps;
     _readWriteOps = &readWriteOps;
-
+	
+	for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
+		createTransaction();
+//		create2PLTransaction();
+	}	
     // Launch thread futures
     for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
-        listenerThreads[i] = async(&TransactionManager::transactionListener, this, dataManager, threadCount, readOnlyOps, readWriteOps);
+        listenerThreads[i] = async(&TransactionManager::transactionListener, this, dataManager, threadCount);
     }
 
     // Get async promise results
@@ -51,6 +58,8 @@ vector<int> TransactionManager::manageScaleTransactions(DataManager *dataManager
     vector<Operation> readWriteOps = Utility::getRandomReadWriteOps(dataManager, readWriteCount * dataManager->getOpsPerTransaction());
     vector<future<int>> listenerThreads(transactionCount);
     vector<int> listenerRets(transactionCount);
+    _readOnlyOps = &readOnlyOps;
+    _readWriteOps = &readWriteOps;
 
     // Setup read/write left
     setReadOnlyLeft(readOnlyCount);
@@ -60,7 +69,7 @@ vector<int> TransactionManager::manageScaleTransactions(DataManager *dataManager
     while(transactionsCompleted < transactionCount) {
         for(int i = 0; i < functionalConcurrentThreads; i++) {
             if(i + transactionsCompleted < transactionCount) {
-                listenerThreads[i + transactionsCompleted] = async(&TransactionManager::transactionListener, this, dataManager, functionalConcurrentThreads, readOnlyOps, readWriteOps);
+                listenerThreads[i + transactionsCompleted] = async(&TransactionManager::transactionListener, this, dataManager, functionalConcurrentThreads);
             }
         }
         for(int i = 0; i < functionalConcurrentThreads; i++) {
@@ -81,6 +90,8 @@ vector<int> TransactionManager::manageVaryTransactions(DataManager *dataManager,
     vector<Operation> readWriteOps = Utility::getRandomReadWriteOps(dataManager, readWriteCount * dataManager->getOpsPerTransaction());
     vector<future<int>> listenerThreads(transactionCount);
     vector<int> listenerRets(transactionCount);
+    _readOnlyOps = &readOnlyOps;
+    _readWriteOps = &readWriteOps;
 
     // Setup read/write left
     setReadOnlyLeft(readOnlyCount);
@@ -88,7 +99,7 @@ vector<int> TransactionManager::manageVaryTransactions(DataManager *dataManager,
 
     // Launch thread futures
     for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
-        listenerThreads[i] = async(&TransactionManager::transactionListener, this, dataManager, threadCount, readOnlyOps, readWriteOps);
+        listenerThreads[i] = async(&TransactionManager::transactionListener, this, dataManager, threadCount);
     }
 
     // Get async promise results
@@ -99,13 +110,13 @@ vector<int> TransactionManager::manageVaryTransactions(DataManager *dataManager,
     return listenerRets;
 }
 
-int TransactionManager::transactionListener(DataManager *dataManager, int threadCount, vector<Operation> readOnlyOps, vector<Operation> readWriteOps) {
+int TransactionManager::transactionListener(DataManager *dataManager, int threadCount) {
     while(true) {
         _concurrentMutex.lock();
         if(_concurrentThreads < threadCount) {
             _concurrentThreads++;
             _concurrentMutex.unlock();
-            startTransaction(dataManager, readOnlyOps, readWriteOps);
+            startTransaction(dataManager);
             _concurrentMutex.lock();
             _concurrentThreads--;
             _concurrentMutex.unlock();
@@ -120,16 +131,12 @@ int TransactionManager::transactionListener(DataManager *dataManager, int thread
     return 42;
 }
 
-void TransactionManager::startTransaction(DataManager *db, vector<Operation> readOnlyOps, vector<Operation> readWriteOps) {
-    //lock around createTransactions
-//     _transactionMtx.lock();
-//     Transaction *t = createTransaction();
-//     _transactionMtx.unlock();
-//     runTransaction(db, t->getReads(), t->getWrites(), t->getIsReadOnly(), t->getId());
-	 _transactionMtx.lock();
-     Transaction *t = create2PLTransaction();
-     _transactionMtx.unlock();
-     run2PLTransaction(db, t);
+void TransactionManager::startTransaction(DataManager *db) {
+	int id = _currId;
+	Transaction *t = _transactions[id];
+	runTransaction(db, t->getReads(), t->getWrites(), t->getIsReadOnly(), t->getId());
+//      run2PLTransaction(db, t);
+	_currId++;
     
 }
 
@@ -162,8 +169,7 @@ void TransactionManager::run2PLTransaction(DataManager *db, Transaction *t) {
 		db->put(t->getTransaction().front().getKey(), t->getTransaction().front().getValue());
 	}
 	else if (t->getTransaction().front().getMode() == Operation::Mode::READ && !aborted){
-		//db->get(t->getTransaction().front().getKey());
-		printf("get: %d  key: %d\n",db->get(t->getTransaction().front().getKey()), t->getTransaction().front().getKey());
+		db->get(t->getTransaction().front().getKey());
 	}
 	int key; 
 	vector<Operation> transaction = t->getTransaction();
@@ -180,8 +186,7 @@ void TransactionManager::run2PLTransaction(DataManager *db, Transaction *t) {
 			db->put(key, transaction[i].getValue());
 		}
 		else {
-			//db->get(key);
-			printf("get: %d   key: %d\n",db->get(key), key);
+			db->get(key);
 		}
 	}
 		
