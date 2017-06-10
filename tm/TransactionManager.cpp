@@ -9,8 +9,6 @@ TransactionManager::TransactionManager() {
     _currId = 0;
 }
 
-
-
 void TransactionManager::setReadOnlyLeft(int l) {
 	_readOnlyLeft = l;
 }
@@ -147,15 +145,11 @@ int TransactionManager::transactionListener(DataManager *dataManager, int thread
             _concurrentMutex.lock();
             _concurrentThreads--;
             _concurrentMutex.unlock();
-            break;
+            return 42;
         }
-        else {
-            _concurrentMutex.unlock();
-        }
+        _concurrentMutex.unlock();
+        this_thread::sleep_for(chrono::milliseconds(1));
     }
-
-    //temp
-    return 42;
 }
 
 void TransactionManager::startTransaction(DataManager *db, bool isHekaton) {

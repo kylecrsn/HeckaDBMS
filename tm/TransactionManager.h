@@ -4,6 +4,7 @@
 #include <thread>
 #include <future>
 #include <random>
+#include <chrono>
 #include <pthread.h>
 
 #include "Utility.h"

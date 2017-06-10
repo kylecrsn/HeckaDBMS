@@ -186,6 +186,7 @@ void Hekaton::validate(unordered_map<int, Transaction *> *transactions) {
 	}
 	if (!valid) {
 		abort(transactions);
+		return;
 	}
 	Transaction *transaction = transactions->at(_id);
 	//wait for dependencies

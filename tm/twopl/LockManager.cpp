@@ -23,6 +23,7 @@ Lock * LockManager::lock(int key, int transactionId, Operation::Mode mode) {
 		time_t timer = time(NULL);
 		while (notSet) {
 			if (difftime(timer, time(NULL)) >= 2.0) {
+				cout << "Aborted in 2PL\n";
 				return NULL;
 			}
 			if (lock->getIsSet()) {
@@ -39,6 +40,7 @@ Lock * LockManager::lock(int key, int transactionId, Operation::Mode mode) {
 		time_t timer = time(NULL);
 		while (notSet) {
 			if (difftime(timer, time(NULL)) >= 2.0) {
+				cout << "Aborted in else of 2PL\n";
 				return NULL;
 			}
 			if (lock->getIsSet()) {
