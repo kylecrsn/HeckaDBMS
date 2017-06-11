@@ -293,6 +293,7 @@ int DataManager::get(int entryKey) {
 
 void DataManager::get(int entryKey, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *readSet) {
 	Record *record = _db[entryKey];
+	Record *prev;
 	Transaction *currTransaction = transactions->at(currTransactionId);
 	Transaction *transaction;
 	while (record != nullptr) {
@@ -306,37 +307,42 @@ void DataManager::get(int entryKey, unordered_map<int, Transaction *> *transacti
 // 				}
 				if (record->getEnd()->getCounter() == -1) { //end timestamp must be infinity?
 					readSet->push_back(record);
-					break;
+					return;
 				}
 				else if (record->getBegin()->getCounter() > currTransaction->getBegin()->getCounter()) {
+					prev = record;
 					record = record->getNextRecord();
 				}
 				
-				else if (record->getBegin()->getCounter() < currTransaction->getBegin()->getCounter() && record->getEnd()->getIsCounter() && record->getEnd()->getCounter() != -1){
+				else if (record->getBegin()->getCounter() < currTransaction->getBegin()->getCounter()){
+					prev = record;
 					record = record->getNextRecord();
 				}
 			}
 			else if (!record->getEnd()->getIsCounter()) {
-		//	cout << "read loop num 1\n";
+			//cout << "read loop num 1\n";
 				transaction = transactions->at(record->getEnd()->getTransactionId());
 				if (transaction->getState() == 2 && transaction->getEnd()->getCounter() > currTransaction->getBegin()->getCounter()) {
 					readSet->push_back(record);
+					return;
 				}
 				else if (transaction->getState() == 2 && transaction->getEnd()->getCounter() < currTransaction->getBegin()->getCounter()) {
 					currTransaction->setCommitDepCounter(currTransaction->getCommitDepCounter()+1);
 					transaction->getCommitDepSet()->push_back(currTransactionId);
+					prev = record;
 					record = record->getNextRecord(); //speculatively ignore?
 				}
 				else if (transaction->getState() == 3 && transaction->getEnd()->getCounter() > currTransaction->getBegin()->getCounter()) {
 					readSet->push_back(record);
-					break;
+					return;
 				}
 				else if (transaction->getState() == 4) {
 					readSet->push_back(record);
-					break;
+					return;
 				}
 				else if (transaction->getState() == 1) {
 					readSet->push_back(record);
+					return;
 				}
 				//not sure what to do about terminated transaction
 			}
@@ -346,28 +352,30 @@ void DataManager::get(int entryKey, unordered_map<int, Transaction *> *transacti
 				transaction = transactions->at(record->getBegin()->getTransactionId());
 				if (record->getBegin()->getTransactionId() == currTransactionId && transaction->getState() == 1 && transaction->getEnd()->getIsCounter() && transaction->getEnd()->getCounter() == -1) {
 					readSet->push_back(record);
-					break;
+					return;
 				}
 				else if (transaction->getState() == 2 && transaction->getEnd()->getCounter() < currTransaction->getBegin()->getCounter()) {
 					readSet->push_back(record);
 					currTransaction->setCommitDepCounter(currTransaction->getCommitDepCounter()+1);
 					transaction->getCommitDepSet()->push_back(currTransactionId);
-					break;
+					return;
 				}
 				else if (transaction->getState() == 3 && transaction->getEnd()->getCounter() < currTransaction->getBegin()->getCounter()) {
 					readSet->push_back(record);
-					break;
+					return;
 				}
 				//cout << "read loop num 1\n";
 				//not sure what to do about terminated transaction
 			}
 // 			else if (record->getEnd()->getIsCounter() && record->getBegin()->getIsCounter()) {
 // 				cout << "read loop num 4\n";
-// 			}
-// 			else if (record->getEnd()->getIsCounter() && record->getEnd()->getCounter() == -1 && record->getBegin()->getIsCounter() && record->getBegin()->getCounter() == -1) {
-// 				cout << "read loop num 3\n";
-// 				record = record->getNextRecord();
-// 			}
+// 				
+//			}
+			else if (record->getEnd()->getIsCounter() && record->getEnd()->getCounter() == -1 && record->getBegin()->getIsCounter() && record->getBegin()->getCounter() == -1) {
+				cout << "read loop num 3\n";
+		//		record = record->getNextRecord();
+				record = prev;
+			}
 	}
 }
 
@@ -390,7 +398,7 @@ bool DataManager::put(int entryKey, int value, unordered_map<int, Transaction *>
     Record *prev;
     while (record != nullptr) {
     //	cout << "write loop\n";
-        if (record->getEnd()->getIsCounter() && record->getEnd()->getCounter() == -1) {
+        if (record->getBegin()->getIsCounter() && record->getBegin()->getCounter() != -1 && record->getEnd()->getIsCounter() && record->getEnd()->getCounter() == -1) {
             Timestamp *tBegin = new Timestamp(false, 0, currTransactionId);
             Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
             Record *newRecord = new Record(tBegin, tEnd, getLatestEntryKey(), record->getObjectKey(), value);
