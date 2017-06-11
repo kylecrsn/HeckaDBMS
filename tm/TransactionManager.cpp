@@ -93,13 +93,14 @@ vector<int> TransactionManager::manageScaleTransactions(DataManager *dataManager
             }
         }
         transactionsCompleted += functionalConcurrentThreads;
+        functionalConcurrentThreads++;
     }
 
     return listenerRets;
 }
 
 vector<int> TransactionManager::manageVaryTransactions(DataManager *dataManager, int transactionCount, int threadCount, int roPercentage, bool isHekaton) {
-    int readOnlyCount = ((float)roPercentage / 100.0) * transactionCount;
+    int readOnlyCount = (int)(((float)roPercentage / 100.0) * (float)transactionCount);
     int readWriteCount = transactionCount - readOnlyCount;
     vector<Operation> readOnlyOps = Utility::getRandomReadOnlyOps(dataManager, readOnlyCount * dataManager->getOpsPerTransaction());
     vector<Operation> readWriteOps = Utility::getRandomReadWriteOps(dataManager, readWriteCount * dataManager->getOpsPerTransaction());
