@@ -12,9 +12,6 @@ using namespace std;
 
 class Utility {
 public:
-    /// Parse command-line arguments
-    static void ParseArgs(int argc, char* argv[], string* protocolType);
-
     /// Prompt the use for a string response of their choice
     static string PromptUser(string prompt);
 

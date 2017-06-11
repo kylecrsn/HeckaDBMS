@@ -2,56 +2,6 @@
 
 using namespace std;
 
-void Utility::ParseArgs(int argc, char* argv[], string* protocolType) {
-    int optIndex;
-    int c;
-    opterr = 0;
-    string usage = "Usage: $ ./heckadbms -p (twopl|hekaton)";
-    static struct option longOptions[] = {
-            {"protocol_type",   required_argument,  0,  'p'},
-            {0, 0, 0, 0}
-    };
-
-    // Parse command-line arguments
-    while(1) {
-        // Initialize the index and c
-        optIndex = 0;
-        c = getopt_long(argc, argv, "p:", longOptions, &optIndex);
-
-        // Make sure the end hadn't been reached
-        if(c == -1) {
-            break;
-        }
-
-        // Cycle through the arguments
-        switch(c) {
-            case 'p': {
-                *protocolType = optarg;
-                break;
-            }
-            case '?': {
-                cout << usage << endl;
-                exit(1);
-            }
-            default: {
-                cout << usage << endl;
-                exit(1);
-            }
-        }
-    }
-
-    // Post-parsing error handling
-    if(*protocolType == "") {
-        cout << usage << endl;
-        exit(1);
-    }
-    transform((*protocolType).begin(), (*protocolType).end(), (*protocolType).begin(), ::tolower);
-    if(*protocolType != "twopl" && *protocolType != "hekaton") {
-        cout << "ERROR: invalid protocol_type parameter: " << protocolType << "\n" << usage << endl;
-        exit(1);
-    }
-}
-
 string Utility::PromptUser(string prompt) {
     string response;
 
