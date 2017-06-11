@@ -265,8 +265,11 @@ void ManualTest::FSM(DataManager *dataManager, TransactionManager *transactionMa
 
                 cout << "The transaction(s) have completed with the following metric information:\n" << endl;
 
-                //TODO: include metric info about transaction results
-
+				cout << "Number of Aborts: "<< dataManager->getAbortCounter()<< endl;
+				cout << "Number of Commits: "<< dataManager->getCommitCounter()<< endl;
+				dataManager->resetAbortCounter();
+				dataManager->resetCommitCounter();   
+				
                 responseValue = Utility::PromptUser(prompt, options);
 
                 if(responseValue == 1) {

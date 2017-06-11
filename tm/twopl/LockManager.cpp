@@ -3,7 +3,7 @@
 LockManager::LockManager() {
 	_lockTable = {};
 }
-Lock * LockManager::lock(int key, int transactionId, Operation::Mode mode) {
+Lock * LockManager::lock(DataManager *db, int key, int transactionId, Operation::Mode mode) {
 	if (_lockTable.find(key) == _lockTable.end()) {
 		Lock *lock = new Lock(key, transactionId, mode);
 		LockEntry *entry = new LockEntry();
@@ -23,13 +23,15 @@ Lock * LockManager::lock(int key, int transactionId, Operation::Mode mode) {
 		time_t timer = time(NULL);
 		while (notSet) {
 			if (difftime(timer, time(NULL)) >= 2.0) {
-				cout << "Aborted in 2PL\n";
+	//			cout << "Aborted in 2PL\n";
+				db->incrementAbortCounter();
 				return NULL;
 			}
 			if (lock->getIsSet()) {
 				notSet = false;
 			}
 		}
+		db->incrementCommitCounter();
 		return lock;		
 	}
 	else {
@@ -40,13 +42,15 @@ Lock * LockManager::lock(int key, int transactionId, Operation::Mode mode) {
 		time_t timer = time(NULL);
 		while (notSet) {
 			if (difftime(timer, time(NULL)) >= 2.0) {
-				cout << "Aborted in else of 2PL\n";
+	//			cout << "Aborted in else of 2PL\n";
+				db->incrementAbortCounter();
 				return NULL;
 			}
 			if (lock->getIsSet()) {
 				notSet = false;
 			}
 		}
+		db->incrementCommitCounter();
 		return lock;
 	}
 }

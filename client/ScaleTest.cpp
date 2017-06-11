@@ -76,7 +76,10 @@ void ScaleTest::FSM(DataManager *dataManager, TransactionManager *transactionMan
 
                 cout << "The transactions have completed with the following metric information:\n" << endl;
 
-                //TODO: include metric info about transaction results
+                cout << "Number of Aborts: "<< dataManager->getAbortCounter()<< endl;
+				cout << "Number of Commits: "<< dataManager->getCommitCounter()<< endl;
+				dataManager->resetAbortCounter();
+				dataManager->resetCommitCounter();
 
                 responseValue = Utility::PromptUser(prompt, options);
 

@@ -49,11 +49,7 @@ vector<int> TransactionManager::manageManualTransactions(DataManager *dataManage
     // Get async promise results
     for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
         listenerRets[i] = listenerThreads[i].get();
-    }
-    cout << "Number of Aborts: "<< dataManager->getAbortCounter()<< endl;
-	cout << "Number of Commits: "<< dataManager->getCommitCounter()<< endl;
-	dataManager->resetAbortCounter();
-	dataManager->resetCommitCounter();    
+    } 
 
     return listenerRets;
 }
@@ -150,7 +146,7 @@ int TransactionManager::transactionListener(DataManager *dataManager, int thread
             _concurrentMutex.lock();
             _concurrentThreads--;
             _concurrentMutex.unlock();
-            return 42;
+            return 1;
         }
         _concurrentMutex.unlock();
         this_thread::sleep_for(chrono::milliseconds(1));
@@ -196,7 +192,7 @@ void TransactionManager::run2PLTransaction(DataManager *db, Transaction *t) {
 	Lock *lock;
 	Lock *nextLock;
 	bool aborted = false;
-	lock = l->lock(t->getTransaction().front().getKey(), t->getId(), t->getTransaction().front().getMode());
+	lock = l->lock(db, t->getTransaction().front().getKey(), t->getId(), t->getTransaction().front().getMode());
 	if (lock == NULL) {
 			aborted = true;
 	}
@@ -210,7 +206,7 @@ void TransactionManager::run2PLTransaction(DataManager *db, Transaction *t) {
 	vector<Operation> transaction = t->getTransaction();
 	for (int i = 1; i < transaction.size() && !aborted; i++) {
 		key = transaction[i].getKey();
-		nextLock = l->lock(key, t->getId(), transaction[i].getMode());
+		nextLock = l->lock(db, key, t->getId(), transaction[i].getMode());
 		if (nextLock == NULL) {
 			aborted = true;
 			break;

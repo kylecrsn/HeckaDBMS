@@ -17,7 +17,7 @@ public:
     LockManager();
     
     /// Tries to set a lock for the transaction's operation
-    Lock * lock(int key, int transactionId, Operation::Mode mode);
+    Lock * lock(DataManager *db, int key, int transactionId, Operation::Mode mode);
     
     /// Unlocks all of a transaction's operations
     void unlock(int key, int transactionId);
