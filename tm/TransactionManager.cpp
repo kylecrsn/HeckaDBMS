@@ -9,8 +9,6 @@ TransactionManager::TransactionManager() {
     _currId = 0;
 }
 
-
-
 void TransactionManager::setReadOnlyLeft(int l) {
 	_readOnlyLeft = l;
 }
@@ -26,12 +24,14 @@ int TransactionManager::createId() {
 vector<int> TransactionManager::manageManualTransactions(DataManager *dataManager, int threadCount, int readOnlyCount, int readWriteCount, vector<Operation> readOnlyOps, vector<Operation> readWriteOps, bool isHekaton) {
     vector<future<int>> listenerThreads(readOnlyCount + readWriteCount);
     vector<int> listenerRets(readOnlyCount + readWriteCount);
+    _readOnlyOps = &readOnlyOps;
+    _readWriteOps = &readWriteOps;
+
     // Setup read/write left
     setReadOnlyLeft(readOnlyCount);
     setReadWriteLeft(readWriteCount);
-    _readOnlyOps = &readOnlyOps;
-    _readWriteOps = &readWriteOps;
-	
+
+    // Create the necessary transactions
 	for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
         if(isHekaton) {
             createTransaction();
@@ -39,7 +39,8 @@ vector<int> TransactionManager::manageManualTransactions(DataManager *dataManage
         else {
             create2PLTransaction();
         }
-	}	
+	}
+
     // Launch thread futures
     for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
         listenerThreads[i] = async(launch::async, &TransactionManager::transactionListener, this, dataManager, threadCount, isHekaton);
@@ -68,6 +69,16 @@ vector<int> TransactionManager::manageScaleTransactions(DataManager *dataManager
     // Setup read/write left
     setReadOnlyLeft(readOnlyCount);
     setReadWriteLeft(readWriteCount);
+
+    // Create the necessary transactions
+    for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
+        if(isHekaton) {
+            createTransaction();
+        }
+        else {
+            create2PLTransaction();
+        }
+    }
 
     // Launch thread futures
     while(transactionsCompleted < transactionCount) {
@@ -101,6 +112,16 @@ vector<int> TransactionManager::manageVaryTransactions(DataManager *dataManager,
     setReadOnlyLeft(readOnlyCount);
     setReadWriteLeft(readWriteCount);
 
+    // Create the necessary transactions
+    for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
+        if(isHekaton) {
+            createTransaction();
+        }
+        else {
+            create2PLTransaction();
+        }
+    }
+
     // Launch thread futures
     for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
         listenerThreads[i] = async(launch::async, &TransactionManager::transactionListener, this, dataManager, threadCount, isHekaton);
@@ -124,15 +145,11 @@ int TransactionManager::transactionListener(DataManager *dataManager, int thread
             _concurrentMutex.lock();
             _concurrentThreads--;
             _concurrentMutex.unlock();
-    //        cout << "In transactionListener :"<< this_thread::get_id() << endl;
             return 42;
         }
-        else {
-            _concurrentMutex.unlock();
-        }
+        _concurrentMutex.unlock();
         this_thread::sleep_for(chrono::milliseconds(1));
     }
-
 }
 
 void TransactionManager::startTransaction(DataManager *db, bool isHekaton) {
