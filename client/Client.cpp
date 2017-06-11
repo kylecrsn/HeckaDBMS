@@ -170,6 +170,8 @@ void Client::FSM(DataManager *dataManager, TransactionManager *transactionManage
                 dataManager->generateDatabase(responseValue);
                 cout << "A database with " << responseValue << " entries was successfully generated\n" << endl;
 
+				dataManager->setSize(responseValue);
+				
                 _state = ENTER;
                 break;
             }

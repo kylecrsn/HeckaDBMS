@@ -5,6 +5,7 @@
 #include <future>
 #include <random>
 #include <pthread.h>
+#include <chrono>
 
 #include "Utility.h"
 #include "Hekaton.h"

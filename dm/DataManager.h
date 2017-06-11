@@ -29,6 +29,14 @@ public:
 
     /// Get a new counter value from a global counter timer
     int getLatestCounter();
+    
+    void setSize(int s);
+    
+    int getSize();
+    
+    void lock();
+    
+    void unlock();
 
     /// Get the number of operations per transaction attempt
     int getOpsPerTransaction();
@@ -74,7 +82,8 @@ private:
     unordered_map<int, Record *> _db;
     boost::atomic<int> _latestEntryKey;
     boost::atomic<int> _latestCounter;
-    mutex _putMtx;
+    mutex _dbMtx;
+    int _size;
     int _opsPerTransaction;
 };
 

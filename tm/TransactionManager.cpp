@@ -124,15 +124,15 @@ int TransactionManager::transactionListener(DataManager *dataManager, int thread
             _concurrentMutex.lock();
             _concurrentThreads--;
             _concurrentMutex.unlock();
-            break;
+    //        cout << "In transactionListener :"<< this_thread::get_id() << endl;
+            return 42;
         }
         else {
             _concurrentMutex.unlock();
         }
+        this_thread::sleep_for(chrono::milliseconds(1));
     }
 
-    //temp
-    return 42;
 }
 
 void TransactionManager::startTransaction(DataManager *db, bool isHekaton) {
@@ -151,6 +151,7 @@ void TransactionManager::startTransaction(DataManager *db, bool isHekaton) {
 void TransactionManager::runTransaction(DataManager *db, vector<int> reads, vector<pair<int,int>> writes, bool readOnly, int i) {
 //     int id = createId();
 //     _transactions[id] = new Transaction();
+//	cout << "In runTransaction :"<< this_thread::get_id() << endl;
 	bool notAborted = true;
     Hekaton *h = new Hekaton();
     h->setId(i);
@@ -159,9 +160,13 @@ void TransactionManager::runTransaction(DataManager *db, vector<int> reads, vect
     if (!readOnly) {
         notAborted = h->write(db, &writes, &_transactions);
     }
+    else {
+    //	cout << "BAck in runtransaciton!\n" << endl;
+    }
     if (notAborted) {
     	h->endNormalProcessing(db, &_transactions, readOnly);
     }
+//    cout << "End runTransaction :"<< this_thread::get_id() << endl;
 }
 
 void TransactionManager::run2PLTransaction(DataManager *db, Transaction *t) {

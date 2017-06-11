@@ -2,11 +2,14 @@
 #define HEKADBMS_HEKATON_H
 
 #include <vector>
+#include <thread>
+#include <future>
 
 #include "Record.h"
 #include "Timestamp.h"
 #include "DataManager.h"
 #include "Transaction.h"
+
 
 using namespace std;
 
@@ -38,10 +41,10 @@ public:
 	
 	//reread read objects from db and check if versions are the same as pointers in readset, 
 	//if valid wait for CommitDepCounter = 0 or AbortNow = 1 (infinite loop), switch to postprocessing phase, may need to call abort
-	void validate(unordered_map<int, Transaction *> *transactions);
+	void validate(DataManager *db, unordered_map<int, Transaction *> *transactions);
 	
 	//change respective timestamps in writeset to inifinity, call abortCommitDep
-	void abort(unordered_map<int, Transaction *> *transactions);
+	void abort(DataManager *db, unordered_map<int, Transaction *> *transactions);
 
 	//go through commitDepSet and set respective transactions’ AbortNow flag
 	void abortCommitDep(unordered_map<int, Transaction *> *transactions);
