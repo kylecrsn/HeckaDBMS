@@ -23,7 +23,6 @@ Lock * LockManager::lock(DataManager *db, int key, int transactionId, Operation:
 		time_t timer = time(NULL);
 		while (notSet) {
 			if (difftime(timer, time(NULL)) >= 2.0) {
-	//			cout << "Aborted in 2PL\n";
 				db->incrementAbortCounter();
 				return NULL;
 			}
@@ -42,7 +41,6 @@ Lock * LockManager::lock(DataManager *db, int key, int transactionId, Operation:
 		time_t timer = time(NULL);
 		while (notSet) {
 			if (difftime(timer, time(NULL)) >= 2.0) {
-	//			cout << "Aborted in else of 2PL\n";
 				db->incrementAbortCounter();
 				return NULL;
 			}
@@ -59,12 +57,6 @@ void LockManager::unlock(int key, int transactionId) {
 	bool deleteEntry = false;
 	Lock *lock;
 	vector<Lock *> locks = _lockTable[key]->getLocks();
-// 	for (int i = 0; i < locks.size(); i++) {
-// 		if (locks[i]->getTransactionId() == transactionId) {
-// 			lock = locks[i];
-// 			break;
-// 		}
-// 	}
 	for (vector<Lock *>::iterator it = locks.begin(); it != locks.end(); ++it) {
 		if ((*it)->getTransactionId() == transactionId) {
 			lock = (*it);

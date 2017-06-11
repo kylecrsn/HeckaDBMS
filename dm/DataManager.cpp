@@ -324,14 +324,8 @@ void DataManager::get(int entryKey, unordered_map<int, Transaction *> *transacti
 	Transaction *currTransaction = transactions->at(currTransactionId);
 	Transaction *transaction;
 	while (record != nullptr) {
-	//		cout << "read loop\n";
 			//begin and end timestamps are set
 			if (record->getBegin()->getIsCounter() && record->getEnd()->getIsCounter() && record->getBegin()->getCounter() != -1) {
-				//cout << "read loop num 1\n";
-// 				if (record->getBegin()->getCounter() < currTransaction->getBegin()->getCounter() && record->getEnd()->getCounter() == -1) { //end timestamp must be infinity?
-// 					readSet->push_back(record);
-// 					break;
-// 				}
 				if (record->getEnd()->getCounter() == -1) { //end timestamp must be infinity?
 					readSet->push_back(record);
 					return;
@@ -347,7 +341,6 @@ void DataManager::get(int entryKey, unordered_map<int, Transaction *> *transacti
 				}
 			}
 			else if (!record->getEnd()->getIsCounter()) {
-			//cout << "read loop num 1\n";
 				transaction = transactions->at(record->getEnd()->getTransactionId());
 				if (transaction->getState() == 2 && transaction->getEnd()->getCounter() > currTransaction->getBegin()->getCounter()) {
 					readSet->push_back(record);
@@ -371,11 +364,9 @@ void DataManager::get(int entryKey, unordered_map<int, Transaction *> *transacti
 					readSet->push_back(record);
 					return;
 				}
-				//not sure what to do about terminated transaction
 			}
 			//begin timestamp is transaction ID
 			else if (!record->getBegin()->getIsCounter()) {
-			//	cout << "read loop num 1\n";
 				transaction = transactions->at(record->getBegin()->getTransactionId());
 				if (record->getBegin()->getTransactionId() == currTransactionId && transaction->getState() == 1 && transaction->getEnd()->getIsCounter() && transaction->getEnd()->getCounter() == -1) {
 					readSet->push_back(record);
@@ -391,16 +382,8 @@ void DataManager::get(int entryKey, unordered_map<int, Transaction *> *transacti
 					readSet->push_back(record);
 					return;
 				}
-				//cout << "read loop num 1\n";
-				//not sure what to do about terminated transaction
 			}
-// 			else if (record->getEnd()->getIsCounter() && record->getBegin()->getIsCounter()) {
-// 				cout << "read loop num 4\n";
-// 				
-//			}
 			else if (record->getEnd()->getIsCounter() && record->getEnd()->getCounter() == -1 && record->getBegin()->getIsCounter() && record->getBegin()->getCounter() == -1) {
-				cout << "read loop num 3\n";
-		//		record = record->getNextRecord();
 				record = prev;
 			}
 	}
@@ -420,17 +403,14 @@ void DataManager::put(int entryKey, int value) {
 }
 
 bool DataManager::put(int entryKey, int value, unordered_map<int, Transaction *> *transactions, int currTransactionId, vector<Record *> *writeSet) {
-//	cout << "In hekaton data write!\n";
     Record *record = _db[entryKey];
     Record *prev;
     while (record != nullptr) {
-    //	cout << "write loop\n";
         if (record->getBegin()->getIsCounter() && record->getBegin()->getCounter() != -1 && record->getEnd()->getIsCounter() && record->getEnd()->getCounter() == -1) {
             Timestamp *tBegin = new Timestamp(false, 0, currTransactionId);
             Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
             Record *newRecord = new Record(tBegin, tEnd, getLatestEntryKey(), record->getObjectKey(), value);
             _dbMtx.lock();
-//            cout << "In dm lock "<<endl;
             if (record->getEnd()->getIsCounter() && record->getEnd()->getCounter() == -1) {
                 record->getEnd()->setTransactionId(currTransactionId);
                 record->getEnd()->setIsCounter(false);
@@ -440,17 +420,11 @@ bool DataManager::put(int entryKey, int value, unordered_map<int, Transaction *>
             }
             else {
             	_dbMtx.unlock();
-//            	cout << "In dm unlock "<<endl;
                 return false;
             }
             _dbMtx.unlock();
-//            cout << "In dm unlock "<<endl;
-//             record->getEnd()->setIsCounter(false);
-//             record->setNextRecord(newRecord);
             writeSet->push_back(newRecord);
             writeSet->push_back(record);
-//             record->setIsLatest(false);
-//             _db[newRecord->getEntryKey()] = newRecord;
             break;
         }
         else if (!record->getEnd()->getIsCounter() && record->getEnd()->getTransactionId() != currTransactionId) {
@@ -462,14 +436,6 @@ bool DataManager::put(int entryKey, int value, unordered_map<int, Transaction *>
                 Timestamp *tEnd = new Timestamp(true, -1, currTransactionId);
                 Record *newRecord = new Record(tBegin, tEnd, getLatestEntryKey(), record->getObjectKey(), value);
                 _dbMtx.lock();
- //               cout << "In dm lock "<<endl;
-//                 if (record->getEnd()->getTransactionId() == transactionId) {
-//                     record->getEnd()->setTransactionId(currTransactionId);
-//                     record->getEnd()->setIsCounter(false);
-// 					record->setNextRecord(newRecord);
-// 					record->setIsLatest(false);
-// 					_db[newRecord->getEntryKey()] = newRecord;
-//                 }
                 if (prev->getEnd()->getIsCounter()) {
                     prev->getEnd()->setTransactionId(currTransactionId);
                     prev->getEnd()->setIsCounter(false);
@@ -479,17 +445,11 @@ bool DataManager::put(int entryKey, int value, unordered_map<int, Transaction *>
                 }
                 else {
                 	_dbMtx.unlock();
-//                	cout << "In dm unlock "<<endl;
                     return false;
                 }
                 _dbMtx.unlock();
-//                cout << "In dm unlock "<<endl;
-//                 record->getEnd()->setIsCounter(false);
-//                 record->setNextRecord(newRecord);
                 writeSet->push_back(newRecord);
                 writeSet->push_back(prev);
-//                 record->setIsLatest(false);
-//                 _db[newRecord->getEntryKey()] = newRecord;
                 break;
             }
             else {

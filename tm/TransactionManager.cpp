@@ -167,9 +167,6 @@ void TransactionManager::startTransaction(DataManager *db, bool isHekaton) {
 }
 
 void TransactionManager::runTransaction(DataManager *db, vector<int> reads, vector<pair<int,int>> writes, bool readOnly, int i) {
-//     int id = createId();
-//     _transactions[id] = new Transaction();
-//	cout << "In runTransaction :"<< this_thread::get_id() << endl;
 	bool notAborted = true;
     Hekaton *h = new Hekaton();
     h->setId(i);
@@ -179,12 +176,10 @@ void TransactionManager::runTransaction(DataManager *db, vector<int> reads, vect
         notAborted = h->write(db, &writes, &_transactions);
     }
     else {
-    //	cout << "BAck in runtransaciton!\n" << endl;
     }
     if (notAborted) {
     	h->endNormalProcessing(db, &_transactions, readOnly);
     }
-//    cout << "End runTransaction :"<< this_thread::get_id() << endl;
 }
 
 void TransactionManager::run2PLTransaction(DataManager *db, Transaction *t) {
@@ -221,26 +216,7 @@ void TransactionManager::run2PLTransaction(DataManager *db, Transaction *t) {
 		}
 	}
 		
-// 	for (vector<Operation>::iterator it = next(t->getTransaction().begin()) ; it != t->getTransaction().end(); ++it) {
-// 		key = it->getKey();
-// 		nextLock = l->lock(key, t->getId(), it->getMode());
-// 		if (nextLock == NULL) {
-// 			aborted = true;
-// 			break;
-// 		}
-// 		lock->setNextLock(nextLock);
-// 		lock = nextLock;
-// 		if (it->getMode() == Operation::Mode::WRITE) {
-// 			db->put(it->getKey(), it->getValue());
-// 		}
-// 		else {
-// 			db->get(key);
-// 			//printf("get: %d\n",db->get(key));
-// 		}
-// 	}
-//	if (!aborted) {
 		l->unlock(t->getTransaction().front().getKey(), t->getId());
-//	}
 } 
 
 Transaction * TransactionManager::createTransaction() {
@@ -270,30 +246,6 @@ Transaction * TransactionManager::createTransaction() {
                 vector<pair<int,int>> writes;
                 vector<int> reads;
                 for (j = 0; j < 4; j++) {
-//                     if ((int)distribution2(gen)) {
-//                         if (readCount !=2) {
-//                             reads.push_back(_readWriteOps->begin()->getKey());
-//                             _readWriteOps->erase(_readWriteOps->begin());
-//                             readCount++;
-//                         }
-//                         else {
-// 			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
-//                             _readWriteOps->erase(_readWriteOps->begin());
-//                             writeCount++;
-//                         }
-//                     }
-//                     else  {
-//                         if (writeCount !=2) {
-// 			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
-//                             _readWriteOps->erase(_readWriteOps->begin());
-//                             writeCount++;
-//                         }
-//                         else {
-//                             reads.push_back(_readWriteOps->begin()->getKey());
-//                             _readWriteOps->erase(_readWriteOps->begin());
-//                             readCount++;
-//                         }
-//                     }
                     if (_readWriteOps->begin()->getMode() == Operation::Mode::WRITE) {
                     	writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
                         _readWriteOps->erase(_readWriteOps->begin());
@@ -317,30 +269,6 @@ Transaction * TransactionManager::createTransaction() {
                 vector<pair<int,int>> writes;
                 vector<int> reads;
                 for (j = 0; j < 4; j++) {
-//                     if ((int)distribution2(gen)) {
-//                         if (readCount !=2) {
-//                             reads.push_back(_readWriteOps->begin()->getKey());
-//                             _readWriteOps->erase(_readWriteOps->begin());
-//                             readCount++;
-//                         }
-//                         else {
-// 			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
-//                             _readWriteOps->erase(_readWriteOps->begin());
-//                             writeCount++;
-//                         }
-//                     }
-//                     else  {
-//                         if (writeCount !=2) {
-// 			  				writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
-//                             _readWriteOps->erase(_readWriteOps->begin());
-//                             writeCount++;
-//                         }
-//                         else {
-//                             reads.push_back(_readWriteOps->begin()->getKey());
-//                             _readWriteOps->erase(_readWriteOps->begin());
-//                             readCount++;
-//                         }
-//                     }
                     if (_readWriteOps->begin()->getMode() == Operation::Mode::WRITE) {
                     	writes.push_back(make_pair(_readWriteOps->begin()->getKey(), _readWriteOps->begin()->getValue()));
                         _readWriteOps->erase(_readWriteOps->begin());

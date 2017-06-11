@@ -20,7 +20,12 @@ int main(int argc, char *argv[])
     cout << "==================================================\n" << endl;
 
     // Launch client
-    client.FSM(dataManager, transactionManager, true);
+    if (strncmp(argv[2],"twopl", 5) == 0) {
+    	client.FSM(dataManager, transactionManager, false);
+    }
+    else if (strncmp(argv[2],"hekaton", 7) == 0) {
+    	client.FSM(dataManager, transactionManager, true);
+    }
 
     cout << "==================================================" << endl;
     cout << "||               EXITING HeckaDBMS              ||" << endl;

@@ -24,14 +24,6 @@ bool LockEntry::deleteLock(int key, int transactionId) {
 		}
 	}
 	_entryMtx.unlock();
-//	_entryMtx.lock();
-// 	for (int i = 0; i < _locks.size(); i++) {
-// 		if (_locks[i]->getTransactionId() == transactionId) {
-// 			_locks.erase(_locks.begin() + i);
-// 			break;
-// 		}
-// 	}
-//	_entryMtx.unlock();
 	if (_locks.empty() && _lockRequests.empty()) {
 		//delete entry
 		return true;
