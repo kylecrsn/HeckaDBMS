@@ -30,6 +30,18 @@ public:
     /// Get a new counter value from a global counter timer
     int getLatestCounter();
     
+    void incrementAbortCounter();
+    
+    void incrementCommitCounter();
+    
+    int getAbortCounter();
+    
+    int getCommitCounter();
+    
+    void resetAbortCounter();
+    
+    void resetCommitCounter();
+    
     void setSize(int s);
     
     int getSize();
@@ -82,6 +94,8 @@ private:
     unordered_map<int, Record *> _db;
     boost::atomic<int> _latestEntryKey;
     boost::atomic<int> _latestCounter;
+    boost::atomic<int> _abortCounter;
+    boost::atomic<int> _commitCounter;
     mutex _dbMtx;
     int _size;
     int _opsPerTransaction;

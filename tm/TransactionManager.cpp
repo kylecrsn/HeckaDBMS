@@ -50,6 +50,10 @@ vector<int> TransactionManager::manageManualTransactions(DataManager *dataManage
     for(int i = 0; i < readOnlyCount + readWriteCount; i++) {
         listenerRets[i] = listenerThreads[i].get();
     }
+    cout << "Number of Aborts: "<< dataManager->getAbortCounter()<< endl;
+	cout << "Number of Commits: "<< dataManager->getCommitCounter()<< endl;
+	dataManager->resetAbortCounter();
+	dataManager->resetCommitCounter();    
 
     return listenerRets;
 }

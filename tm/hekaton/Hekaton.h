@@ -24,6 +24,7 @@ public:
     
     void setId(int i);
     
+    
 	//sets phase to active and acquire begin timestamp
     void beginTransaction(DataManager *db, unordered_map<int, Transaction *> *transactions);
 	
@@ -50,7 +51,7 @@ public:
 	void abortCommitDep(unordered_map<int, Transaction *> *transactions);
 	
 	//go through writeset and update begin and end timestamps to end timestamp
-	void commit(unordered_map<int, Transaction *> *transactions);
+	void commit(DataManager *db, unordered_map<int, Transaction *> *transactions);
 	
 	//go through commitDepSet and decrement respective transactions' commitDepCounter
 	void committedCommitDep(unordered_map<int, Transaction *> *transactions);

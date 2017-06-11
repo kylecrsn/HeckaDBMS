@@ -14,6 +14,7 @@ void Hekaton::setId(int i) {
 	_id = i;
 }
 
+
 //sets phase to active and acquire begin timestamp
 void Hekaton::beginTransaction(DataManager *db, unordered_map<int, Transaction *> *transactions) {
 	Transaction *transaction = transactions->at(_id);
@@ -128,7 +129,7 @@ void Hekaton::endNormalProcessing(DataManager *db, unordered_map<int, Transactio
 			abort(db, transactions);
 		}
 		else if (transaction->getCommitDepCounter() == 0) {
-			commit(transactions);
+			commit(db, transactions);
 		}
 	}
 	else {
@@ -218,7 +219,7 @@ void Hekaton::validate(DataManager *db, unordered_map<int, Transaction *> *trans
 	}
 	else if (transaction->getCommitDepCounter() == 0) {
 //		cout<< "loop\n";
-		commit(transactions);
+		commit(db, transactions);
 	}
 }
 
@@ -227,6 +228,7 @@ void Hekaton::abort(DataManager *db, unordered_map<int, Transaction *> *transact
 //	cout << "In hekaton abort   "<< this_thread::get_id() << endl;
 	Transaction *transaction = transactions->at(_id);
 	transaction->setState(Transaction::HekatonState::ABORTED);
+	db->incrementAbortCounter();
 	for (vector<Record *>::iterator it = _writeSet.begin() ; it != _writeSet.end(); ++it) {
 		db->lock();
 //		cout << "In hekaton lock "<<endl;
@@ -257,9 +259,10 @@ void Hekaton::abortCommitDep(unordered_map<int, Transaction *> *transactions) {
 }
 
 //go through writeset and update begin and end timestamps to end timestamp
-void Hekaton::commit(unordered_map<int, Transaction *> *transactions) {
+void Hekaton::commit(DataManager *db, unordered_map<int, Transaction *> *transactions) {
 	Transaction *transaction = transactions->at(_id);
 	transaction->setState(Transaction::HekatonState::COMMITTED);
+	db->incrementCommitCounter();
 	for (vector<Record *>::iterator it = _writeSet.begin() ; it != _writeSet.end(); ++it) {
 		if (!(*it)->getBegin()->getIsCounter()) {
 			(*it)->getBegin()->setIsCounter(true);
