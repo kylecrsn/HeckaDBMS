@@ -129,9 +129,10 @@ void VaryTest::FSM(DataManager *dataManager, TransactionManager *transactionMana
 
                 cout << "The transactions have completed with the following metric information:\n" << endl;
 
-                cout << "Number of Aborts: "<< dataManager->getAbortCounter()<< endl;
-				cout << "Number of Commits: "<< dataManager->getCommitCounter()<< endl;
-				dataManager->resetAbortCounter();
+                cout << "Number of Aborts: "<< dataManager->getAbortCounter() << endl;
+                cout << "Number of Commits: "<< dataManager->getCommitCounter() << "\n" << endl;
+
+                dataManager->resetAbortCounter();
 				dataManager->resetCommitCounter();
 
                 responseValue = Utility::PromptUser(prompt, options);

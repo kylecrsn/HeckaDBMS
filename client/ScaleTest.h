@@ -11,7 +11,7 @@
 
 using namespace std;
 
-#define TRANSACTION_LIMIT 10000
+#define TRANSACTION_LIMIT 100000
 
 class ScaleTest {
 public:

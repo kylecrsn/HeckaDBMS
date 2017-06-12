@@ -265,8 +265,9 @@ void ManualTest::FSM(DataManager *dataManager, TransactionManager *transactionMa
 
                 cout << "The transaction(s) have completed with the following metric information:\n" << endl;
 
-				cout << "Number of Aborts: "<< dataManager->getAbortCounter()<< endl;
-				cout << "Number of Commits: "<< dataManager->getCommitCounter()<< endl;
+				cout << "Number of Aborts: "<< dataManager->getAbortCounter() << endl;
+				cout << "Number of Commits: "<< dataManager->getCommitCounter() << "\n" << endl;
+
 				dataManager->resetAbortCounter();
 				dataManager->resetCommitCounter();   
 				

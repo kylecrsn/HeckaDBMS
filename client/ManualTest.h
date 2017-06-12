@@ -13,8 +13,8 @@
 
 using namespace std;
 
-#define RO_TRANSACTION_LIMIT 10000
-#define RW_TRANSACTION_LIMIT 10000
+#define RO_TRANSACTION_LIMIT 50000
+#define RW_TRANSACTION_LIMIT 50000
 
 class ManualTest {
 public:

@@ -56,7 +56,9 @@ vector<int> TransactionManager::manageManualTransactions(DataManager *dataManage
 
 vector<int> TransactionManager::manageScaleTransactions(DataManager *dataManager, int transactionCount, int initialThreadCount, int finalThreadCount, bool isHekaton) {
     int transactionsCompleted = 0;
-    int functionalConcurrentThreads = 1;
+    int currentThreadCount = initialThreadCount;
+    int targetScale = (int)(transactionCount / (float)(finalThreadCount - initialThreadCount + 1));
+    int i;
     int readOnlyCount = transactionCount / 2;
     int readWriteCount = transactionCount - readOnlyCount;
     vector<Operation> readOnlyOps = Utility::getRandomReadOnlyOps(dataManager, readOnlyCount * dataManager->getOpsPerTransaction());
@@ -80,20 +82,29 @@ vector<int> TransactionManager::manageScaleTransactions(DataManager *dataManager
         }
     }
 
-    // Launch thread futures
+    // Launch threads futures
     while(transactionsCompleted < transactionCount) {
-        for(int i = 0; i < functionalConcurrentThreads; i++) {
+        if(transactionsCompleted >= targetScale) {
+            currentThreadCount++;
+            targetScale += targetScale;
+        }
+
+        for(i = 0; i < currentThreadCount; i++) {
             if(i + transactionsCompleted < transactionCount) {
-                listenerThreads[i + transactionsCompleted] = async(launch::async, &TransactionManager::transactionListener, this, dataManager, functionalConcurrentThreads, isHekaton);
+                listenerThreads[i + transactionsCompleted] = async(launch::async, &TransactionManager::transactionListener, this, dataManager, currentThreadCount, isHekaton);
+            } else {
+                break;
             }
         }
-        for(int i = 0; i < functionalConcurrentThreads; i++) {
+
+        for(i = 0; i < currentThreadCount; i++) {
             if(i + transactionsCompleted < transactionCount) {
-                listenerRets[i + transactionsCompleted] = listenerThreads[i].get();
+                listenerRets[i + transactionsCompleted] = listenerThreads[i + transactionsCompleted].get();
+            } else {
+                break;
             }
         }
-        transactionsCompleted += functionalConcurrentThreads;
-        functionalConcurrentThreads++;
+        transactionsCompleted += i;
     }
 
     return listenerRets;
