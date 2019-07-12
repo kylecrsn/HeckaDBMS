@@ -1,42 +1,42 @@
 # HeckaDBMS
 
-### Abstract
+> A multi-protocol, multi-threaded database managment system
+
+## Abstract
 
 HeckaDBMS is a full-stack database system including an in-memory key-value storage, implementations of Strict 2PL and Microsoft's "Optimistic" Hekaton, and a client for launching concurrent transaction attempts and testing metrics.
 
-### Project Structure
+## Project Structure
 
 The project is split into directories based on the logical modules each piece of code is split up into:
 
-##### /
+### /
 
 Top-level files including the program's entry point defined in main.cpp
 
-##### /client
+### /client
 
 An interactive CLI-based client for communicating with the database and performing transactions
 
-##### /tm
+### /tm
 
 A thin layer of code proxying requests to the database through one of the two access protocols
 
-##### /tm/2pl
+### /tm/2pl
 
 An implementation of Strict-2PL based around managing a lock table for concurrent read/write access
 
-##### /tm/hekaton
+### /tm/hekaton
 
 An implementation of [Microsoft's "Optimistic" Hekaton](http://vldb.org/pvldb/vol5/p298_per-akelarson_vldb2012.pdf) DBMS
 
-##### /dm
+### /dm
 
 Utility methods for creating and managing the datastore. Provides a simple interface to the TM through Get and Put functions, which equate to read and write operations respectively. By doing so, the DM facilitates the TM's access to the data in a manner that is independent of which protocol is being used
 
 Below is a chart visualizing how these modules are hierarchically organized:
 
-
-
-### Getting Started
+## Getting Started
 
 The following instructions are for Linux Ubuntu-derivative environments
 
